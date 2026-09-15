@@ -57,16 +57,28 @@ export default function SmoothScroll() {
   // Re-measure, then land on the hash target below the fixed header.
   useEffect(() => {
     const lenis = lenisRef.current;
-    const t = window.setTimeout(() => {
+    // Stop correcting as soon as the visitor scrolls on their own.
+    let userScrolled = false;
+    const onUser = () => (userScrolled = true);
+    const userEvents = ["wheel", "touchstart", "keydown"] as const;
+    userEvents.forEach((ev) => window.addEventListener(ev, onUser, { passive: true, once: true }));
+    const land = () => {
+      if (userScrolled) return;
       lenis?.resize();
       ScrollTrigger.refresh();
       const hash = window.location.hash;
-      const el = hash ? document.querySelector(hash) : null;
+      const el = hash ? (document.querySelector(hash) as HTMLElement | null) : null;
       if (!el) return;
-      if (lenis) lenis.scrollTo(el as HTMLElement, { offset: HEADER_OFFSET, immediate: true, force: true });
+      if (Math.abs(el.getBoundingClientRect().top + HEADER_OFFSET) < 8) return; // already in place
+      if (lenis) lenis.scrollTo(el, { offset: HEADER_OFFSET, immediate: true, force: true });
       else el.scrollIntoView();
-    }, 120);
-    return () => window.clearTimeout(t);
+    };
+    // Land once the page is laid out, then correct for images/fonts shifting the layout.
+    const timers = [120, 700, 1500].map((ms) => window.setTimeout(land, ms));
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      userEvents.forEach((ev) => window.removeEventListener(ev, onUser));
+    };
   }, [pathname]);
 
   return null;

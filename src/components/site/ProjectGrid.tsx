@@ -12,10 +12,7 @@ export default function ProjectGrid({ projects }: { projects: ProjectData[] }) {
 
   useEffect(() => {
     // Cards already revealed stay visible; newly mounted ones should not wait for a scroll.
-    document.querySelectorAll<HTMLElement>("[data-grid] .reveal").forEach((el) => {
-      el.style.opacity = "1";
-      el.style.transform = "none";
-    });
+    document.querySelectorAll<HTMLElement>("[data-grid] .reveal").forEach((el) => el.setAttribute("data-revealed", ""));
     ScrollTrigger.refresh();
   }, [active]);
 
