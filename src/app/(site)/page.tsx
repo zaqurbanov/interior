@@ -22,7 +22,8 @@ export default async function HomePage() {
         data={{
           "@context": "https://schema.org",
           "@type": "ProfessionalService",
-          name: site.brandName,
+          name: site.brandName.replace(/\s*-\s*/, " "),
+          legalName: "A&V Interiors Ltd",
           description: site.seo.description,
           url,
           image: `${url}${site.seo.ogImage}`,

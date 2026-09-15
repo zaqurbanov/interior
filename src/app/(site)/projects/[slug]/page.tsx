@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import SkeletonImage from "@/components/site/SkeletonImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
@@ -78,7 +78,7 @@ export default async function ProjectPage({ params }: Props) {
 
       {project.coverImage && (
         <div className="relative mx-auto aspect-[16/9] w-full max-w-[1600px] overflow-hidden bg-sand">
-          <Image src={project.coverImage} alt={`${project.title} interior`} fill priority sizes="100vw" className="object-cover" />
+          <SkeletonImage src={project.coverImage} alt={`${project.title} interior`} priority sizes="100vw" className="object-cover" />
         </div>
       )}
 

@@ -1,11 +1,43 @@
-import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import mongoose, { Schema, type Model } from "mongoose";
 
-const seoSchema = new Schema(
+// Explicit document types. Mongoose 9 InferSchemaType on these schemas made the
+// TypeScript checker run out of memory (next build was killed with SIGKILL).
+type Seo = { title?: string; description?: string };
+type Timestamps = { createdAt?: Date; updatedAt?: Date };
+
+export interface ProjectDoc extends Timestamps {
+  title: string; slug: string; subtitle: string; location: string; category: string; year: string;
+  summary: string; content: string; coverImage: string; gallery: string[]; videos: string[];
+  featured: boolean; published: boolean; order: number; seo: Seo;
+}
+export interface ServiceDoc extends Timestamps {
+  title: string; slug: string; icon: string; image: string; summary: string; content: string;
+  features: string[]; order: number; published: boolean; seo: Seo;
+}
+export interface MessageDoc extends Timestamps {
+  name: string; email: string; phone: string; subject: string; body: string; read: boolean;
+}
+export interface SiteContentDoc extends Timestamps {
+  key: string; brandName?: string; tagline?: string;
+  heroStages: { eyebrow?: string; title?: string; text?: string }[];
+  aboutTitle?: string; aboutText?: string; portfolioIntro?: string; showreel?: string;
+  team: { name?: string; role?: string; bio?: string; photo?: string }[];
+  stats: { value?: string; label?: string }[];
+  process: { title?: string; text?: string }[];
+  contact?: { email?: string; phone?: string; address?: string };
+  socials?: { instagram?: string; linkedin?: string; youtube?: string };
+  seo?: { title?: string; description?: string; keywords?: string; ogImage?: string };
+}
+export interface UserDoc extends Timestamps {
+  email: string; name: string; passwordHash: string; role: string;
+}
+
+const seoSchema = new Schema<Seo>(
   { title: { type: String, default: "" }, description: { type: String, default: "" } },
   { _id: false },
 );
 
-const projectSchema = new Schema(
+const projectSchema = new Schema<ProjectDoc>(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
@@ -26,7 +58,7 @@ const projectSchema = new Schema(
   { timestamps: true },
 );
 
-const serviceSchema = new Schema(
+const serviceSchema = new Schema<ServiceDoc>(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
@@ -42,7 +74,7 @@ const serviceSchema = new Schema(
   { timestamps: true },
 );
 
-const messageSchema = new Schema(
+const messageSchema = new Schema<MessageDoc>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
@@ -54,12 +86,12 @@ const messageSchema = new Schema(
   { timestamps: true },
 );
 
-const stageSchema = new Schema(
+const stageSchema = new Schema<SiteContentDoc["heroStages"][number]>(
   { eyebrow: String, title: String, text: String },
   { _id: false },
 );
 
-const siteContentSchema = new Schema(
+const siteContentSchema = new Schema<SiteContentDoc>(
   {
     key: { type: String, default: "main", unique: true },
     brandName: String,
@@ -95,7 +127,7 @@ const siteContentSchema = new Schema(
   { timestamps: true },
 );
 
-const userSchema = new Schema(
+const userSchema = new Schema<UserDoc>(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
     name: { type: String, default: "Admin" },
@@ -105,18 +137,13 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-export type ProjectDoc = InferSchemaType<typeof projectSchema>;
-export type ServiceDoc = InferSchemaType<typeof serviceSchema>;
-export type MessageDoc = InferSchemaType<typeof messageSchema>;
-export type SiteContentDoc = InferSchemaType<typeof siteContentSchema>;
-export type UserDoc = InferSchemaType<typeof userSchema>;
 
-function model<T>(name: string, schema: Schema): Model<T> {
-  return (mongoose.models[name] as Model<T>) ?? mongoose.model<T>(name, schema);
-}
+// Note: do not cast Schema<T> to Schema (or pass it through a generic helper typed
+// as Schema) - that structural comparison exhausts the TypeScript checker.
+const models = mongoose.models as unknown as Record<string, unknown>;
 
-export const Project = model<ProjectDoc>("Project", projectSchema);
-export const Service = model<ServiceDoc>("Service", serviceSchema);
-export const Message = model<MessageDoc>("Message", messageSchema);
-export const SiteContent = model<SiteContentDoc>("SiteContent", siteContentSchema);
-export const User = model<UserDoc>("User", userSchema);
+export const Project = (models.Project as unknown as Model<ProjectDoc> | undefined) ?? mongoose.model<ProjectDoc>("Project", projectSchema);
+export const Service = (models.Service as unknown as Model<ServiceDoc> | undefined) ?? mongoose.model<ServiceDoc>("Service", serviceSchema);
+export const Message = (models.Message as unknown as Model<MessageDoc> | undefined) ?? mongoose.model<MessageDoc>("Message", messageSchema);
+export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDoc> | undefined) ?? mongoose.model<SiteContentDoc>("SiteContent", siteContentSchema);
+export const User = (models.User as unknown as Model<UserDoc> | undefined) ?? mongoose.model<UserDoc>("User", userSchema);

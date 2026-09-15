@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo, { LEGAL_NAME } from "./Logo";
 import type { SiteContentData } from "@/lib/types";
 
 export default function Footer({ site }: { site: SiteContentData }) {
@@ -12,7 +13,8 @@ export default function Footer({ site }: { site: SiteContentData }) {
     <footer className="border-t border-line bg-sand text-ink">
       <div className="container-x grid gap-12 py-20 md:grid-cols-12">
         <div className="md:col-span-5">
-          <p className="font-serif text-4xl">{site.brandName}</p>
+          <Logo brandName={site.brandName} className="text-2xl md:text-3xl" />
+          <p className="eyebrow mt-4 text-[0.62rem] text-ink/40">{LEGAL_NAME}</p>
           <p className="mt-3 max-w-sm text-sm text-graphite">{site.tagline}</p>
         </div>
         <div className="md:col-span-3">
@@ -44,7 +46,7 @@ export default function Footer({ site }: { site: SiteContentData }) {
         </div>
       </div>
       <div className="container-x flex flex-col justify-between gap-2 border-t border-line py-6 text-xs text-ink/40 md:flex-row">
-        <p>© {new Date().getFullYear()} {site.brandName}. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} {LEGAL_NAME}. All rights reserved.</p>
         <p>Interior Design · 3D Visualisation · London</p>
       </div>
     </footer>

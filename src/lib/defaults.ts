@@ -4,7 +4,7 @@ import source from "./source-content.json";
 import type { ProjectData, ServiceData, SiteContentData } from "./types";
 
 export const defaultSiteContent: SiteContentData = {
-  brandName: "A&V Interiors",
+  brandName: "Vladimir - Fasij",
   tagline: "3D Visualisation & Design Studio",
   heroStages: [
     {
@@ -78,7 +78,7 @@ export const defaultSiteContent: SiteContentData = {
     youtube: "https://www.youtube.com/@akaFLASHone1",
   },
   seo: {
-    title: "A&V Interiors — 3D Visualisation & Interior Design Studio, London",
+    title: "Vladimir Fasij — 3D Visualisation & Interior Design Studio, London",
     description:
       "London design studio of architects, interior designers and 3D visualisers. Photo-realistic 3D visualisation, animation, VR, architecture, interior design, FF&E and CAD drawings for luxury homes in the UK, France, Monaco, Switzerland and the UAE.",
     keywords:

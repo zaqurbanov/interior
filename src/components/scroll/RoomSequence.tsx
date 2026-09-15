@@ -38,8 +38,6 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const hintRef = useRef<HTMLDivElement>(null);
   const darkRef = useRef<HTMLDivElement>(null);
-  const chapterRef = useRef<HTMLSpanElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
   const [loaded, setLoaded] = useState(0);
 
   const starts = STAGE_STARTS.slice(0, stages.length);
@@ -153,8 +151,6 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       const dark = clamp01((p - DARK_FROM + FADE) / FADE);
       if (darkRef.current) darkRef.current.style.opacity = String(dark);
       stickyRef.current?.setAttribute("data-dark", String(dark > 0.5));
-      if (chapterRef.current) chapterRef.current.textContent = p >= SCENE2_PROGRESS ? "02" : "01";
-      if (counterRef.current) counterRef.current.textContent = String(active + 1).padStart(2, "0");
       if (p > SCENE2_PROGRESS * 0.8) startScene2();
     };
 
@@ -249,16 +245,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
           aria-label="Stage details"
           className="absolute right-8 top-1/2 hidden w-72 -translate-y-1/2 text-right text-ink [text-shadow:0_1px_16px_rgb(0_0_0/0.9)] lg:block xl:right-12 xl:w-80"
         >
-          <div className="flex items-baseline justify-end gap-3">
-            <p className="eyebrow text-[0.62rem] opacity-70">
-              Scene <span ref={chapterRef}>01</span>
-            </p>
-            <p className="font-serif text-6xl font-light leading-none">
-              <span ref={counterRef}>01</span>
-              <span className="text-xl opacity-50">/{String(stages.length).padStart(2, "0")}</span>
-            </p>
-          </div>
-          <div className="ml-auto mt-4 h-px w-full bg-current/20">
+          <div className="ml-auto h-px w-full bg-current/20">
             <div ref={barRef} className="h-px origin-right scale-x-0 bg-current" />
           </div>
 

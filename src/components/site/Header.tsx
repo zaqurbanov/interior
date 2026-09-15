@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import Logo from "./Logo";
 
 // Same structure as the original site: Home, Portfolio, About, Services, Contact.
 const nav = [
@@ -38,8 +39,8 @@ export default function Header({ brandName }: { brandName: string }) {
       }`}
     >
       <div className="container-x flex h-16 items-center justify-between md:h-20">
-        <Link href="/" className="font-serif text-2xl tracking-tight text-ink" onClick={() => setOpen(false)}>
-          {brandName}
+        <Link href="/" aria-label={`${brandName} — home`} className="text-ink" onClick={() => setOpen(false)}>
+          <Logo brandName={brandName} className="text-base md:text-lg" />
         </Link>
         <nav aria-label="Main" className="hidden md:block">
           <ul className="flex items-center gap-9 font-serif text-[0.95rem] text-ink/80">

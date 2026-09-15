@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SkeletonImage from "./SkeletonImage";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Gallery({ images, title }: { images: string[]; title: string }) {
@@ -34,12 +34,11 @@ export default function Gallery({ images, title }: { images: string[]; title: st
               className={`reveal group relative block w-full overflow-hidden bg-sand ${i % 5 === 0 ? "aspect-[16/9]" : "aspect-[4/3]"}`}
               aria-label={`Open image ${i + 1} of ${images.length}`}
             >
-              <Image
+              <SkeletonImage
                 src={src}
                 alt={`${title} — image ${i + 1}`}
-                fill
                 sizes={i % 5 === 0 ? "(min-width: 768px) 66vw, 100vw" : "(min-width: 768px) 33vw, 50vw"}
-                className="object-cover transition duration-700 group-hover:scale-[1.03]"
+                className="object-cover group-hover:scale-[1.03]"
               />
             </button>
           </li>
@@ -49,7 +48,7 @@ export default function Gallery({ images, title }: { images: string[]; title: st
       {open !== null && (
         <div role="dialog" aria-modal="true" aria-label={`${title} gallery`} className="fixed inset-0 z-[70] bg-black/95" onClick={close}>
           <div className="absolute inset-4 md:inset-16" onClick={(e) => e.stopPropagation()}>
-            <Image src={images[open]} alt={`${title} — image ${open + 1}`} fill sizes="100vw" className="object-contain" priority />
+            <SkeletonImage key={images[open]} src={images[open]} alt={`${title} — image ${open + 1}`} sizes="100vw" className="object-contain" priority />
           </div>
           <p className="eyebrow absolute left-4 top-4 text-[0.62rem] text-white/70 md:left-8 md:top-6">
             {open + 1} / {images.length}

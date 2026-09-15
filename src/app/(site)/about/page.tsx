@@ -8,7 +8,7 @@ import { getSiteContent, siteUrl } from "@/lib/data";
 export const metadata: Metadata = {
   title: "About — Our team",
   description:
-    "Meet the London studio of architects, interior designers and 3D visualisers behind A&V Interiors, working on high-end projects since 2014.",
+    "Meet the London studio of architects, interior designers and 3D visualisers behind Vladimir Fasij (A&V Interiors Ltd), working on high-end projects since 2014.",
   alternates: { canonical: "/about" },
 };
 

@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteContent();
   return {
     metadataBase: new URL(siteUrl()),
-    title: { default: site.seo.title, template: `%s | ${site.brandName}` },
+    title: { default: site.seo.title, template: `%s | ${site.brandName.replace(/\s*-\s*/, " ")}` },
     description: site.seo.description,
     keywords: site.seo.keywords.split(",").map((k) => k.trim()).filter(Boolean),
     applicationName: site.brandName,
