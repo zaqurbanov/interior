@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import SkeletonImage from "@/components/site/SkeletonImage";
+import ProjectStory from "@/components/scroll/ProjectStory";
+import { getProjectStory } from "@/lib/project-story";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
@@ -32,6 +34,7 @@ export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
   const [project, all, site] = await Promise.all([getProject(slug), getProjects(), getSiteContent()]);
   if (!project) notFound();
+  const story = getProjectStory(project.slug);
 
   const idx = all.findIndex((p) => p.slug === project.slug);
   const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
@@ -76,10 +79,14 @@ export default async function ProjectPage({ params }: Props) {
         </dl>
       </header>
 
-      {project.coverImage && (
-        <div className="relative mx-auto aspect-[16/9] w-full max-w-[1600px] overflow-hidden bg-sand">
-          <SkeletonImage src={project.coverImage} alt={`${project.title} interior`} priority sizes="100vw" className="object-cover" />
-        </div>
+      {story ? (
+        <ProjectStory story={story} title={project.title} />
+      ) : (
+        project.coverImage && (
+          <div className="relative mx-auto aspect-[16/9] w-full max-w-[1600px] overflow-hidden bg-sand">
+            <SkeletonImage src={project.coverImage} alt={`${project.title} interior`} priority sizes="100vw" className="object-cover" />
+          </div>
+        )
       )}
 
       <div className="container-x grid gap-12 py-24 md:grid-cols-12">
