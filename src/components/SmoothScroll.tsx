@@ -52,11 +52,36 @@ export default function SmoothScroll() {
     };
   }, []);
 
-  // After client-side navigation Lenis still holds the previous page's height,
-  // which clamps scrolling (e.g. /about → /#services stopped inside the hero).
-  // Re-measure, then land on the hash target below the fixed header.
+  // After client-side navigation Lenis still holds the previous page's scroll
+  // position and height: without this the new page opens at its footer, and hash
+  // links stop short (/about → /#services landed inside the hero).
+  // Reset to the top first, re-measure, then land on the hash target.
+  const isFirstRender = useRef(true);
+  const isPopNavigation = useRef(false);
+
+  useEffect(() => {
+    const onPop = () => (isPopNavigation.current = true);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   useEffect(() => {
     const lenis = lenisRef.current;
+    const hash = window.location.hash;
+
+    const restored = isFirstRender.current || isPopNavigation.current; // first load / back / forward
+    isFirstRender.current = false;
+    isPopNavigation.current = false;
+
+    const toTop = () => {
+      lenis?.scrollTo(0, { immediate: true, force: true });
+      window.scrollTo(0, 0);
+    };
+    if (!restored && !hash) {
+      lenis?.resize();
+      toTop();
+    }
+
     // Stop correcting as soon as the visitor scrolls on their own.
     let userScrolled = false;
     const onUser = () => (userScrolled = true);
@@ -66,8 +91,13 @@ export default function SmoothScroll() {
       if (userScrolled) return;
       lenis?.resize();
       ScrollTrigger.refresh();
-      const hash = window.location.hash;
-      const el = hash ? (document.querySelector(hash) as HTMLElement | null) : null;
+      const target = window.location.hash;
+      if (!target) {
+        // Layout shifts (images, fonts) can leave a fresh page scrolled down.
+        if (!restored && window.scrollY > 0) toTop();
+        return;
+      }
+      const el = document.querySelector(target) as HTMLElement | null;
       if (!el) return;
       if (Math.abs(el.getBoundingClientRect().top + HEADER_OFFSET) < 8) return; // already in place
       if (lenis) lenis.scrollTo(el, { offset: HEADER_OFFSET, immediate: true, force: true });
