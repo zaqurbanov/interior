@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import SkeletonImage from "@/components/site/SkeletonImage";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import ProjectStory from "@/components/scroll/ProjectStory";
 import { getProjectStory } from "@/lib/project-story";
 import Link from "next/link";
@@ -34,7 +36,8 @@ export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
   const [project, all, site] = await Promise.all([getProject(slug), getProjects(), getSiteContent()]);
   if (!project) notFound();
-  const story = getProjectStory(project.slug);
+  // Only use the scroll story when its frames have actually been extracted.
+  const story = existsSync(path.join(process.cwd(), "public", "frames", project.slug)) ? getProjectStory(project.slug) : null;
 
   const idx = all.findIndex((p) => p.slug === project.slug);
   const next = all.length > 1 ? all[(idx + 1) % all.length] : null;

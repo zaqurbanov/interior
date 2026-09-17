@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   storyFrameUrl,
+  storyPosterUrl,
   storyTimeline,
   storyUnitToFrame,
   type ProjectStory as Story,
@@ -161,7 +162,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
         <noscript>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/frames/${story.slug}/poster.webp`} alt={`${title} walkthrough`} className="absolute inset-0 h-full w-full object-cover" />
+          <img src={storyPosterUrl(story)} alt={`${title} walkthrough`} className="absolute inset-0 h-full w-full object-cover" />
         </noscript>
 
         {/* Legibility */}

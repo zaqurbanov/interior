@@ -14,6 +14,8 @@ export type StoryStage = {
 
 export type ProjectStory = {
   slug: string;
+  /** Frame-set version; bump together with scripts/extract-project-frames.mjs. */
+  version: number;
   /** Frames per scene, in order. */
   scenes: number[];
   /** Pause (in frames) held between two scenes. */
@@ -26,10 +28,12 @@ export type ProjectStory = {
 export const projectStories: Record<string, ProjectStory> = {
   "villa-la-belle": {
     slug: "villa-la-belle",
-    scenes: [240, 240, 240],
-    hold: 30,
-    scrollVh: 1400,
-    // Timeline: scene 1 = arrival & garage, scene 2 = gardens & pool, scene 3 = interior.
+    version: 2,
+    // Two videos, every 2nd frame (see scripts/extract-project-frames.mjs):
+    // scene 1 = arrival & garage, scene 2 = interior.
+    scenes: [120, 120],
+    hold: 15,
+    scrollVh: 650,
     stages: [
       {
         at: 0,
@@ -40,23 +44,15 @@ export const projectStories: Record<string, ProjectStory> = {
         facts: ["Cap Ferrat peninsula, east of Nice", "≈30 m height difference across the plot", "Underground car park for four cars"],
       },
       {
-        at: 255,
-        eyebrow: "The gardens",
-        title: "Terraces cut into the hillside",
-        text: "Multi-level gardens step down around the house, with olive, cypress and palm planting framing the villa from every terrace.",
-        label: "Landscape",
-        facts: ["Multi-level Mediterranean gardens", "Stone paving and planted terraces", "Outdoor lounge and dining areas"],
+        at: 62,
+        eyebrow: "The architecture",
+        title: "Stone, timber and Mediterranean planting",
+        text: "Local stone, timber gates and mature planting anchor the villa in the hillside, with the pool and barbecue terrace above the house.",
+        label: "Architecture",
+        facts: ["Natural stone façades", "Multi-level gardens and terraces", "Pool and barbecue terrace above"],
       },
       {
-        at: 400,
-        eyebrow: "The pool",
-        title: "Water, stone and sunlight",
-        text: "The outdoor pool sits above the house, with the barbecue terrace a few metres higher and an observatory at the top of the hill.",
-        label: "Outdoor living",
-        facts: ["Outdoor swimming pool", "Barbecue terrace above the pool", "Observatory at the summit"],
-      },
-      {
-        at: 560,
+        at: 140,
         eyebrow: "Inside",
         title: "Staircase, light and lift",
         text: "A sculptural stair wraps the glazed lift shaft under a curved, back-lit ceiling — the heart of the plan and its main source of daylight.",
@@ -64,7 +60,7 @@ export const projectStories: Record<string, ProjectStory> = {
         facts: ["Curved, back-lit ceiling", "Marble-clad spiral staircase", "Glazed lift to every floor"],
       },
       {
-        at: 655,
+        at: 190,
         eyebrow: "Living spaces",
         title: "Rooms facing the sea",
         text: "Several living rooms, a kitchen and a dining area open onto the terraces, designed in a neoclassical style with modern elements.",
@@ -72,7 +68,7 @@ export const projectStories: Record<string, ProjectStory> = {
         facts: ["Two master suites, two guest suites", "Fireplace and bespoke joinery", "Neoclassical with modern elements"],
       },
       {
-        at: 740,
+        at: 232,
         eyebrow: "The result",
         title: "£2,500,000 of construction, seen before it began",
         text: "The whole villa was visualised and animated before work started, so the owners could walk through the house while it was still a drawing.",
@@ -115,9 +111,13 @@ export function storyFrameUrl(story: ProjectStory, globalIndex: number, set: "de
   let index = globalIndex;
   for (let i = 0; i < story.scenes.length; i++) {
     if (index < story.scenes[i]) {
-      return `/frames/${story.slug}/scene${i + 1}/${set}/${String(index + 1).padStart(4, "0")}.webp`;
+      return `/frames/${story.slug}/v${story.version}/scene${i + 1}/${set}/${String(index + 1).padStart(4, "0")}.webp`;
     }
     index -= story.scenes[i];
   }
-  return `/frames/${story.slug}/poster.webp`;
+  return storyPosterUrl(story);
+}
+
+export function storyPosterUrl(story: ProjectStory) {
+  return `/frames/${story.slug}/v${story.version}/poster.webp`;
 }
