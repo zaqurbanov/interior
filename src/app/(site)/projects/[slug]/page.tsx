@@ -7,7 +7,7 @@ import { getProjectStory } from "@/lib/project-story";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
-import Gallery from "@/components/site/Gallery";
+import ShowcaseGallery from "@/components/site/ShowcaseGallery";
 import VideoEmbed from "@/components/site/VideoEmbed";
 import { getProject, getProjects, getSiteContent, siteUrl } from "@/lib/data";
 
@@ -102,9 +102,9 @@ export default async function ProjectPage({ params }: Props) {
       </div>
 
       {project.gallery.length > 0 && (
-        <section aria-labelledby="gallery-title" className="container-x pb-24">
-          <h2 id="gallery-title" className="eyebrow mb-8 text-bronze">Gallery</h2>
-          <Gallery images={project.gallery} title={project.title} />
+        <section aria-labelledby="gallery-title" className="overflow-hidden pb-24">
+          <h2 id="gallery-title" className="container-x eyebrow mb-10 text-bronze">Gallery</h2>
+          <ShowcaseGallery images={project.gallery} title={project.title} />
         </section>
       )}
 

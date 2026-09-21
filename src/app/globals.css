@@ -74,6 +74,36 @@ html.lenis, html.lenis body { height: auto; }
   .page-transition .pt-letter, .page-transition .pt-sub, .page-transition .pt-bar { animation: none !important; }
 }
 
+/* Skip arrow: a slow float, pausing while the visitor is actually scrolling. */
+.skip-arrow { animation: skip-float 2.2s ease-in-out infinite; }
+[data-moving] .skip-arrow { animation-play-state: paused; }
+@keyframes skip-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+@media (prefers-reduced-motion: reduce) { .skip-arrow { animation: none; } }
+
+/* Zoom toggle: a slow halo so the control is noticed, stopped once it is on. */
+.zoom-halo::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-bronze);
+  animation: zoom-halo 2.4s ease-out infinite;
+}
+.zoom-halo[data-on="true"]::before { animation: none; opacity: 0; }
+@keyframes zoom-halo {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  70% { transform: scale(1.35); opacity: 0; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .zoom-halo::before { animation: none; opacity: 0.6; } }
+
+/* Rails that are dragged rather than scrolled with a bar. */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Image skeleton */
 .skeleton { background: var(--color-sand); overflow: hidden; }
 .skeleton-grid {

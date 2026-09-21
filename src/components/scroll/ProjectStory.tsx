@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import SkipArrow from "./SkipArrow";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
 import {
   storyFrameUrl,
   storyPosterUrl,
@@ -37,9 +39,10 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     if (!ctx) return;
 
     const set = window.innerWidth * Math.min(window.devicePixelRatio, 2) < 1500 ? "mobile" : "desktop";
-    const images: (HTMLImageElement | null)[] = new Array(totalFrames).fill(null);
+    const images: (Frame | null)[] = new Array(totalFrames).fill(null);
     const state = { unit: 0 };
     let drawn = -1;
+    let raf = 0;
     let cancelled = false;
 
     const nearestLoaded = (i: number) => {
@@ -53,13 +56,12 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     const render = (force = false) => {
       const i = storyUnitToFrame(story, state.unit);
       if (!force && i === drawn) return;
-      const img = nearestLoaded(i);
-      if (!img) return;
+      const frame = images[i] ?? nearestLoaded(i);
+      if (!frame) return;
       drawn = images[i] ? i : -1;
-      const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-      const w = img.naturalWidth * scale;
-      const h = img.naturalHeight * scale;
-      ctx.drawImage(img, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+      // Paint on the next frame so several scroll updates coalesce into one draw.
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => drawCover(ctx, canvas, frame));
     };
 
     const resize = () => {
@@ -70,21 +72,14 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     };
 
     let count = 0;
-    const load = (i: number) =>
-      new Promise<void>((resolve) => {
-        const img = new Image();
-        img.decoding = "async";
-        img.onload = () => {
-          if (cancelled) return resolve();
-          images[i] = img;
-          count++;
-          if (count % 10 === 0 || count === totalFrames) setLoaded(count);
-          if (Math.abs(storyUnitToFrame(story, state.unit) - i) < 3 || drawn === -1) render(true);
-          resolve();
-        };
-        img.onerror = () => resolve();
-        img.src = storyFrameUrl(story, i, set);
-      });
+    const load = async (i: number) => {
+      const frame = await loadFrame(storyFrameUrl(story, i, set));
+      if (cancelled || !frame) return;
+      images[i] = frame;
+      count++;
+      if (count % 10 === 0 || count === totalFrames) setLoaded(count);
+      if (Math.abs(storyUnitToFrame(story, state.unit) - i) < 3 || drawn === -1) render(true);
+    };
 
     const loadRange = async (from: number, to: number) => {
       const queue = Array.from({ length: to - from }, (_, k) => from + k);
@@ -122,7 +117,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       leftRefs.current.forEach((el, i) => fadeStage(el, i, p, 32));
       rightRefs.current.forEach((el, i) => fadeStage(el, i, p, 20));
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      if (hintRef.current) hintRef.current.style.opacity = String(1 - clamp01(p / 0.02));
+      if (hintRef.current) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
     };
 
     const tween = gsap.to(state, {
@@ -133,7 +128,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
         trigger: section,
         start: "top top",
         end: "bottom bottom",
-        scrub: 0.6,
+        scrub: 1,
         onUpdate: (self) => update(self.progress),
       },
     });
@@ -142,6 +137,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     window.addEventListener("resize", resize);
     return () => {
       cancelled = true;
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       tween.scrollTrigger?.kill();
       tween.kill();
@@ -217,9 +213,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
           <div ref={barRef} className="h-px origin-left scale-x-0 bg-bronze" />
         </div>
 
-        <div ref={hintRef} className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-ink/70">
-          <span className="eyebrow text-[0.6rem]">Scroll to walk through</span>
-          <span className="block h-8 w-px animate-pulse bg-ink/50" />
+        <div ref={hintRef} className="absolute inset-x-0 bottom-0 flex justify-center">
+          <SkipArrow sectionRef={sectionRef} label="Scroll to walk through" skipLabel="Skip" />
         </div>
 
         {pct < 100 && (
