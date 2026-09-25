@@ -23,3 +23,5 @@ Mərhələ 1 (media), 2 (layihə redaktoru) və 3 (sorğular) bazası və Blob t
 - [ ] Eyni brauzerdən 4-cü sorğu 10 dəqiqə ərzində limitə düşür
 - [ ] Walkthrough: mövcud animasiyanı "Edit" ilə açmaq, mətni dəyişib saxlamaq → saytda görünmək
 - [ ] Dashboard: saytda bir neçə səhifə açmaq → "Visits" və "Most viewed" artır; layihəni dəyişib "History" → "Restore"
+- [ ] Login limiti: səhv şifrə ilə 6 dəfə → "Too many failed attempts…"; 15 dəq sonra və ya başqa şəbəkədən düzgün şifrə ilə giriş işləyir
+- [ ] Müştəriyə gedən təsdiq e-poçtunda mesaj mətni yoxdur (Resend qurulandan sonra)

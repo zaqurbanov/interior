@@ -32,6 +32,10 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 - **[Animasiya: Villa Luna](animasiya-villa-luna.md)** — `villa-luna-cap-martin` — `luna1.mp4` + `luna2.mp4`, 15 fps.
 - **[Animasiya: ilk layihələr](animasiya-ilk-layiheler.md)** — Albert Mews, Cannes, Villa at Saadiyat Island, Villa La Belle, Villa Nudra.
 
+## Təhlükəsizlik
+
+- **[Təhlükəsizlik yoxlaması və düzəlişlər](tehlukesizlik-yoxlamasi.md)** _(2026-09-26)_ — Başlıqlar (clickjacking), login cəhd limiti, təsdiq e-poçtunda mətn təkrarlanmır, sayğac yalnız real səhifələri sayır, Next 15.5.26.
+
 ## SEO
 
 - **[`VideoObject` strukturlaşdırılmış məlumatı](seo-videoobject.md)** _(2026-09-25)_ — Layihə və ana səhifə videoları Google üçün təsvir olundu (MP4, YouTube, Vimeo).

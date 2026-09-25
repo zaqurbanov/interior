@@ -18,6 +18,9 @@ Daimi qaydalar və qərarlar (tapşırıq deyil). Açıq işlər: [../TASKS.md](
 - **Server kodu `public/frames` / `public/images`-ə `fs` ilə baxmamalıdır.** Belə baxanda Next bütün kadrları (~220 MB) hər server funksiyasına qoşurdu və Vercel-in 10 GB-lıq "Functions Storage" limiti doldu (2026-09-25). `next.config.ts`-də `outputFileTracingExcludes` bunun qarşısını alır.
 - **Deploy-dan əvvəl `npm run build`** — dev server dayandırılmış halda.
 - **Öz serverə keçilsə**, `/frames/*` üçün bir illik `immutable` keş başlığı nginx-də də olmalıdır (Vercel-də `next.config.ts`-də var).
+- **Öz serverə keçilsə**, nginx `X-Forwarded-For`-u özü yazmalıdır (`proxy_set_header X-Forwarded-For $remote_addr;`), yoxsa əlaqə forması və login-in IP limiti saxta başlıqla aldadıla bilər. Vercel-də problem yoxdur.
+- **`npm audit` postcss xəbərdarlığı** Next-in içindəki postcss-dəndir, yalnız build zamanı öz CSS-imizi emal edir — saytda istismar olunmur. Next 16-ya keçəndə gedəcək; `npm audit fix --force` işlətmə (Next 16-nı zorla qoyur).
+- **Təhlükəsizlik başlıqları** `next.config.ts`-dədir; sayt başqa saytın `iframe`-ində açılmır (`frame-ancestors 'none'`). Sayt haradasa embed olunmalı olsa, oradan dəyişmək lazımdır.
 
 ## Admin panel: inkişaf planı
 
