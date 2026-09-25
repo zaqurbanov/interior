@@ -78,6 +78,14 @@ const stories = [
     scenes: ["videos/windsor.mp4"],
     version: 1,
   },
+  {
+    slug: "cap-d-ail",
+    // ail1 = the villa rising from its foundations to the finished pool front,
+    // ail2 = through the gates at dusk, then up over the whole estate. 15fps: foliage.
+    scenes: ["videos/ail1.mp4", "videos/ail2.mp4"],
+    version: 1,
+    fps: 15,
+  },
 ];
 const sizes = [
   { name: "desktop", width: 1440, quality: 50 },

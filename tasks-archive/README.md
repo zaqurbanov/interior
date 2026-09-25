@@ -20,6 +20,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Layihə animasiyaları
 
+- **[Animasiya: Villa at Cap d'Ail](animasiya-cap-d-ail.md)** _(2026-09-26)_ — `ail1.mp4` + `ail2.mp4`, 15 fps: tikinti, axşam girişi, malikanə yuxarıdan.
 - **[Animasiya: Windsor Estate](animasiya-windsor.md)** _(2026-09-25)_ — `windsor.mp4`, 24 fps: idman zalı, qapalı hovuz, buxar otağı, giriş holu.
 - **[Mobildə mətn çıxanda video dayanmır](mobil-yavas-fasile.md)** _(2026-09-25)_ — Hər mərhələdə tam fasilə əvəzinə video ~0.3× sürətlə yavaşlayır; “ilişib” hissi aradan qalxdı.
 - **[Mobildə animasiyadan yalnız ox ilə keçmək](mobil-scroll-kilidi.md)** _(2026-09-25)_ — Telefonda aşağı sürüşdürmə animasiyadan çıxarmır; keçid ox (“Continue”) ilə.

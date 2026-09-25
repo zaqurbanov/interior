@@ -50,6 +50,58 @@ export const BUILTIN_VIDEO_DATE = "2026-09-25T00:00:00Z";
 const root = (story: ProjectStory) => `${story.base ?? "/frames"}/${story.slug}/v${story.version}`;
 
 export const projectStories: Record<string, ProjectStory> = {
+  "cap-d-ail": {
+    slug: "cap-d-ail",
+    version: 1,
+    // Two videos at 15fps: ail1 raises the villa from its foundations to the
+    // finished pool front, ail2 drives through the gates at dusk and rises over the estate.
+    scenes: [150, 150],
+    fps: 15,
+    hold: 12,
+    scrollVh: 720,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "Cap d'Ail, near Monaco",
+        title: "Two villas, one estate",
+        text: "A dual villa estate designed by a construction company with a portfolio across the South of France — the whole territory transformed on a €20,000,000 budget.",
+        label: "The project",
+        facts: ["Two villas", "Budget of €20,000,000", "3D visualisation of the estate"],
+      },
+      {
+        at: 60,
+        eyebrow: "Frame to façade",
+        title: "Built from the ground up",
+        text: "Floor by floor the structure takes shape — stone-clad arches below, rendered walls and a terracotta roof above.",
+        label: "Architecture",
+        facts: ["Stone-clad ground floor", "Terracotta tiled roofs", "Balustraded terraces"],
+      },
+      {
+        at: 115,
+        eyebrow: "The pool front",
+        title: "Terraces facing the sea",
+        text: "Spacious terraces open onto the pool and unrivalled views of the Mediterranean, framed by palms and serene landscaping.",
+        label: "Outdoors",
+        facts: ["Outdoor pools with bars", "Sea-view terraces", "Mediterranean landscaping"],
+      },
+      {
+        at: 165,
+        eyebrow: "The arrival",
+        title: "Through the gates at dusk",
+        text: "Wrought-iron gates open onto a lit forecourt — privacy and tranquillity from the first step onto the estate.",
+        label: "Arrival",
+        facts: ["Gated private forecourt", "Landscape lighting", "Garages for both villas"],
+      },
+      {
+        at: 262,
+        eyebrow: "The estate",
+        title: "Made for the coastal evening",
+        text: "Pools, roof terraces with Jacuzzis and fireplaces in sunken majlis — and inside, cigar lounges and wine cellars for lavish entertaining.",
+        label: "Leisure",
+        facts: ["Roof terraces with Jacuzzis", "Sunken majlis with fireplaces", "Cigar lounge and wine cellar"],
+      },
+    ],
+  },
   windsor: {
     slug: "windsor",
     version: 1,
