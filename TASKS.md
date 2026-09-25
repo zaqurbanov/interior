@@ -86,12 +86,13 @@ GitHub Actions: public repoda pulsuz, private repoda aylıq pulsuz dəqiqə limi
 
 ### Mərhələ 2 — Layihə redaktoru
 
-- [ ] Qalereyada sürükləyərək sıralama
-- [ ] "Seçilmiş 6 şəkil"i ulduzla işarələmək → `ShowcaseGallery` (hazırda ilk 6 şəkil göstərilir)
-- [ ] Layihələr siyahısında sürükləyərək sıralama ("Order" rəqəm sahəsinin yerinə)
-- [ ] Qaralama, gizli önizləmə linki, dərc tarixini planlaşdırmaq
-- [ ] Rich text redaktoru (Tiptap) — təsvir üçün
-- [ ] Avtomatik saxlama və "yadda saxlanmamış dəyişikliklər" xəbərdarlığı
+- [x] Qalereyada sürükləyərək sıralama
+- [x] "Seçilmiş 6 şəkil"i ulduzla işarələmək → `ShowcaseGallery` (heç biri seçilməyibsə ilk 6)
+- [x] Layihələr siyahısında sürükləyərək sıralama (sıra dərhal saxlanır; "Order" sahəsi layihə formundan çıxarıldı)
+- [x] Qaralama, gizli önizləmə linki (`/api/preview/<token>`), dərc tarixini planlaşdırmaq ("Go live on" — sayt ən gec 1 saat ərzində yenilənir)
+- [x] Rich text redaktoru (Tiptap) — layihə və xidmət təsviri; serverdə təmizlənir (`sanitize-html`), köhnə düz mətn də düzgün göstərilir
+- [x] Yadda saxlanmamış dəyişikliklər: brauzerdə avtomatik qaralama (bərpa təklifi) + səhifədən çıxanda xəbərdarlıq. Serverə avtomatik saxlama edilmədi — yarımçıq dəyişikliyi canlı saytda dərc edərdi
+- [ ] Real yoxlama (baza ilə): sıralamanın saxlanması, planlaşdırılmış layihənin vaxtında görünməsi, preview linki
 
 ### Mərhələ 3 — Sorğular (mesajlar)
 

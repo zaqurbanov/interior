@@ -30,10 +30,16 @@ export const projectSchema = z.object({
   category: z.string().trim().max(160).default(""),
   year: z.string().trim().max(20).default(""),
   summary: z.string().trim().max(600).default(""),
-  content: z.string().trim().max(20000).default(""),
-  order: z.coerce.number().int().default(0),
+  content: z.string().trim().max(50000).default(""),
   coverImage: imageUrl.default(""),
   gallery: z.array(imageUrl.refine(Boolean)).max(300).default([]),
+  highlights: z.array(z.string()).max(6, "Pick at most six highlights").default([]),
+  // ISO string from the form ("" = publish immediately).
+  publishAt: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || !Number.isNaN(Date.parse(v)), "Enter a valid date")
+    .transform((v) => (v ? new Date(v) : null)),
   featured: z.boolean(),
   published: z.boolean(),
   ...seo,
@@ -46,7 +52,7 @@ export const serviceSchema = z.object({
   features: z.array(z.string().trim().min(1).max(200)).default([]),
   image: imageUrl.default(""),
   summary: z.string().trim().max(600).default(""),
-  content: z.string().trim().max(20000).default(""),
+  content: z.string().trim().max(50000).default(""),
   order: z.coerce.number().int().default(0),
   published: z.boolean(),
   ...seo,

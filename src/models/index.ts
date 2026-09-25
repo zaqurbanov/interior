@@ -8,7 +8,13 @@ type Timestamps = { createdAt?: Date; updatedAt?: Date };
 export interface ProjectDoc extends Timestamps {
   title: string; slug: string; subtitle: string; location: string; category: string; year: string;
   summary: string; content: string; coverImage: string; gallery: string[]; videos: string[];
+  /** Up to six gallery images shown on the page; the rest sit behind "View all". */
+  highlights: string[];
   featured: boolean; published: boolean; order: number; seo: Seo;
+  /** Published projects stay hidden until this moment (null = immediately). */
+  publishAt: Date | null;
+  /** Secret for the /api/preview link that shows the page before it is public. */
+  previewToken: string;
 }
 export interface ServiceDoc extends Timestamps {
   title: string; slug: string; icon: string; image: string; summary: string; content: string;
@@ -53,10 +59,13 @@ const projectSchema = new Schema<ProjectDoc>(
     coverImage: { type: String, default: "" },
     gallery: { type: [String], default: [] },
     videos: { type: [String], default: [] },
+    highlights: { type: [String], default: [] },
     featured: { type: Boolean, default: false },
     published: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
     seo: { type: seoSchema, default: () => ({}) },
+    publishAt: { type: Date, default: null },
+    previewToken: { type: String, default: "" },
   },
   { timestamps: true },
 );

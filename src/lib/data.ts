@@ -21,11 +21,26 @@ export function toProject(d: any): ProjectData {
     coverImage: str(d.coverImage),
     gallery: (d.gallery ?? []).map(str),
     videos: (d.videos ?? []).map(str),
+    highlights: (d.highlights ?? []).map(str),
     featured: Boolean(d.featured),
     published: d.published !== false,
     order: Number(d.order ?? 0),
     seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
+    publishAt: d.publishAt ? new Date(d.publishAt).toISOString() : "",
+    previewToken: str(d.previewToken),
   };
+}
+
+/** Query for projects visitors may see: published, and past any scheduled date. */
+export const liveProjectQuery = () => ({
+  published: true,
+  $or: [{ publishAt: null }, { publishAt: { $exists: false } }, { publishAt: { $lte: new Date() } }],
+});
+
+/** Draft, scheduled or live — for the admin list. */
+export function projectStatus(p: Pick<ProjectData, "published" | "publishAt">): "draft" | "scheduled" | "live" {
+  if (!p.published) return "draft";
+  return p.publishAt && new Date(p.publishAt) > new Date() ? "scheduled" : "live";
 }
 
 export function toService(d: any): ServiceData {
@@ -131,8 +146,7 @@ export function getService(slug: string): Promise<ServiceData | null> {
 export function getProjects(opts: { featured?: boolean; includeUnpublished?: boolean } = {}): Promise<ProjectData[]> {
   const fallback = opts.featured ? defaultProjects.filter((p) => p.featured) : defaultProjects;
   return withDb(async () => {
-    const q: Record<string, unknown> = {};
-    if (!opts.includeUnpublished) q.published = true;
+    const q: Record<string, unknown> = opts.includeUnpublished ? {} : liveProjectQuery();
     if (opts.featured) q.featured = true;
     const docs = await Project.find(q).sort({ order: 1, createdAt: -1 }).lean();
     if (!docs.length && !opts.includeUnpublished) {
@@ -146,11 +160,19 @@ export function getProjects(opts: { featured?: boolean; includeUnpublished?: boo
 export function getProject(slug: string): Promise<ProjectData | null> {
   return withDb(
     async () => {
-      const d = await Project.findOne({ slug, published: true }).lean();
+      const d = await Project.findOne({ slug, ...liveProjectQuery() }).lean();
       return d ? toProject(d) : null;
     },
     defaultProjects.find((p) => p.slug === slug) ?? null,
   );
+}
+
+/** A project in any state, if the preview token matches (draft preview links). */
+export async function getProjectPreview(slug: string, token: string): Promise<ProjectData | null> {
+  if (!token || !isDbConfigured()) return null;
+  await connectDB();
+  const d = await Project.findOne({ slug, previewToken: token }).lean();
+  return d ? toProject(d) : null;
 }
 
 export async function getMessages(): Promise<MessageData[]> {

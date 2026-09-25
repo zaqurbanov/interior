@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
 import PageHero from "@/components/site/PageHero";
 import ServiceIcon from "@/components/site/ServiceIcon";
+import { toHtml } from "@/lib/rich-text";
 import { getImageAlts, getService, getServices, getSiteContent, siteUrl } from "@/lib/data";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -54,9 +55,7 @@ export default async function ServicePage({ params }: Props) {
           <ServiceIcon name={service.icon} className="h-16 w-16" />
         </div>
         <div className="space-y-6 text-lg leading-relaxed text-graphite md:col-span-7">
-          {service.content.split(/\n{2,}/).map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
+          <div className="rich-text" dangerouslySetInnerHTML={{ __html: toHtml(service.content) }} />
           {service.features.length > 0 && (
             <ul className="divide-y divide-ink/10 border-y border-ink/10 text-base text-ink">
               {service.features.map((f) => (

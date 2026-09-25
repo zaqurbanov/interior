@@ -197,3 +197,18 @@ html.lenis, html.lenis body { height: auto; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost { background: transparent; color: var(--color-ink); border: 1px solid #d8d2c8; }
 .btn-danger { background: #a3392f; }
+
+/* Project / service descriptions (HTML from the admin editor, see lib/rich-text.ts).
+   Colours come from the tokens, so the same rules suit the dark site and the
+   light admin editor. */
+.rich-text > * + * { margin-top: 1.25em; }
+.rich-text h2 { font-family: var(--font-serif); font-size: 1.6em; line-height: 1.2; color: var(--color-ink); margin-top: 1.6em; }
+.rich-text h3 { font-size: 1.15em; font-weight: 600; color: var(--color-ink); margin-top: 1.4em; }
+.rich-text > :first-child { margin-top: 0; }
+.rich-text strong { color: var(--color-ink); font-weight: 600; }
+.rich-text a { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: var(--color-bronze); }
+.rich-text ul { list-style: disc; padding-left: 1.3em; }
+.rich-text ol { list-style: decimal; padding-left: 1.4em; }
+.rich-text li + li { margin-top: 0.35em; }
+.rich-text li::marker { color: var(--color-bronze); }
+.rich-text blockquote { border-left: 2px solid var(--color-bronze); padding-left: 1em; font-style: italic; color: var(--color-ink); }

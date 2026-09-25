@@ -6,7 +6,9 @@ import { isValidObjectId } from "mongoose";
 import { requireAdmin } from "@/auth";
 import { connectDB } from "@/lib/db";
 import { STAGE_COUNT } from "@/lib/sequence";
+import { randomBytes } from "node:crypto";
 import { deleteIfUnused } from "@/lib/media";
+import { sanitizeRichText } from "@/lib/rich-text";
 import { projectSchema, serviceSchema, siteContentSchema, type FormState } from "@/lib/validators";
 import type { z } from "zod";
 import { Message, Project, Service, SiteContent } from "@/models";
@@ -33,10 +35,11 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
     category: text(fd, "category"),
     year: text(fd, "year"),
     summary: text(fd, "summary"),
-    content: text(fd, "content"),
-    order: text(fd, "order") || 0,
+    content: sanitizeRichText(text(fd, "content")),
     coverImage: text(fd, "coverImage"),
     gallery: fd.getAll("gallery").map(String),
+    highlights: fd.getAll("highlights").map(String),
+    publishAt: text(fd, "publishAt"),
     featured: bool(fd, "featured"),
     published: bool(fd, "published"),
     seoTitle: text(fd, "seoTitle"),
@@ -45,6 +48,8 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
   if (!parsed.success) return { ok: false, message: "Please fix the errors below.", errors: parsed.error.flatten().fieldErrors };
 
   const { seoTitle, seoDescription, ...data } = parsed.data;
+  // Highlights are a subset of the gallery; drop any that were removed from it.
+  data.highlights = data.highlights.filter((h) => data.gallery.includes(h));
   try {
     await connectDB();
     const existing = id ? await Project.findById(id) : null;
@@ -54,9 +59,12 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
     const payload = { ...data, seo: { title: seoTitle, description: seoDescription } };
     if (existing) {
       existing.set(payload);
+      if (!existing.previewToken) existing.previewToken = newPreviewToken();
       await existing.save();
     } else {
-      await Project.create(payload);
+      // New projects go to the end of the list; drag to reorder in the admin list.
+      const last = await Project.findOne({}, { order: 1 }).sort({ order: -1 }).lean();
+      await Project.create({ ...payload, order: (last?.order ?? 0) + 1, previewToken: newPreviewToken() });
     }
     // Images are uploaded as soon as they are chosen; files this save dropped go
     // now, unless another page still uses them.
@@ -67,6 +75,32 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
   }
   revalidateSite();
   redirect("/admin/projects");
+}
+
+const newPreviewToken = () => randomBytes(18).toString("base64url");
+
+/** Admin list drag-and-drop: the ids in their new order. */
+export async function reorderProjects(ids: string[]): Promise<FormState> {
+  await requireAdmin();
+  if (!ids.every((id) => isValidObjectId(id))) return { ok: false, message: "Invalid project list." };
+  await connectDB();
+  await Project.bulkWrite(ids.map((id, i) => ({ updateOne: { filter: { _id: id }, update: { $set: { order: i + 1 } } } })));
+  revalidateSite();
+  return { ok: true, message: "Order saved" };
+}
+
+/** Existing projects get a preview token the first time it is needed. */
+export async function ensurePreviewToken(id: string): Promise<string> {
+  await requireAdmin();
+  if (!isValidObjectId(id)) return "";
+  await connectDB();
+  const doc = await Project.findById(id, { previewToken: 1 });
+  if (!doc) return "";
+  if (!doc.previewToken) {
+    doc.previewToken = newPreviewToken();
+    await doc.save();
+  }
+  return doc.previewToken;
 }
 
 export async function deleteProject(id: string) {
@@ -89,7 +123,7 @@ export async function saveService(id: string | null, _prev: FormState, fd: FormD
     features: lines(fd, "features"),
     image: text(fd, "image"),
     summary: text(fd, "summary"),
-    content: text(fd, "content"),
+    content: sanitizeRichText(text(fd, "content")),
     order: text(fd, "order") || 0,
     published: bool(fd, "published"),
     seoTitle: text(fd, "seoTitle"),

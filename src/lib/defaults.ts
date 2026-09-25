@@ -177,6 +177,9 @@ export const defaultProjects: ProjectData[] = source.projects
       published: true,
       order: featuredIdx !== -1 ? featuredIdx + 1 : 10 + p.order,
       seo: {},
+      highlights: [],
+      publishAt: "",
+      previewToken: "",
     } satisfies ProjectData;
   })
   .sort((a, b) => a.order - b.order);

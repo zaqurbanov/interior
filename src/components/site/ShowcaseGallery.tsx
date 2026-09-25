@@ -13,10 +13,22 @@ const PREVIEW = 6;
 const SPAN = ["md:col-span-7 aspect-[16/10]", "md:col-span-5 aspect-[4/5]", "md:col-span-5 aspect-[4/5]", "md:col-span-7 aspect-[16/10]", "md:col-span-6 aspect-[4/3]", "md:col-span-6 aspect-[4/3]"];
 
 /** Six selected images on the page; everything else lives in the fullscreen viewer. */
-export default function ShowcaseGallery({ images, title, alts }: { images: string[]; title: string; alts?: Record<string, string> }) {
+export default function ShowcaseGallery({
+  images,
+  title,
+  alts,
+  highlights = [],
+}: {
+  images: string[];
+  title: string;
+  alts?: Record<string, string>;
+  /** Images starred in the admin (kept in gallery order); none = the first six. */
+  highlights?: string[];
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const { openAt, element } = useLightbox(images, title, alts);
-  const preview = images.slice(0, PREVIEW);
+  const picked = images.filter((src) => highlights.includes(src));
+  const preview = (picked.length ? picked : images).slice(0, PREVIEW);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -62,13 +74,13 @@ export default function ShowcaseGallery({ images, title, alts }: { images: strin
             key={src}
             type="button"
             data-tile
-            onClick={(e) => openAt(i, e.currentTarget)}
-            aria-label={`Open image ${i + 1} of ${images.length}`}
+            onClick={(e) => openAt(images.indexOf(src), e.currentTarget)}
+            aria-label={`Open image ${images.indexOf(src) + 1} of ${images.length}`}
             className={`group relative w-full cursor-pointer overflow-hidden bg-sand ${SPAN[i % SPAN.length]}`}
           >
             <SkeletonImage
               src={src}
-              alt={alts?.[src] || `${title} — image ${i + 1}`}
+              alt={alts?.[src] || `${title} — image ${images.indexOf(src) + 1}`}
               {...(i < 2 ? { priority: true } : {})}
               sizes="(min-width: 768px) 55vw, 92vw"
               className="scale-110 object-cover"
@@ -80,7 +92,7 @@ export default function ShowcaseGallery({ images, title, alts }: { images: strin
         ))}
       </div>
 
-      {images.length > PREVIEW && (
+      {images.length > preview.length && (
         <div className="mt-10 flex items-center gap-6">
           <button
             type="button"
@@ -90,7 +102,7 @@ export default function ShowcaseGallery({ images, title, alts }: { images: strin
             View all {images.length} photos
           </button>
           <span className="eyebrow text-[0.62rem] text-graphite">
-            {images.length - PREVIEW} more inside
+            {images.length - preview.length} more inside
           </span>
         </div>
       )}

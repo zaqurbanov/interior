@@ -49,10 +49,15 @@ export type ProjectData = {
   gallery: string[];
   /** "youtube:ID" or "vimeo:ID" */
   videos: string[];
+  /** Gallery images chosen for the page (max 6); empty = the first six. */
+  highlights: string[];
   featured: boolean;
   published: boolean;
   order: number;
   seo: Seo;
+  /** ISO date; empty = publish immediately. */
+  publishAt: string;
+  previewToken: string;
 };
 
 export type MessageData = {
