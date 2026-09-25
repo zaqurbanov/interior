@@ -21,6 +21,10 @@ There are no tests and no lint config beyond `next lint`. All three scripts need
 
 Never run `next build` while a dev server is running on the same checkout — both use `.next`, and the dev server then throws `__webpack_modules__ is not a function` / `self is not defined` until it is restarted.
 
+## Task tracking
+
+`TASKS.md` (Azerbaijani) holds only open work and standing notes. When an item is finished, remove it from `TASKS.md` and add it, ticked, to `TASKS-ARCHIVE.md` under the matching section (newest first, with the date and PR when known).
+
 ## Environment
 
 Copy `.env.example` to `.env.local`: `MONGODB_URI`, `MONGODB_DB`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
