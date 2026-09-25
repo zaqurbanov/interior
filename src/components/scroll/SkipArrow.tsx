@@ -11,10 +11,16 @@ export default function SkipArrow({
   sectionRef,
   label = "Scroll",
   skipLabel = "Skip",
+  locked = false,
+  onSkip,
 }: {
   sectionRef: RefObject<HTMLElement | null>;
   label?: string;
   skipLabel?: string;
+  /** Scrolling is held on this section (phones), so the arrow is the way on. */
+  locked?: boolean;
+  /** Runs before the jump — e.g. to lift that hold. */
+  onSkip?: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
 
@@ -40,6 +46,7 @@ export default function SkipArrow({
   const skip = () => {
     const section = sectionRef.current;
     if (!section) return;
+    onSkip?.();
     const lenis = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: object) => void; resize: () => void } })
       .__lenis;
     // Land on what follows the animation, not on its last frame.
@@ -77,7 +84,7 @@ export default function SkipArrow({
     >
       {/* Phones get the short word so the label never wraps over the copy. */}
       <span className="eyebrow text-[0.6rem] text-ink/85 transition-opacity duration-300 group-hover:opacity-0">
-        <span className="md:hidden">Scroll</span>
+        <span className="md:hidden">{locked ? "Continue" : "Scroll"}</span>
         <span className="hidden md:inline">{label}</span>
       </span>
       <span className="eyebrow absolute top-0 text-[0.6rem] text-bronze opacity-0 transition-opacity duration-300 group-hover:opacity-100">

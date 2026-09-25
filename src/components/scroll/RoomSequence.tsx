@@ -8,7 +8,7 @@ import type { Stage } from "@/lib/types";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
 import { SCROLL_SECTION_CLASS, linearOrder, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
 import { createPlayer, createVideoPlayer, type Player } from "@/lib/autoplay";
-import { useAutoplayMode, watchVisibility } from "./use-autoplay";
+import { useAutoplayMode, useScrollGate, watchVisibility } from "./use-autoplay";
 import ReplayButton from "./ReplayButton";
 import {
   HOME_FPS,
@@ -51,6 +51,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   const [lite, setLite] = useState(false);
   // Phones play the sequence by itself instead of scrubbing it (lib/autoplay.ts).
   const autoplay = useAutoplayMode();
+  // Phones: the page waits on this section until the arrow is tapped.
+  const gate = useScrollGate(sectionRef, autoplay === true && !lite);
   const [ended, setEnded] = useState(false);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -437,7 +439,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
 
         {/* Scroll hint */}
         <div ref={hintRef} className="absolute inset-x-0 bottom-0 flex justify-center">
-          <SkipArrow sectionRef={sectionRef} label="Scroll to design" skipLabel="Skip" />
+          <SkipArrow sectionRef={sectionRef} label="Scroll to design" skipLabel="Skip" locked={gate.locked} onSkip={gate.release} />
         </div>
 
         {autoplay && ended && <ReplayButton onClick={() => playerRef.current?.restart()} />}
