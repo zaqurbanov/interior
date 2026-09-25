@@ -40,6 +40,13 @@ Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
 - [x] Yükləmələr Vercel Blob-a keçirildi (`src/lib/storage.ts`, `next.config.ts`-də Blob domeni)
 - [x] Real admin hesabı yaradıldı (`npm run seed -- --reset-admin`), nümunə hesab silindi — yoxlanıldı
 - [ ] Vercel → Environment Variables: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`, `NEXT_PUBLIC_SITE_URL` (real domen), istəyə görə `MONGODB_DB`. `BLOB_READ_WRITE_TOKEN` Blob qoşulanda avtomatik gəlir. (`ADMIN_*` yalnız seed üçündür, Vercel-də lazım deyil.)
+  - **Deploy-da admin login işləmir** — `{"message":"There was a problem with the server configuration..."}` xətası. Səbəb: Vercel-də `AUTH_SECRET` yoxdur (lokalda təkrarlandı: `[auth][error] MissingSecret`). Düzəltmək (kompüterdən):
+    - [ ] `AUTH_SECRET` yarat (`npx auth secret --raw` və ya `openssl rand -base64 32`) və Vercel-ə əlavə et
+    - [ ] `AUTH_TRUST_HOST=true`, `MONGODB_URI` (`.env.local`-dan), istəyə görə `MONGODB_DB`, `NEXT_PUBLIC_SITE_URL`
+    - [ ] Hər dəyişəndə **Production** və **Preview** seçilsin (PR preview-ları üçün)
+    - [ ] Atlas → Network Access: `0.0.0.0/0` (Vercel IP-ləri sabit deyil)
+    - [ ] Storage → Blob store layihəyə qoşulsun (yeni yükləmə sistemi üçün)
+    - [ ] Deployments → **Redeploy** (dəyişənlər yalnız yeni deploy-da tətbiq olunur)
 - [ ] Lokal yükləmə testi üçün `BLOB_READ_WRITE_TOKEN`-i Vercel-dən `.env.local`-a köçür (və ya `vercel env pull`)
 - [ ] Admin paneldən şəkil yükləməni real olaraq sınamaq (giriş → layihə → şəkil)
 - [ ] `.env.local`-dakı istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS` dəyişənlərini silmək (şifrə təkrarı)
