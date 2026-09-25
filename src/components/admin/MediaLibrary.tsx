@@ -9,7 +9,7 @@ import { formatBytes } from "@/lib/upload-config";
 import { uploadImage } from "@/lib/upload-client";
 import { DropTarget, Progress } from "./ImageUpload";
 
-type Filter = "all" | "unused" | "no-alt";
+export type Filter = "all" | "unused" | "no-alt";
 
 function Uploader() {
   const router = useRouter();
@@ -145,8 +145,8 @@ function MediaCard({ item }: { item: MediaItem }) {
   );
 }
 
-export default function MediaLibrary({ items }: { items: MediaItem[] }) {
-  const [filter, setFilter] = useState<Filter>("all");
+export default function MediaLibrary({ items, initialFilter = "all" }: { items: MediaItem[]; initialFilter?: Filter }) {
+  const [filter, setFilter] = useState<Filter>(initialFilter);
   const [query, setQuery] = useState("");
 
   const counts = {

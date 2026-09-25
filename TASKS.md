@@ -17,7 +17,6 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
 - **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — `public/frames` (~210 MB) repodadır; yeni animasiyalar artıq Blob-a yazılır, köhnələri də köçürülsə repo və deploy kiçilir.
-- **[Mərhələ 5 — Dashboard və əlavələr](tasks/admin-m5-dashboard.md)** — Sorğu qrafiki, "diqqət tələb edir" siyahısı, dəyişiklik tarixçəsi, yeni bölmələr.
 
 ## Layihə animasiyaları
 
@@ -44,6 +43,7 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 ## Sifarişçi ilə
 
 - **[Qalereya variantının təsdiqi](tasks/qalereya-tesdiq.md)** — Bütün layihələrdə "Showcase" (6 şəkil + "View all") — sifarişçi təsdiqləməlidir.
+- **[Yeni bölmələr: rəylər, mətbuat, FAQ](tasks/yeni-bolmeler.md)** — Saytda müştəri rəyləri, mətbuat/mükafatlar və ya FAQ olacaqsa — admin paneldən idarə olunan bölmələr.
 
 ## Şablon
 

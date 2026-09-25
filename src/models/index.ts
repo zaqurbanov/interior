@@ -70,6 +70,14 @@ export interface StoryDoc extends Timestamps {
   /** Frame extraction job: runs on GitHub Actions or locally (lib/frame-jobs.ts). */
   job: { status: string; version: number; error: string; startedAt: Date | null };
 }
+/** Page views per path per UTC day. No visitor data: just a counter. */
+export interface PageViewDoc {
+  day: string; path: string; count: number;
+}
+/** A copy of a project, service or the site content taken before each save, for "restore". */
+export interface RevisionDoc extends Timestamps {
+  kind: string; refId: string; label: string; author: string; data: Record<string, unknown>;
+}
 export interface UserDoc extends Timestamps {
   email: string; name: string; passwordHash: string; role: string;
 }
@@ -220,6 +228,25 @@ const storySchema = new Schema<StoryDoc>(
   { timestamps: true },
 );
 
+const pageViewSchema = new Schema<PageViewDoc>({
+  day: { type: String, required: true },
+  path: { type: String, required: true },
+  count: { type: Number, default: 0 },
+});
+pageViewSchema.index({ day: 1, path: 1 }, { unique: true });
+
+const revisionSchema = new Schema<RevisionDoc>(
+  {
+    kind: { type: String, required: true },
+    refId: { type: String, required: true },
+    label: { type: String, default: "" },
+    author: { type: String, default: "" },
+    data: { type: Schema.Types.Mixed, default: {} },
+  },
+  { timestamps: true },
+);
+revisionSchema.index({ kind: 1, refId: 1, createdAt: -1 });
+
 const userSchema = new Schema<UserDoc>(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -242,3 +269,5 @@ export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDo
 export const User = (models.User as unknown as Model<UserDoc> | undefined) ?? mongoose.model<UserDoc>("User", userSchema);
 export const Media = (models.Media as unknown as Model<MediaDoc> | undefined) ?? mongoose.model<MediaDoc>("Media", mediaSchema);
 export const Story = (models.Story as unknown as Model<StoryDoc> | undefined) ?? mongoose.model<StoryDoc>("Story", storySchema);
+export const PageView = (models.PageView as unknown as Model<PageViewDoc> | undefined) ?? mongoose.model<PageViewDoc>("PageView", pageViewSchema);
+export const Revision = (models.Revision as unknown as Model<RevisionDoc> | undefined) ?? mongoose.model<RevisionDoc>("Revision", revisionSchema);

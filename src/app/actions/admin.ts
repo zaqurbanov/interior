@@ -8,6 +8,7 @@ import { connectDB } from "@/lib/db";
 import { STAGE_COUNT } from "@/lib/sequence";
 import { randomBytes } from "node:crypto";
 import { deleteIfUnused } from "@/lib/media";
+import { snapshot } from "@/lib/revisions";
 import { sanitizeRichText } from "@/lib/rich-text";
 import { projectSchema, serviceSchema, siteContentSchema, type FormState } from "@/lib/validators";
 import type { z } from "zod";
@@ -58,6 +59,7 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
     const before = existing ? [existing.coverImage, ...existing.gallery] : [];
     const payload = { ...data, seo: { title: seoTitle, description: seoDescription } };
     if (existing) {
+      await snapshot("project", String(existing._id), existing.title, existing.toObject());
       existing.set(payload);
       if (!existing.previewToken) existing.previewToken = newPreviewToken();
       await existing.save();
@@ -139,6 +141,7 @@ export async function saveService(id: string | null, _prev: FormState, fd: FormD
       // Returns the document as it was before the update.
       const prev = await Service.findByIdAndUpdate(id, payload, { runValidators: true });
       if (!prev) return { ok: false, message: "Service not found." };
+      await snapshot("service", id, prev.title, prev.toObject());
       await deleteIfUnused([prev.image]);
     } else {
       await Service.create(payload);
@@ -239,6 +242,7 @@ export async function saveSiteContent(_prev: FormState, fd: FormData): Promise<F
     const current = await SiteContent.findOne({ key: "main" }).lean();
 
     if (!data.seo.ogImage) data.seo.ogImage = "/og-image.jpg";
+    await snapshot("site", "main", "Site content", current);
     await SiteContent.findOneAndUpdate({ key: "main" }, { $set: { key: "main", ...data } }, { upsert: true });
     await deleteIfUnused([current?.seo?.ogImage ?? "", ...(current?.team ?? []).map((m) => m.photo ?? "")]);
   } catch (err) {

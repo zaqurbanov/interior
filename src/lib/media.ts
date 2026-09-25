@@ -3,6 +3,7 @@ import path from "node:path";
 import { connectDB } from "./db";
 import { deleteUpload, isStoredUrl } from "./storage";
 import type { MediaItem, MediaUsage } from "./types";
+import { revisionImageUrls } from "./revisions";
 import { isVideoUrl } from "./upload-config";
 import { Media, Project, Service, SiteContent, Story } from "@/models";
 
@@ -32,6 +33,8 @@ export async function collectUsage(): Promise<Map<string, MediaUsage[]>> {
   for (const s of services) add(s.image, `${s.title} — service image`, `/admin/services/${s._id}`);
   add(site?.seo?.ogImage, "Social sharing image", "/admin/content#brand");
   for (const m of site?.team ?? []) add(m.photo, `${m.name || "Team member"} — photo`, "/admin/content#team");
+  // Kept for "restore": an older version may still point at these.
+  for (const r of await revisionImageUrls()) if (!usage.has(r.url)) add(r.url, `${r.label} — earlier version`, r.href);
   for (const s of stories) {
     const p = projects.find((x) => x.slug === s.slug);
     for (const v of s.sources ?? []) add(v.url, `${p?.title ?? s.slug} — walkthrough video`, p ? `/admin/projects/${p._id}/story` : "/admin/projects");

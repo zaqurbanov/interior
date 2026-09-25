@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 import ServiceForm from "@/components/admin/ServiceForm";
+import RevisionList from "@/components/admin/RevisionList";
+import { listRevisions } from "@/lib/revisions";
 import { connectDB } from "@/lib/db";
 import { toService } from "@/lib/data";
 import { toHtml } from "@/lib/rich-text";
@@ -21,6 +23,7 @@ export default async function EditServicePage({ params }: { params: Promise<{ id
     <div className="space-y-6">
       <h1 className="font-serif text-4xl">Edit: {service.title}</h1>
       <ServiceForm service={service} />
+      <RevisionList items={await listRevisions("service", id)} />
     </div>
   );
 }
