@@ -9,6 +9,7 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 ## Yerləşdirmə (Vercel)
 
 - **[Vercel mühit dəyişənləri və admin login](tasks/vercel-env-ve-login.md)** — Deploy-da login `MissingSecret` xətası verir; `AUTH_SECRET`, `MONGODB_URI` və s. Vercel-ə əlavə olunmalı, Blob qoşulmalı.
+- **[Animasiyalı layihələrin linkləri "Page not found" verir](tasks/animasiya-linkleri-404.md)** — `https://vladimir-fasij.com/projects/...` linkləri "Page not found" verir — ehtimal: domen hələ köhnə sayta baxır, yeni sayt yalnız Vercel ünvanındadır.
 - **[`.env.local` və Atlas təhlükəsizliyi](tasks/env-local-temizlik.md)** — Lokal Blob token-i, istifadə olunmayan DB dəyişənlərinin silinməsi, Atlas şifrəsinin gücü.
 - **[Resend (e-poçt) qurulması](tasks/resend-qurulmasi.md)** — Sorğu bildirişləri və müştəriyə avtomatik cavab üçün Resend hesabı, domen təsdiqi və Vercel dəyişənləri.
 - **[Animasiya redaktoru üçün kadr işinin qurulması](tasks/kadr-isi-qurulmasi.md)** — Admin paneldə "Make frames" işləsin deyə GitHub token-i, repo secret-ləri və Vercel dəyişənləri.
