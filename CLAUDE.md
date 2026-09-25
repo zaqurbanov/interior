@@ -19,7 +19,7 @@ node scripts/build-mobile-videos.mjs     # phone MP4s from the mobile frames (re
 node --env-file=.env.local scripts/frames-to-blob.mjs  # copy public/frames to Blob (resumable; prints NEXT_PUBLIC_FRAMES_BASE)
 ```
 
-There are no tests and no lint config beyond `next lint`. The frame and video scripts need `ffmpeg` on PATH (or `FFMPEG=/path`) and are run manually, not during build.
+There are no unit tests and no lint config beyond `next lint`. `npm run qa -- --base=http://localhost:3000` (`scripts/qa-crawl.mjs`, Playwright) crawls every public page on desktop and phone and writes a bug report to `qa-reports/` (gitignored); the `qa` agent (`.claude/agents/qa.md`) runs it, reviews the screenshots, does hands-on checks and writes a prioritised list in Azerbaijani. The frame and video scripts need `ffmpeg` on PATH (or `FFMPEG=/path`) and are run manually, not during build.
 
 Never run `next build` while a dev server is running on the same checkout — both use `.next`, and the dev server then throws `__webpack_modules__ is not a function` / `self is not defined` until it is restarted.
 

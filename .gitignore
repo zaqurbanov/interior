@@ -10,3 +10,6 @@ public/uploads/*
 
 # Source videos for the walkthroughs (6–9 MB each) — keep backups outside git, see tasks/video-ehtiyat-nusxe.md
 /videos/
+
+# QA crawler output (scripts/qa-crawl.mjs)
+/qa-reports/
