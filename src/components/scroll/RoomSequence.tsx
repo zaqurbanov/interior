@@ -6,7 +6,7 @@ import SkipArrow from "./SkipArrow";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Stage } from "@/lib/types";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
-import { prefersLiteMedia, progressiveOrder, whenReadyToStream } from "@/lib/frame-loader";
+import { SCROLL_SECTION_CLASS, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
 import {
   SCENE1_FRAMES,
   SCENE2_START,
@@ -220,8 +220,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
     <section
       ref={sectionRef}
       aria-label="From empty room to finished interior and a walk inside"
-      className="relative"
-      style={{ height: `${SCROLL_VH}vh` }}
+      className={`relative ${SCROLL_SECTION_CLASS}`}
+      style={scrollSectionStyle(SCROLL_VH)}
     >
       <div ref={stickyRef} data-dark="false" className="group sticky top-0 h-svh w-full overflow-hidden bg-sand">
         {/* First frame as real HTML: the page's LCP image, visible before any JS runs. */}

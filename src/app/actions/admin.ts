@@ -6,7 +6,9 @@ import { isValidObjectId } from "mongoose";
 import { requireAdmin } from "@/auth";
 import { connectDB } from "@/lib/db";
 import { STAGE_COUNT } from "@/lib/sequence";
-import { deleteUpload, saveUpload, saveUploads } from "@/lib/storage";
+import { randomBytes } from "node:crypto";
+import { deleteIfUnused } from "@/lib/media";
+import { sanitizeRichText } from "@/lib/rich-text";
 import { projectSchema, serviceSchema, siteContentSchema, type FormState } from "@/lib/validators";
 import type { z } from "zod";
 import { Message, Project, Service, SiteContent } from "@/models";
@@ -33,8 +35,11 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
     category: text(fd, "category"),
     year: text(fd, "year"),
     summary: text(fd, "summary"),
-    content: text(fd, "content"),
-    order: text(fd, "order") || 0,
+    content: sanitizeRichText(text(fd, "content")),
+    coverImage: text(fd, "coverImage"),
+    gallery: fd.getAll("gallery").map(String),
+    highlights: fd.getAll("highlights").map(String),
+    publishAt: text(fd, "publishAt"),
     featured: bool(fd, "featured"),
     published: bool(fd, "published"),
     seoTitle: text(fd, "seoTitle"),
@@ -43,31 +48,27 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
   if (!parsed.success) return { ok: false, message: "Please fix the errors below.", errors: parsed.error.flatten().fieldErrors };
 
   const { seoTitle, seoDescription, ...data } = parsed.data;
+  // Highlights are a subset of the gallery; drop any that were removed from it.
+  data.highlights = data.highlights.filter((h) => data.gallery.includes(h));
   try {
     await connectDB();
     const existing = id ? await Project.findById(id) : null;
     if (id && !existing) return { ok: false, message: "Project not found." };
 
-    let coverImage = existing?.coverImage ?? "";
-    const cover = await saveUpload(fd.get("coverFile") as File | null);
-    if (cover) {
-      if (coverImage) await deleteUpload(coverImage);
-      coverImage = cover;
-    }
-
-    const keep = fd.getAll("keepGallery").map(String);
-    const removed = (existing?.gallery ?? []).filter((g) => !keep.includes(g));
-    await Promise.all(removed.map(deleteUpload));
-    const added = await saveUploads(fd.getAll("galleryFiles") as File[]);
-    const gallery = [...keep, ...added];
-
-    const payload = { ...data, coverImage, gallery, seo: { title: seoTitle, description: seoDescription } };
+    const before = existing ? [existing.coverImage, ...existing.gallery] : [];
+    const payload = { ...data, seo: { title: seoTitle, description: seoDescription } };
     if (existing) {
       existing.set(payload);
+      if (!existing.previewToken) existing.previewToken = newPreviewToken();
       await existing.save();
     } else {
-      await Project.create(payload);
+      // New projects go to the end of the list; drag to reorder in the admin list.
+      const last = await Project.findOne({}, { order: 1 }).sort({ order: -1 }).lean();
+      await Project.create({ ...payload, order: (last?.order ?? 0) + 1, previewToken: newPreviewToken() });
     }
+    // Images are uploaded as soon as they are chosen; files this save dropped go
+    // now, unless another page still uses them.
+    await deleteIfUnused(before);
   } catch (err) {
     if (dupKey(err)) return { ok: false, message: "That slug is already used.", errors: { slug: ["Slug must be unique"] } };
     return { ok: false, message: (err as Error).message };
@@ -76,12 +77,38 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
   redirect("/admin/projects");
 }
 
+const newPreviewToken = () => randomBytes(18).toString("base64url");
+
+/** Admin list drag-and-drop: the ids in their new order. */
+export async function reorderProjects(ids: string[]): Promise<FormState> {
+  await requireAdmin();
+  if (!ids.every((id) => isValidObjectId(id))) return { ok: false, message: "Invalid project list." };
+  await connectDB();
+  await Project.bulkWrite(ids.map((id, i) => ({ updateOne: { filter: { _id: id }, update: { $set: { order: i + 1 } } } })));
+  revalidateSite();
+  return { ok: true, message: "Order saved" };
+}
+
+/** Existing projects get a preview token the first time it is needed. */
+export async function ensurePreviewToken(id: string): Promise<string> {
+  await requireAdmin();
+  if (!isValidObjectId(id)) return "";
+  await connectDB();
+  const doc = await Project.findById(id, { previewToken: 1 });
+  if (!doc) return "";
+  if (!doc.previewToken) {
+    doc.previewToken = newPreviewToken();
+    await doc.save();
+  }
+  return doc.previewToken;
+}
+
 export async function deleteProject(id: string) {
   await requireAdmin();
   if (!isValidObjectId(id)) return;
   await connectDB();
   const doc = await Project.findByIdAndDelete(id);
-  if (doc) await Promise.all([doc.coverImage, ...doc.gallery].filter(Boolean).map((u) => deleteUpload(u)));
+  if (doc) await deleteIfUnused([doc.coverImage, ...doc.gallery]);
   revalidateSite();
 }
 
@@ -94,8 +121,9 @@ export async function saveService(id: string | null, _prev: FormState, fd: FormD
     slug: text(fd, "slug"),
     icon: text(fd, "icon"),
     features: lines(fd, "features"),
+    image: text(fd, "image"),
     summary: text(fd, "summary"),
-    content: text(fd, "content"),
+    content: sanitizeRichText(text(fd, "content")),
     order: text(fd, "order") || 0,
     published: bool(fd, "published"),
     seoTitle: text(fd, "seoTitle"),
@@ -104,18 +132,14 @@ export async function saveService(id: string | null, _prev: FormState, fd: FormD
   if (!parsed.success) return { ok: false, message: "Please fix the errors below.", errors: parsed.error.flatten().fieldErrors };
 
   const { seoTitle, seoDescription, ...data } = parsed.data;
-  const payload: Record<string, unknown> = { ...data, seo: { title: seoTitle, description: seoDescription } };
+  const payload = { ...data, seo: { title: seoTitle, description: seoDescription } };
   try {
     await connectDB();
-    const image = await saveUpload(fd.get("imageFile") as File | null);
-    if (image) {
-      const prev = id ? await Service.findById(id).lean() : null;
-      if (prev?.image) await deleteUpload(prev.image);
-      payload.image = image;
-    }
     if (id) {
-      const res = await Service.findByIdAndUpdate(id, payload, { runValidators: true });
-      if (!res) return { ok: false, message: "Service not found." };
+      // Returns the document as it was before the update.
+      const prev = await Service.findByIdAndUpdate(id, payload, { runValidators: true });
+      if (!prev) return { ok: false, message: "Service not found." };
+      await deleteIfUnused([prev.image]);
     } else {
       await Service.create(payload);
     }
@@ -131,7 +155,8 @@ export async function deleteService(id: string) {
   await requireAdmin();
   if (!isValidObjectId(id)) return;
   await connectDB();
-  await Service.findByIdAndDelete(id);
+  const doc = await Service.findByIdAndDelete(id);
+  if (doc) await deleteIfUnused([doc.image]);
   revalidateSite();
 }
 
@@ -177,10 +202,6 @@ export async function saveSiteContent(_prev: FormState, fd: FormData): Promise<F
   };
   const nonEmpty = <T extends Record<string, string>>(list: T[]) => list.filter((r) => Object.values(r).some(Boolean));
 
-  // Team rows keep their index so each photo upload lines up with its member.
-  const teamRows = rows("team", ["name", "role", "bio", "photo"]);
-  const teamFiles = fd.getAll("team.photoFile") as File[];
-
   const input = {
     brandName: text(fd, "brandName"),
     tagline: text(fd, "tagline"),
@@ -192,7 +213,7 @@ export async function saveSiteContent(_prev: FormState, fd: FormData): Promise<F
     showreel: text(fd, "showreel"),
     stats: nonEmpty(rows("stat", ["value", "label"])),
     process: nonEmpty(rows("process", ["title", "text"])),
-    team: teamRows.filter((r) => r.name || r.role || r.bio),
+    team: rows("team", ["name", "role", "bio", "photo"]).filter((r) => r.name || r.role || r.bio),
     contact: { email: text(fd, "contact.email").trim(), phone: text(fd, "contact.phone"), address: text(fd, "contact.address") },
     socials: {
       instagram: text(fd, "socials.instagram").trim(),
@@ -217,28 +238,9 @@ export async function saveSiteContent(_prev: FormState, fd: FormData): Promise<F
     await connectDB();
     const current = await SiteContent.findOne({ key: "main" }).lean();
 
-    // Social-sharing image.
-    const og = await saveUpload(fd.get("ogFile") as File | null);
-    if (og) {
-      if (current?.seo?.ogImage) await deleteUpload(current.seo.ogImage);
-      data.seo.ogImage = og;
-    }
     if (!data.seo.ogImage) data.seo.ogImage = "/og-image.jpg";
-
-    // Team photos: a new file replaces that member's photo.
-    let t = 0;
-    for (let i = 0; i < teamRows.length; i++) {
-      const row = teamRows[i];
-      if (!(row.name || row.role || row.bio)) continue;
-      const uploaded = await saveUpload(teamFiles[i] ?? null);
-      if (uploaded) {
-        if (data.team[t].photo) await deleteUpload(data.team[t].photo);
-        data.team[t].photo = uploaded;
-      }
-      t++;
-    }
-
     await SiteContent.findOneAndUpdate({ key: "main" }, { $set: { key: "main", ...data } }, { upsert: true });
+    await deleteIfUnused([current?.seo?.ogImage ?? "", ...(current?.team ?? []).map((m) => m.photo ?? "")]);
   } catch (err) {
     return { ok: false, message: (err as Error).message };
   }

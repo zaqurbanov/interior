@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/site/PageHero";
 import ProjectGrid from "@/components/site/ProjectGrid";
 import JsonLd from "@/components/site/JsonLd";
-import { getProjects, getSiteContent, siteUrl } from "@/lib/data";
+import { getImageAlts, getProjects, getSiteContent, siteUrl } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Portfolio — Our latest projects",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectsPage() {
-  const [projects, site] = await Promise.all([getProjects(), getSiteContent()]);
+  const [projects, site, alts] = await Promise.all([getProjects(), getSiteContent(), getImageAlts()]);
   const url = siteUrl();
   return (
     <>
@@ -25,7 +25,7 @@ export default async function ProjectsPage() {
         }}
       />
       <PageHero eyebrow="Portfolio" title="Our latest projects" intro={site.portfolioIntro} />
-      <ProjectGrid projects={projects} />
+      <ProjectGrid projects={projects} alts={alts} />
     </>
   );
 }

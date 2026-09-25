@@ -21,9 +21,19 @@ There are no tests and no lint config beyond `next lint`. All three scripts need
 
 Never run `next build` while a dev server is running on the same checkout — both use `.next`, and the dev server then throws `__webpack_modules__ is not a function` / `self is not defined` until it is restarted.
 
+## Task tracking
+
+Tasks are written in Azerbaijani, one Markdown file per task:
+
+- `tasks/<slug>.md` — open tasks; `TASKS.md` is their index (per section: title, one-line summary, link) and holds the file template.
+- `tasks-archive/<slug>.md` — finished tasks; `tasks-archive/README.md` is their index, newest first within each section.
+- `docs/vacib-qeydler.md` — standing notes and decisions, not tasks.
+
+When a task is finished: `git mv` its file to `tasks-archive/`, set `Status: bitib` with the date and PR, and move its index line from `TASKS.md` to `tasks-archive/README.md`. A new task gets a file in `tasks/` and a line in `TASKS.md`.
+
 ## Environment
 
-Copy `.env.example` to `.env.local`: `MONGODB_URI`, `MONGODB_DB`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
+Copy `.env.example` to `.env.local`: `MONGODB_URI`, `MONGODB_DB`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`, and optionally `RESEND_API_KEY` / `MAIL_FROM` / `NOTIFY_EMAIL` for enquiry emails. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
 
 ## Architecture
 
@@ -46,7 +56,7 @@ Two components, same technique, separate configs:
 - Home: `src/components/scroll/RoomSequence.tsx` + `src/lib/sequence.ts` — two scenes (empty room → furnished, then a walk-in), a hold between them, 8 text stages and a right-hand detail card (`STAGE_DETAILS`).
 - Project pages: `src/components/scroll/ProjectStory.tsx` + `src/lib/project-story.ts` — per-slug walkthroughs with copy on the left and facts on the right. Rendered only when `public/frames/<slug>/` exists (checked in `projects/[slug]/page.tsx`).
 
-Both map scroll progress → timeline "unit" → global frame index, preload frames scene by scene, and pick a `desktop`/`mobile` frame set from viewport × DPR. Drawing goes through `src/lib/canvas-frame.ts`: frames are plain `<img>` decoded ahead of use (never `ImageBitmap` — a few hundred bitmaps pin gigabytes), each draw is coalesced into one `requestAnimationFrame`, and only one frame is drawn — do not cross-fade neighbouring frames, which reads as motion blur when scrubbing slowly. Smoothness comes from frame density instead: keep sequences at roughly 150–300 frames (`fps` in the extract script) and give each frame ~2–3vh of scroll. Frame paths are served with a one-year immutable cache header (`next.config.ts`), so project frame URLs carry a version segment (`/frames/<slug>/v<n>/…`): **bump `version` in both `project-story.ts` and `extract-project-frames.mjs` whenever frames change**, or viewers keep the old ones.
+Both map scroll progress → timeline "unit" → global frame index, preload frames scene by scene, and pick a `desktop`/`mobile` frame set from viewport × DPR. Drawing goes through `src/lib/canvas-frame.ts`: frames are plain `<img>` decoded ahead of use (never `ImageBitmap` — a few hundred bitmaps pin gigabytes), each draw is coalesced into one `requestAnimationFrame`, and only one frame is drawn — do not cross-fade neighbouring frames, which reads as motion blur when scrubbing slowly. Smoothness comes from frame density instead: keep sequences at roughly 150–300 frames (`fps` in the extract script) and give each frame ~2–3vh of scroll. Phones get a shorter runway: below `md` the section height comes from `mobileScrollVh()` (`src/lib/frame-loader.ts`, 45% of the scrub part, in `svh`) via `scrollSectionStyle()` / `SCROLL_SECTION_CLASS`; stage timing is progress-based, so it is unaffected. Frame paths are served with a one-year immutable cache header (`next.config.ts`), so project frame URLs carry a version segment (`/frames/<slug>/v<n>/…`): **bump `version` in both `project-story.ts` and `extract-project-frames.mjs` whenever frames change**, or viewers keep the old ones.
 
 Stage positions are frame numbers, so they must be re-tuned whenever a video, its frame `step`, or the scene list changes.
 
@@ -78,9 +88,17 @@ Auth is NextAuth v5 credentials (`src/auth.ts`) with an edge-safe config (`src/a
 
 Admin forms submit through `submitWith()` (`src/components/admin/fields.tsx`) instead of a plain `action` prop, so React does not reset the form and lose input when validation fails.
 
+Project and service forms also use `useFormDraft()` (`src/components/admin/use-form-draft.ts`): edits are mirrored to localStorage and offered back on the next visit, and leaving with unsaved edits asks first. There is deliberately no server autosave. Inputs whose value changes in code (uploads, pickers, the editor, the date field) fire a bubbling `input` event through `useNotifyChange()` so the form notices; a new one must do the same. Pass `DndContext` a `useId()` id, or dnd-kit's aria ids break hydration.
+
+Descriptions are HTML from a Tiptap editor, sanitised on save and on render by `src/lib/rich-text.ts`; older plain-text content (blank-line paragraphs) still renders through the same `toHtml()`. Projects have `highlights` (≤6 starred gallery images shown on the page), `publishAt` (scheduling — public getters filter with `liveProjectQuery()`, so a scheduled project appears within the 1h ISR window) and `previewToken` (`/api/preview/<token>` enables draft mode plus a cookie; the project page reads cookies only in draft mode, so it stays static). The admin list sets `order` by drag and drop; new projects are appended.
+
 The database is MongoDB Atlas (database name from `MONGODB_DB`, default `vladimir-fasij` — set in `connectDB`, because Atlas URIs usually omit it). `npm run seed` (`scripts/seed.ts`) inserts missing default content and the admin account and never overwrites edited records; `npm run seed -- --reset-admin` sets the admin password. It refuses the `.env.example` placeholder credentials.
 
-Uploads go through `src/lib/storage.ts`: Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set, otherwise `public/uploads` (local development only). Server actions carry the whole form and Vercel rejects bodies over 4.5 MB, so single uploads are capped at 4 MB; larger files (video) need client-side Blob uploads.
+Uploads never pass through a server action (Vercel rejects bodies over 4.5 MB). The browser shrinks each image (`src/lib/upload-client.ts`: longest edge 2560px, WebP; the social-sharing image 1200px JPEG), then `/api/admin/upload` either hands it a one-off Vercel Blob client token (`BLOB_READ_WRITE_TOKEN` set) or takes the file itself and writes `public/uploads` (local development / a future self-hosted server; refused on Vercel). The route is outside `/admin`, so it checks the session itself. Forms then carry only URLs (hidden inputs from `ImageField` / `GalleryField` in `src/components/admin/ImageUpload.tsx`), validated by `isAllowedImageUrl` — uploads or files shipped under `/images`. `submitWith()` refuses to save while an upload is still running.
+
+Enquiries (`/admin/messages`, the `Message` model) carry a pipeline `status` (`src/lib/enquiries.ts`; `spam` is hidden unless filtered for), `tags` and timestamped `notes`; filters live in the URL and `enquiryQuery()` serves both the list and the CSV export (`/api/admin/enquiries/export`, session-checked, formula-escaped). The contact action (`src/app/actions/contact.ts`) drops honeypot and too-fast submissions silently, rate-limits by a salted IP hash (3 per 10 min, 10 per day), files link-stuffed messages as spam, and sends the studio alert and the client receipt through Resend (`src/lib/mail.ts`) in `after()`, so mail problems never block the form. Client components that call server actions must catch rejections (expired session, database down) — an uncaught one replaces the page with the error boundary.
+
+The media library (`/admin/media`, `Media` model) keys metadata — alt text, size, dimensions — by URL; content documents keep plain URL strings, so nothing was migrated. `listLibrary()` merges registered uploads with every URL the content refers to, and public pages read alt text through `getImageAlts()`, falling back to a generated description. Because one library image can be used in several places, saves and deletes remove a stored file only through `deleteIfUnused()` (`src/lib/media.ts`).
 
 ### Styling
 
@@ -88,5 +106,4 @@ Tailwind v4 with semantic tokens in `src/app/globals.css`: `ivory` = page ground
 
 ## Known gaps
 
-- `AdminNav` links `/admin/content` (site content + SEO editing); that page has not been built.
 - `public/frames` and `public/images` are ~175 MB of committed assets; adding more project walkthroughs will grow the repo fast. Hosting stays on Vercel for the foreseeable future (a later move is the client's call), so the frames should eventually move to Vercel Blob as well (admin uploads already use it). See `TASKS.md`.

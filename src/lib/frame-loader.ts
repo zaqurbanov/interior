@@ -65,3 +65,24 @@ export function whenReadyToStream(near: Element, signal: { cancelled: boolean })
     else window.addEventListener("load", idle, { once: true });
   });
 }
+
+/**
+ * On phones a finger flick covers far less of a long section than a mouse
+ * wheel, so the desktop runway (1000vh on the home page) turns into minutes of
+ * swiping. Below the md breakpoint the pinned screen keeps its 100vh and the
+ * scrub part shrinks to this share. Progress is relative to the section
+ * height, so stage timing is unchanged — it just goes by faster.
+ */
+const MOBILE_RUNWAY = 0.45;
+
+export const mobileScrollVh = (desktopVh: number) => Math.round(100 + (desktopVh - 100) * MOBILE_RUNWAY);
+
+/**
+ * Height of a scroll section: `svh` on phones (fixed, so the collapsing
+ * address bar does not resize the section mid-scrub), `vh` from md up.
+ * Use with SCROLL_SECTION_CLASS.
+ */
+export const scrollSectionStyle = (desktopVh: number) =>
+  ({ "--scroll-vh": desktopVh, "--scroll-vh-mobile": mobileScrollVh(desktopVh) }) as React.CSSProperties;
+
+export const SCROLL_SECTION_CLASS = "h-[calc(var(--scroll-vh-mobile)*1svh)] md:h-[calc(var(--scroll-vh)*1vh)]";

@@ -49,10 +49,15 @@ export type ProjectData = {
   gallery: string[];
   /** "youtube:ID" or "vimeo:ID" */
   videos: string[];
+  /** Gallery images chosen for the page (max 6); empty = the first six. */
+  highlights: string[];
   featured: boolean;
   published: boolean;
   order: number;
   seo: Seo;
+  /** ISO date; empty = publish immediately. */
+  publishAt: string;
+  previewToken: string;
 };
 
 export type MessageData = {
@@ -63,5 +68,25 @@ export type MessageData = {
   subject: string;
   body: string;
   read: boolean;
+  status: EnquiryStatus;
+  tags: string[];
+  notes: { text: string; at: string }[];
   createdAt: string;
+};
+
+export type EnquiryStatus = "new" | "replied" | "proposal" | "won" | "lost" | "spam";
+
+export type MediaUsage = { label: string; href: string };
+
+export type MediaItem = {
+  url: string;
+  name: string;
+  alt: string;
+  size: number;
+  width: number;
+  height: number;
+  createdAt: string | null;
+  usedBy: MediaUsage[];
+  /** Uploaded through the admin (Blob or public/uploads), so it can be deleted. */
+  stored: boolean;
 };

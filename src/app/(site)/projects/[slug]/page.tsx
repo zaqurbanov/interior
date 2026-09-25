@@ -5,11 +5,14 @@ import path from "node:path";
 import ProjectStory from "@/components/scroll/ProjectStory";
 import { getProjectStory } from "@/lib/project-story";
 import Link from "next/link";
+import { cookies, draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
 import ShowcaseGallery from "@/components/site/ShowcaseGallery";
 import VideoEmbed from "@/components/site/VideoEmbed";
-import { getProject, getProjects, getSiteContent, siteUrl } from "@/lib/data";
+import { toHtml } from "@/lib/rich-text";
+import { getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, siteUrl } from "@/lib/data";
+import { PREVIEW_COOKIE } from "@/lib/preview";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -18,9 +21,22 @@ export async function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
+/**
+ * The live project, or — in draft mode with a matching preview cookie — one
+ * that is not public yet. cookies() is only read in draft mode, so normal
+ * visits stay statically generated.
+ */
+async function loadProject(slug: string) {
+  const live = await getProject(slug);
+  if (live || !(await draftMode()).isEnabled) return { project: live, preview: false };
+  const token = (await cookies()).get(PREVIEW_COOKIE)?.value ?? "";
+  const draft = await getProjectPreview(slug, token);
+  return { project: draft, preview: Boolean(draft) };
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = await getProject(slug);
+  const { project, preview } = await loadProject(slug);
   if (!project) return {};
   const title = project.seo.title || `${project.title} — ${project.category || "Design"} in ${project.location}`;
   const description = project.seo.description || project.summary;
@@ -29,12 +45,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: `/projects/${project.slug}` },
     openGraph: { type: "article", title, description, images: project.coverImage ? [project.coverImage] : undefined },
+    ...(preview ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const [project, all, site] = await Promise.all([getProject(slug), getProjects(), getSiteContent()]);
+  const [{ project, preview }, all, site, alts] = await Promise.all([loadProject(slug), getProjects(), getSiteContent(), getImageAlts()]);
   if (!project) notFound();
   // Only use the scroll story when its frames have actually been extracted.
   const story = existsSync(path.join(process.cwd(), "public", "frames", project.slug)) ? getProjectStory(project.slug) : null;
@@ -45,6 +62,12 @@ export default async function ProjectPage({ params }: Props) {
 
   return (
     <article>
+      {preview && (
+        <div className="fixed inset-x-0 bottom-0 z-[70] flex items-center justify-center gap-4 bg-bronze px-4 py-2.5 text-sm text-white">
+          <span>Preview — this project is not public yet.</span>
+          <a href="/api/preview/exit" className="underline underline-offset-2">Exit preview</a>
+        </div>
+      )}
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -53,7 +76,8 @@ export default async function ProjectPage({ params }: Props) {
               "@type": "CreativeWork",
               name: project.title,
               description: project.summary,
-              image: [project.coverImage, ...project.gallery].filter(Boolean).slice(0, 6).map((i) => `${url}${i}`),
+              // Uploads are absolute Blob URLs; files shipped with the site are paths.
+              image: [project.coverImage, ...project.gallery].filter(Boolean).slice(0, 6).map((i) => (i.startsWith("http") ? i : `${url}${i}`)),
               locationCreated: { "@type": "Place", name: project.location },
               creator: { "@type": "Organization", name: site.brandName, url },
               url: `${url}/projects/${project.slug}`,
@@ -87,24 +111,23 @@ export default async function ProjectPage({ params }: Props) {
       ) : (
         project.coverImage && (
           <div className="relative mx-auto aspect-[16/9] w-full max-w-[1600px] overflow-hidden bg-sand">
-            <SkeletonImage src={project.coverImage} alt={`${project.title} interior`} priority sizes="100vw" className="object-cover" />
+            <SkeletonImage src={project.coverImage} alt={alts[project.coverImage] || `${project.title} interior`} priority sizes="100vw" className="object-cover" />
           </div>
         )
       )}
 
       <div className="container-x grid gap-12 py-24 md:grid-cols-12">
         <p className="font-serif text-3xl leading-snug text-ink md:col-span-5">{project.subtitle || project.summary}</p>
-        <div className="space-y-6 text-lg leading-relaxed text-graphite md:col-span-6 md:col-start-7">
-          {project.content.split(/\n{2,}/).map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
+        <div
+          className="rich-text text-lg leading-relaxed text-graphite md:col-span-6 md:col-start-7"
+          dangerouslySetInnerHTML={{ __html: toHtml(project.content) }}
+        />
       </div>
 
       {project.gallery.length > 0 && (
         <section aria-labelledby="gallery-title" className="overflow-hidden pb-24">
           <h2 id="gallery-title" className="container-x eyebrow mb-10 text-bronze">Gallery</h2>
-          <ShowcaseGallery images={project.gallery} title={project.title} />
+          <ShowcaseGallery images={project.gallery} title={project.title} alts={alts} highlights={project.highlights} />
         </section>
       )}
 

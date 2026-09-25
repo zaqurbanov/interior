@@ -8,7 +8,13 @@ type Timestamps = { createdAt?: Date; updatedAt?: Date };
 export interface ProjectDoc extends Timestamps {
   title: string; slug: string; subtitle: string; location: string; category: string; year: string;
   summary: string; content: string; coverImage: string; gallery: string[]; videos: string[];
+  /** Up to six gallery images shown on the page; the rest sit behind "View all". */
+  highlights: string[];
   featured: boolean; published: boolean; order: number; seo: Seo;
+  /** Published projects stay hidden until this moment (null = immediately). */
+  publishAt: Date | null;
+  /** Secret for the /api/preview link that shows the page before it is public. */
+  previewToken: string;
 }
 export interface ServiceDoc extends Timestamps {
   title: string; slug: string; icon: string; image: string; summary: string; content: string;
@@ -16,6 +22,12 @@ export interface ServiceDoc extends Timestamps {
 }
 export interface MessageDoc extends Timestamps {
   name: string; email: string; phone: string; subject: string; body: string; read: boolean;
+  /** Sales pipeline stage; see ENQUIRY_STATUSES in lib/enquiries.ts. */
+  status: string;
+  tags: string[];
+  notes: { text: string; at: Date }[];
+  /** Salted hash of the sender's IP, for rate limiting. Never the IP itself. */
+  ipHash: string;
 }
 export interface SiteContentDoc extends Timestamps {
   key: string; brandName?: string; tagline?: string;
@@ -27,6 +39,9 @@ export interface SiteContentDoc extends Timestamps {
   contact?: { email?: string; phone?: string; address?: string };
   socials?: { instagram?: string; linkedin?: string; youtube?: string };
   seo?: { title?: string; description?: string; keywords?: string; ogImage?: string };
+}
+export interface MediaDoc extends Timestamps {
+  url: string; name: string; contentType: string; size: number; width: number; height: number; alt: string;
 }
 export interface UserDoc extends Timestamps {
   email: string; name: string; passwordHash: string; role: string;
@@ -50,10 +65,13 @@ const projectSchema = new Schema<ProjectDoc>(
     coverImage: { type: String, default: "" },
     gallery: { type: [String], default: [] },
     videos: { type: [String], default: [] },
+    highlights: { type: [String], default: [] },
     featured: { type: Boolean, default: false },
     published: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
     seo: { type: seoSchema, default: () => ({}) },
+    publishAt: { type: Date, default: null },
+    previewToken: { type: String, default: "" },
   },
   { timestamps: true },
 );
@@ -82,6 +100,10 @@ const messageSchema = new Schema<MessageDoc>(
     subject: { type: String, default: "" },
     body: { type: String, required: true },
     read: { type: Boolean, default: false },
+    status: { type: String, default: "new", index: true },
+    tags: { type: [String], default: [] },
+    notes: { type: [{ text: String, at: Date, _id: false }], default: [] },
+    ipHash: { type: String, default: "", index: true },
   },
   { timestamps: true },
 );
@@ -127,6 +149,22 @@ const siteContentSchema = new Schema<SiteContentDoc>(
   { timestamps: true },
 );
 
+// One record per image, keyed by URL. Projects, services and site content keep
+// plain URL strings; this collection only adds metadata (alt text, size), so
+// images shipped with the site get a record the first time their alt is edited.
+const mediaSchema = new Schema<MediaDoc>(
+  {
+    url: { type: String, required: true, unique: true },
+    name: { type: String, default: "" },
+    contentType: { type: String, default: "" },
+    size: { type: Number, default: 0 },
+    width: { type: Number, default: 0 },
+    height: { type: Number, default: 0 },
+    alt: { type: String, default: "" },
+  },
+  { timestamps: true },
+);
+
 const userSchema = new Schema<UserDoc>(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -147,3 +185,4 @@ export const Service = (models.Service as unknown as Model<ServiceDoc> | undefin
 export const Message = (models.Message as unknown as Model<MessageDoc> | undefined) ?? mongoose.model<MessageDoc>("Message", messageSchema);
 export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDoc> | undefined) ?? mongoose.model<SiteContentDoc>("SiteContent", siteContentSchema);
 export const User = (models.User as unknown as Model<UserDoc> | undefined) ?? mongoose.model<UserDoc>("User", userSchema);
+export const Media = (models.Media as unknown as Model<MediaDoc> | undefined) ?? mongoose.model<MediaDoc>("Media", mediaSchema);

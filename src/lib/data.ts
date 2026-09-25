@@ -1,6 +1,7 @@
 import "server-only";
 import { connectDB, isDbConfigured } from "./db";
-import { Message, Project, Service, SiteContent } from "@/models";
+import { isEnquiryStatus } from "./enquiries";
+import { Media, Project, Service, SiteContent } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
 import type { MessageData, ProjectData, ServiceData, SiteContentData } from "./types";
 
@@ -21,11 +22,26 @@ export function toProject(d: any): ProjectData {
     coverImage: str(d.coverImage),
     gallery: (d.gallery ?? []).map(str),
     videos: (d.videos ?? []).map(str),
+    highlights: (d.highlights ?? []).map(str),
     featured: Boolean(d.featured),
     published: d.published !== false,
     order: Number(d.order ?? 0),
     seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
+    publishAt: d.publishAt ? new Date(d.publishAt).toISOString() : "",
+    previewToken: str(d.previewToken),
   };
+}
+
+/** Query for projects visitors may see: published, and past any scheduled date. */
+export const liveProjectQuery = () => ({
+  published: true,
+  $or: [{ publishAt: null }, { publishAt: { $exists: false } }, { publishAt: { $lte: new Date() } }],
+});
+
+/** Draft, scheduled or live — for the admin list. */
+export function projectStatus(p: Pick<ProjectData, "published" | "publishAt">): "draft" | "scheduled" | "live" {
+  if (!p.published) return "draft";
+  return p.publishAt && new Date(p.publishAt) > new Date() ? "scheduled" : "live";
 }
 
 export function toService(d: any): ServiceData {
@@ -53,6 +69,9 @@ export function toMessage(d: any): MessageData {
     subject: str(d.subject),
     body: str(d.body),
     read: Boolean(d.read),
+    status: isEnquiryStatus(str(d.status)) ? d.status : "new",
+    tags: (d.tags ?? []).map(str),
+    notes: (d.notes ?? []).map((n: any) => ({ text: str(n.text), at: new Date(n.at ?? Date.now()).toISOString() })),
     createdAt: new Date(d.createdAt ?? Date.now()).toISOString(),
   };
 }
@@ -131,8 +150,7 @@ export function getService(slug: string): Promise<ServiceData | null> {
 export function getProjects(opts: { featured?: boolean; includeUnpublished?: boolean } = {}): Promise<ProjectData[]> {
   const fallback = opts.featured ? defaultProjects.filter((p) => p.featured) : defaultProjects;
   return withDb(async () => {
-    const q: Record<string, unknown> = {};
-    if (!opts.includeUnpublished) q.published = true;
+    const q: Record<string, unknown> = opts.includeUnpublished ? {} : liveProjectQuery();
     if (opts.featured) q.featured = true;
     const docs = await Project.find(q).sort({ order: 1, createdAt: -1 }).lean();
     if (!docs.length && !opts.includeUnpublished) {
@@ -146,17 +164,28 @@ export function getProjects(opts: { featured?: boolean; includeUnpublished?: boo
 export function getProject(slug: string): Promise<ProjectData | null> {
   return withDb(
     async () => {
-      const d = await Project.findOne({ slug, published: true }).lean();
+      const d = await Project.findOne({ slug, ...liveProjectQuery() }).lean();
       return d ? toProject(d) : null;
     },
     defaultProjects.find((p) => p.slug === slug) ?? null,
   );
 }
 
-export async function getMessages(): Promise<MessageData[]> {
+/** A project in any state, if the preview token matches (draft preview links). */
+export async function getProjectPreview(slug: string, token: string): Promise<ProjectData | null> {
+  if (!token || !isDbConfigured()) return null;
   await connectDB();
-  const docs = await Message.find().sort({ createdAt: -1 }).lean();
-  return docs.map(toMessage);
+  const d = await Project.findOne({ slug, previewToken: token }).lean();
+  return d ? toProject(d) : null;
+}
+
+/** Alt text edited in the media library, by image URL. Pages fall back to a
+ *  generated description ("Title — image 3") where none is set. */
+export function getImageAlts(): Promise<Record<string, string>> {
+  return withDb(async () => {
+    const docs = await Media.find({ alt: { $ne: "" } }, { url: 1, alt: 1 }).lean();
+    return Object.fromEntries(docs.map((d) => [d.url, d.alt]));
+  }, {});
 }
 
 export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");

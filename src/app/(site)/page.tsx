@@ -6,13 +6,14 @@ import ServiceIcon from "@/components/site/ServiceIcon";
 import ContactForm from "@/components/site/ContactForm";
 import JsonLd from "@/components/site/JsonLd";
 import VideoEmbed from "@/components/site/VideoEmbed";
-import { getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import { getImageAlts, getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
 
 export default async function HomePage() {
-  const [site, services, projects] = await Promise.all([
+  const [site, services, projects, alts] = await Promise.all([
     getSiteContent(),
     getServices(),
     getProjects({ featured: true }),
+    getImageAlts(),
   ]);
   const url = siteUrl();
 
@@ -143,7 +144,7 @@ export default async function HomePage() {
               key={p.slug}
               className={i % 4 === 0 || i % 4 === 3 ? "md:col-span-7" : "md:col-span-5 md:mt-32"}
             >
-              <ProjectCard project={p} index={i} large={i % 4 === 0 || i % 4 === 3} />
+              <ProjectCard project={p} index={i} large={i % 4 === 0 || i % 4 === 3} alt={alts[p.coverImage]} />
             </div>
           ))}
         </div>

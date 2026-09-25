@@ -15,6 +15,7 @@ export type OriginRect = { top: number; left: number; width: number; height: num
 export default function Lightbox({
   images,
   title,
+  alts,
   index,
   origin,
   onClose,
@@ -23,6 +24,8 @@ export default function Lightbox({
 }: {
   images: string[];
   title: string;
+  /** Alt text from the media library, by URL. */
+  alts?: Record<string, string>;
   index: number;
   origin?: OriginRect | null;
   onClose: () => void;
@@ -235,7 +238,7 @@ export default function Lightbox({
         onPointerCancel={onPointerUp}
         onDragStart={(e) => e.preventDefault()}
       >
-        <SkeletonImage key={images[index]} src={images[index]} alt={`${title} — image ${index + 1}`} sizes="100vw" className="object-contain" priority />
+        <SkeletonImage key={images[index]} src={images[index]} alt={alts?.[images[index]] || `${title} — image ${index + 1}`} sizes="100vw" className="object-contain" priority />
       </div>
 
       <p className="eyebrow absolute left-4 top-5 text-[0.62rem] text-white/70 md:left-8">

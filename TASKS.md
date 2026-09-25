@@ -1,91 +1,60 @@
 # Tapşırıqlar
 
-Görüləcək işlərin siyahısı. Bitən işi `[x]` ilə işarələyin.
+Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; bitmiş işlər [`tasks-archive/`](tasks-archive/README.md)-dadır. Daimi qeydlər: [docs/vacib-qeydler.md](docs/vacib-qeydler.md).
 
-## Vacib qeydlər
+**Qayda:**
+- Yeni iş → `tasks/<qisa-ad>.md` faylı (aşağıdakı şablonla) + bu indeksdə uyğun bölməyə bir sətir: başlıq, qısa təsvir, link.
+- İş bitəndə → faylı `tasks-archive/`-ə köçür (`git mv`), `Status: bitib` və tarixi/PR-ı yaz, sətri buradan silib [`tasks-archive/README.md`](tasks-archive/README.md)-yə (bölməsinin ən üstünə) əlavə et.
 
-- **Hostinq: uzun müddət Vercel.** Gələcək stack-i (öz server və s.) müştəri qərar verəcək.
-- **Verilənlər bazası: MongoDB Atlas** (seçildi və qoşuldu). Baza adı `vladimir-fasij` (`MONGODB_DB` ilə dəyişdirilə bilər). Başlanğıc məzmun `npm run seed` ilə yazılıb: sayt məzmunu, 7 xidmət, 12 layihə.
-- **Yükləmələr: Vercel Blob.** `BLOB_READ_WRITE_TOKEN` varsa şəkillər Blob-a yazılır; yoxdursa lokalda `public/uploads`-a (Vercel-də isə aydın xəta verir). Tək fayl limiti 4 MB — Vercel funksiyaları 4.5 MB-dan böyük sorğunu qəbul etmir.
-- **Admin hesabında nümunə şifrə olmamalıdır.** `.env.local`-dakı `ADMIN_EMAIL` / `ADMIN_PASSWORD` `.env.example`-dakı nümunə dəyərlər idi; onlarla yaradılan hesab silindi. Seed skripti artıq nümunə dəyərlərlə və 10 simvoldan qısa şifrə ilə admin yaratmır.
-- **Kadr çıxarma (`ffmpeg`) Vercel funksiyalarında işləmir** — lokal skriptlə davam edir (`scripts/extract-project-frames.mjs`).
-- **Kadrları dəyişəndə versiyanı artır.** `/frames/*` bir illik keşlə verilir. Layihənin kadrlarını yenidən çıxaranda həm `scripts/extract-project-frames.mjs`-də, həm `src/lib/project-story.ts`-də `version` artırılmalıdır, yoxsa istifadəçilər köhnə kadrları görəcək.
-- **Mənbə videoları silməzdən əvvəl ehtiyat nüsxə saxla.** Sayt yalnız `public/frames`-i işlədir, amma kadrları yenidən çıxarmaq (keyfiyyət, uzunluq, kəsmə) üçün video lazımdır. Skript video tapmasa, həmin layihəni ötürür və kadrlara toxunmur.
-- **Dev server işləyərkən `npm run build` işlətmə** — hər ikisi `.next` qovluğunu istifadə edir, dev server sınır. Build-dən əvvəl dev serveri dayandır.
-- **Temp:** yeni layihədə `scrollVh` yazmasan, videonun uzunluğundan avtomatik hesablanır (saniyəyə 40vh). İki videolu layihələr (Villa La Belle, Villa Luna, Villa La Fadarello) əl ilə 720vh-dır.
-- **Kadr sıxlığı:** tək videolu layihələr 24 fps; dəniz, ağac və parıltı olan videolar pis sıxılır — onlar üçün 15 fps (bir səhifədə kompüter dəsti ~15 MB-dan çox olmasın).
-- **localhost:3000-də başqa layihədən qalmış service worker** saytı sındırırdı (`yolai-cache-v1`), təmizləndi. Eyni xəta ("client-side exception") yenə çıxsa, brauzerdə `localhost:3000` üçün service worker-i ləğv et.
+## Yerləşdirmə (Vercel)
 
-## 1. Layihə animasiyaları (scroll video)
+- **[Vercel mühit dəyişənləri və admin login](tasks/vercel-env-ve-login.md)** — Deploy-da login `MissingSecret` xətası verir; `AUTH_SECRET`, `MONGODB_URI` və s. Vercel-ə əlavə olunmalı, Blob qoşulmalı.
+- **[`.env.local` və Atlas təhlükəsizliyi](tasks/env-local-temizlik.md)** — Lokal Blob token-i, istifadə olunmayan DB dəyişənlərinin silinməsi, Atlas şifrəsinin gücü.
+- **[Resend (e-poçt) qurulması](tasks/resend-qurulmasi.md)** — Sorğu bildirişləri və müştəriyə avtomatik cavab üçün Resend hesabı, domen təsdiqi və Vercel dəyişənləri.
 
-Animasiyası olanlar: Albert Mews, Cannes, Villa at Saadiyat Island, Villa La Belle, Villa Nudra, Villa Luna, Villa La Fadarello, Chelsea Apartment, Belgravia.
+## Admin panel
 
-Qalan layihələr üçün video lazımdır. Hər video üçün: faylı `videos/`-a qoy → `scripts/extract-project-frames.mjs`-ə əlavə et → `src/lib/project-story.ts`-də mərhələ mətnlərini yaz.
+- **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
+- **[Mərhələ 4 — Animasiya redaktoru](tasks/admin-m4-animasiya-redaktoru.md)** — Story-ləri bazaya köçürmək, video yükləmə, GitHub Actions ilə kadr çıxarma, vizual timeline, kadrları Blob-a köçürmək.
+- **[Mərhələ 5 — Dashboard və əlavələr](tasks/admin-m5-dashboard.md)** — Sorğu qrafiki, "diqqət tələb edir" siyahısı, dəyişiklik tarixçəsi, yeni bölmələr.
 
-- [ ] Persian Gulf Coast Villa (`persian-gulf-coast-villa`)
-- [x] Villa Luna (`villa-luna-cap-martin`) — `luna1.mp4` + `luna2.mp4`, 15 fps
-- [ ] Villa at Cap d'Ail (`cap-d-ail`)
-- [x] Villa La Fadarello (`cap-ferrat`) — `capferat1.mp4` + `capferat2.mp4`, 15 fps
-- [x] Belgravia (`belgravia`) — `belg.mp4`, 24 fps, v1
-- [ ] Windsor Estate (`windsor`)
-- [x] Chelsea Apartment (`chelsea`) — ch1 + ch2, 15fps, v1
+## Layihə animasiyaları
 
-## 2. Admin panel
+- **[Animasiya: Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md)** — `persian-gulf-coast-villa` üçün scroll video — video lazımdır.
+- **[Animasiya: Villa at Cap d'Ail](tasks/animasiya-cap-d-ail.md)** — `cap-d-ail` üçün scroll video — video lazımdır.
+- **[Animasiya: Windsor Estate](tasks/animasiya-windsor.md)** — `windsor` üçün scroll video — video lazımdır.
 
-Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
+## Fayllar və ehtiyat nüsxə
 
-- [x] Baza seçimi: MongoDB Atlas
-- [x] Atlas cluster, DB istifadəçisi, bağlantı (`MONGODB_URI`) — yoxlanıldı, MongoDB 8.0
-- [x] `scripts/seed.ts` yazıldı və işlədildi (təkrar işlətmək təhlükəsizdir, redaktə olunmuş məlumatın üzərinə yazmır)
-- [x] Yükləmələr Vercel Blob-a keçirildi (`src/lib/storage.ts`, `next.config.ts`-də Blob domeni)
-- [x] Real admin hesabı yaradıldı (`npm run seed -- --reset-admin`), nümunə hesab silindi — yoxlanıldı
-- [ ] Vercel → Environment Variables: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`, `NEXT_PUBLIC_SITE_URL` (real domen), istəyə görə `MONGODB_DB`. `BLOB_READ_WRITE_TOKEN` Blob qoşulanda avtomatik gəlir. (`ADMIN_*` yalnız seed üçündür, Vercel-də lazım deyil.)
-- [ ] Lokal yükləmə testi üçün `BLOB_READ_WRITE_TOKEN`-i Vercel-dən `.env.local`-a köçür (və ya `vercel env pull`)
-- [ ] Admin paneldən şəkil yükləməni real olaraq sınamaq (giriş → layihə → şəkil)
-- [ ] 4 MB-dan böyük fayllar (videolar) üçün birbaşa brauzerdən Blob-a yükləmə (`@vercel/blob/client`)
-- [ ] `.env.local`-dakı istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS` dəyişənlərini silmək (şifrə təkrarı)
-- [ ] Atlas: Network Access `0.0.0.0/0` açıqdırsa, DB şifrəsinin güclü olduğuna əmin ol
+- **[Mənbə videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md)** — Kadrları yenidən çıxarmaq üçün orijinal MP4-lər lazımdır; çoxu artıq `videos/`-da yoxdur.
 
-- [x] "Site content & SEO" səhifəsi (`/admin/content`) — brend, SEO (Google önizləməsi), ana səhifə animasiyasının 8 mərhələsi, haqqında, rəqəmlər, proses, komanda (foto ilə), əlaqə və sosial linklər
-- [ ] "Site content & SEO"-da real saxlama testi (Save → saytda dəyişikliyin görünməsi)
-- [ ] Animasiya redaktoru: layihəyə video yükləmək, mərhələ mətnlərini və vaxtlarını admin paneldən dəyişmək
-- [ ] Mərhələ konfiqurasiyasını (`project-story.ts`) MongoDB-yə köçürmək
-- [ ] Video yüklənəndə kadrları serverdə `ffmpeg` ilə avtomatik çıxarmaq
-- [ ] Qalereya üçün "seçilmiş 6 şəkil"i admin paneldən seçmək (hazırda ilk 6 şəkil göstərilir)
+## SEO
 
-## 3. Yerləşdirmə (hazırda Vercel; öz server — müştəri qərarından sonra)
+- **[PageSpeed / Lighthouse və Search Console](tasks/seo-lighthouse-search-console.md)** — Deploy-dan sonra performans yoxlaması və sitemap-in Google-a göndərilməsi.
+- **[`VideoObject` strukturlaşdırılmış məlumatı](tasks/seo-videoobject.md)** — Google-da video nəticəsi kimi görünmək üçün layihə videolarına schema.org `VideoObject`.
+- **[Layihə mətnlərinin düzəlişi](tasks/mezmun-duzelisleri.md)** — Mənbə saytdan gələn yazı səhvləri və Villa Luna-nın səhv təsviri.
 
-- [ ] Server mühit dəyişənləri: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-- [ ] `NEXT_PUBLIC_SITE_URL` real domenə dəyişdirilsin (hazırda `localhost:3001`, sitemap-də də bu görünür)
-- [ ] MongoDB qoşulsun (admin girişi və əlaqə forması bazasız işləmir)
-- [ ] Vercel: `/frames/*` keş başlığı `next.config.ts`-də artıq var; öz serverə keçilsə nginx-də də eyni (bir illik `immutable`)
-- [ ] Kadrlar Vercel deploy-unun ölçüsünü artırır (~200 MB) — layihə sayı artdıqca Vercel Blob / Supabase Storage-ə köçürmək
-- [ ] Deploy-dan əvvəl `npm run build` — dev server dayandırılmış halda
-- [ ] Kadrları (`public/frames`) git-dən çıxarıb bulud yaddaşında (və ya gələcəkdə öz serverdə) saxlamaq
+## Test
 
-## 4. SEO
+- **[Qənaət rejimi testi](tasks/test-qenaet-rejimi.md)** — `prefers-reduced-motion` və Data Saver ilə animasiyanın şəkil + mətnə çevrilməsi.
+- **[Real cihazda və müxtəlif ekranlarda test](tasks/test-real-cihaz.md)** — iOS Safari / Android Chrome, portret ekranda kəsilmə, lightbox.
 
-- [ ] Deploy-dan sonra PageSpeed / Lighthouse yoxlaması (LCP, CLS, mobil)
-- [ ] Google Search Console-a sitemap göndərmək
-- [x] Ana səhifənin SEO mətnləri qısaldıldı: başlıq 66 → 59 simvol, təsvir 245 → 160 simvol (bazada və `defaults.ts`-də)
-- [ ] **`VideoObject` strukturlaşdırılmış məlumatı** (Google-da video nəticəsi kimi görünmək üçün). Mənbə MP4-lər silinib, ona görə:
-  - [ ] Chelsea — YouTube videosu var (`youtube:tu3II9r7n_o`): `embedUrl` + `thumbnailUrl` ilə əlavə etmək
-  - [ ] Windsor — Vimeo videosu var (`vimeo:898678481`): eyni qaydada
-  - [ ] Qalan animasiyalı layihələr: mövcud kadrlardan ffmpeg ilə qısa MP4 yığmaq (və ya sifarişçidən orijinalı almaq), Blob-a yükləmək, `contentUrl` kimi vermək
-  - [ ] Hər video üçün: `name`, `description`, `uploadDate`, `duration`, `thumbnailUrl` (poster.webp) — Rich Results Test ilə yoxlamaq
-- [ ] Mənbə videoların ehtiyat nüsxəsi: `videos/` qovluğu git-də deyil və silinib — kadrları yenidən çıxarmaq lazım olsa orijinallar lazımdır (Drive / xarici disk)
-- [ ] Layihə təsvirlərindəki yazı səhvləri (mənbə saytdan olduğu kimi köçürülüb)
-- [ ] Villa Luna (Cap Martin) təsviri səhvən Saadiyat villasının mətnidir ("Family villa at Saadiyat island in Abu Dhabi…") — sifarişçidən düzgün mətn alınmalıdır. Animasiya mərhələlərində yalnız bu villaya aid faktlar işlədilib.
+## Sifarişçi ilə
 
-## 5. Test
+- **[Qalereya variantının təsdiqi](tasks/qalereya-tesdiq.md)** — Bütün layihələrdə "Showcase" (6 şəkil + "View all") — sifarişçi təsdiqləməlidir.
 
-- [ ] Qənaət rejimi: `prefers-reduced-motion` və "Data Saver" ilə animasiyanın statik şəkil + mətnə çevrilməsi (brauzerdə hələ sınanmayıb)
-- [x] Mobil/planşet layout yoxlaması (390×844, 375×667, 768×1024 — iframe-də ölçü ilə): scroll mətni ↔ ox, yükləmə yazısı, menyu, qalereya, lightbox
-- [ ] Real cihazda test (iOS Safari, Android Chrome): ünvan zolağı gizlənəndə `svh` hündürlüyü, toxunma ilə scroll, iPhone-un alt zolağı (safe-area)
-- [ ] Portret ekranda 16:9 video mərkəzdən kəsilir — lazım olsa layihə üzrə fokus nöqtəsi (məs. villa sağdadırsa) əlavə etmək
-- [ ] Lightbox: lupa, sürüşdürmə, thumbnail lenti — müxtəlif ekran ölçülərində
+## Şablon
 
-## 6. Fayllar və ehtiyat nüsxə
+```markdown
+# Başlıq
 
-- [ ] Mənbə videoların ehtiyat nüsxəsi: `video.mp4`, `video2.mp4` (ana səhifə) Zibil qutusundadır; Villa La Belle (`1.mp4`, `2.mp4`), Albert Mews (`Albert2.mp4`), Cannes (`cannVilla.mp4`) videoları `videos/`-da artıq yoxdur. Kadrları yenidən çıxarmaq lazım olsa, videolar gərək olacaq.
-- [ ] Qalereya variantı sifarişçi ilə təsdiqlənsin (hazırda bütün layihələrdə "Showcase": 6 şəkil + "View all")
+**Bölmə:** … · **Status:** açıq
+
+> Bir cümləlik təsvir (indeksdəki ilə eyni).
+
+## Təsvir
+…
+
+## Addımlar
+- [ ] …
+```

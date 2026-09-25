@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isAllowedImageUrl } from "./upload-config";
 
 export const contactSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(120),
@@ -7,13 +8,20 @@ export const contactSchema = z.object({
   subject: z.string().trim().max(200).optional().default(""),
   body: z.string().trim().min(10, "Tell us a little more about your project").max(5000),
   company: z.string().optional(), // honeypot: real users leave it empty
+  startedAt: z.string().regex(/^\d*$/).optional(), // ms timestamp from when the form was shown
 });
+
+/** Admin: status, tags and notes on an enquiry. */
+export const enquiryNoteSchema = z.string().trim().min(1, "Write a note first").max(2000);
 
 const slug = z
   .string()
   .trim()
   .toLowerCase()
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and hyphens");
+
+/** An uploaded image or a file shipped with the site; "" means none. */
+const imageUrl = z.string().trim().max(500).refine((u) => u === "" || isAllowedImageUrl(u), "Choose an uploaded image");
 
 const seo = { seoTitle: z.string().trim().max(120).default(""), seoDescription: z.string().trim().max(320).default("") };
 
@@ -26,8 +34,16 @@ export const projectSchema = z.object({
   category: z.string().trim().max(160).default(""),
   year: z.string().trim().max(20).default(""),
   summary: z.string().trim().max(600).default(""),
-  content: z.string().trim().max(20000).default(""),
-  order: z.coerce.number().int().default(0),
+  content: z.string().trim().max(50000).default(""),
+  coverImage: imageUrl.default(""),
+  gallery: z.array(imageUrl.refine(Boolean)).max(300).default([]),
+  highlights: z.array(z.string()).max(6, "Pick at most six highlights").default([]),
+  // ISO string from the form ("" = publish immediately).
+  publishAt: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || !Number.isNaN(Date.parse(v)), "Enter a valid date")
+    .transform((v) => (v ? new Date(v) : null)),
   featured: z.boolean(),
   published: z.boolean(),
   ...seo,
@@ -38,8 +54,9 @@ export const serviceSchema = z.object({
   slug,
   icon: z.string().trim().max(40).default(""),
   features: z.array(z.string().trim().min(1).max(200)).default([]),
+  image: imageUrl.default(""),
   summary: z.string().trim().max(600).default(""),
-  content: z.string().trim().max(20000).default(""),
+  content: z.string().trim().max(50000).default(""),
   order: z.coerce.number().int().default(0),
   published: z.boolean(),
   ...seo,
@@ -75,7 +92,7 @@ export const siteContentSchema = z.object({
         name: z.string().trim().min(1, "Name is required").max(80),
         role: z.string().trim().max(80),
         bio: z.string().trim().max(800),
-        photo: z.string().trim().max(500),
+        photo: imageUrl,
       }),
     )
     .max(20),
@@ -91,7 +108,7 @@ export const siteContentSchema = z.object({
     title: z.string().trim().min(1, "The page title is required").max(120, "Keep the title under 120 characters"),
     description: z.string().trim().min(1, "Add a description").max(320, "Keep the description under 320 characters"),
     keywords: z.string().trim().max(300),
-    ogImage: z.string().trim().max(500),
+    ogImage: imageUrl,
   }),
 });
 

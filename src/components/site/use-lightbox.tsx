@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import Lightbox, { type OriginRect } from "./Lightbox";
 
 /** Shared open/close/step state for every gallery layout. */
-export function useLightbox(images: string[], title: string) {
+export function useLightbox(images: string[], title: string, alts?: Record<string, string>) {
   const [open, setOpen] = useState<number | null>(null);
   const [origin, setOrigin] = useState<OriginRect | null>(null);
 
@@ -19,6 +19,7 @@ export function useLightbox(images: string[], title: string) {
       <Lightbox
         images={images}
         title={title}
+        alts={alts}
         index={open}
         origin={origin}
         onClose={() => setOpen(null)}

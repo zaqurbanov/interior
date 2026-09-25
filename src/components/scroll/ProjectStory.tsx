@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import SkipArrow from "./SkipArrow";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
-import { prefersLiteMedia, progressiveOrder, whenReadyToStream } from "@/lib/frame-loader";
+import { SCROLL_SECTION_CLASS, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
 import {
   storyFirstFrame,
   storyFrameUrl,
@@ -189,8 +189,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     <section
       ref={sectionRef}
       aria-label={`${title} — walkthrough`}
-      className="relative"
-      style={{ height: `${storyScrollVh(story)}vh` }}
+      className={`relative ${SCROLL_SECTION_CLASS}`}
+      style={scrollSectionStyle(storyScrollVh(story))}
     >
       <div className="sticky top-0 h-svh w-full overflow-hidden bg-sand">
         {/* First frame as real HTML: the page's LCP image, visible before any JS runs. */}

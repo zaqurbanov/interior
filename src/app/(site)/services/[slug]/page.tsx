@@ -5,7 +5,8 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
 import PageHero from "@/components/site/PageHero";
 import ServiceIcon from "@/components/site/ServiceIcon";
-import { getService, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import { toHtml } from "@/lib/rich-text";
+import { getImageAlts, getService, getServices, getSiteContent, siteUrl } from "@/lib/data";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ServicePage({ params }: Props) {
   const { slug } = await params;
-  const [service, services, site] = await Promise.all([getService(slug), getServices(), getSiteContent()]);
+  const [service, services, site, alts] = await Promise.all([getService(slug), getServices(), getSiteContent(), getImageAlts()]);
   if (!service) notFound();
   const url = siteUrl();
 
@@ -46,7 +47,7 @@ export default async function ServicePage({ params }: Props) {
       <PageHero eyebrow="Service" title={service.title} intro={service.summary} />
       {service.image && (
         <div className="relative mx-auto mb-20 aspect-[21/9] w-full max-w-[1600px] overflow-hidden bg-sand">
-          <Image src={service.image} alt={`${service.title} by ${site.brandName}`} fill priority sizes="100vw" className="object-cover" />
+          <Image src={service.image} alt={alts[service.image] || `${service.title} by ${site.brandName}`} fill priority sizes="100vw" className="object-cover" />
         </div>
       )}
       <section className="container-x grid gap-12 pb-24 md:grid-cols-12">
@@ -54,9 +55,7 @@ export default async function ServicePage({ params }: Props) {
           <ServiceIcon name={service.icon} className="h-16 w-16" />
         </div>
         <div className="space-y-6 text-lg leading-relaxed text-graphite md:col-span-7">
-          {service.content.split(/\n{2,}/).map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
+          <div className="rich-text" dangerouslySetInnerHTML={{ __html: toHtml(service.content) }} />
           {service.features.length > 0 && (
             <ul className="divide-y divide-ink/10 border-y border-ink/10 text-base text-ink">
               {service.features.map((f) => (

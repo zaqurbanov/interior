@@ -39,7 +39,7 @@ async function main() {
   console.log(`Services: ${services} added, ${defaultServices.length - services} already present.`);
 
   let projects = 0;
-  for (const { id: _id, ...p } of defaultProjects) {
+  for (const { id: _id, publishAt: _publishAt, previewToken: _previewToken, ...p } of defaultProjects) {
     const res = await Project.updateOne({ slug: p.slug }, { $setOnInsert: p }, { upsert: true });
     projects += res.upsertedCount;
   }
