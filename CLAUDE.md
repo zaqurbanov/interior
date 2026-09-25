@@ -23,7 +23,7 @@ Never run `next build` while a dev server is running on the same checkout — bo
 
 ## Environment
 
-Copy `.env.example` to `.env.local`: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SITE_URL`. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
+Copy `.env.example` to `.env.local`: `MONGODB_URI`, `MONGODB_DB`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
 
 ## Architecture
 
@@ -78,7 +78,9 @@ Auth is NextAuth v5 credentials (`src/auth.ts`) with an edge-safe config (`src/a
 
 Admin forms submit through `submitWith()` (`src/components/admin/fields.tsx`) instead of a plain `action` prop, so React does not reset the form and lose input when validation fails.
 
-Uploads go to `public/uploads` via `src/lib/storage.ts`. This does not work on Vercel's read-only filesystem — swap that module for Blob/S3/Cloudinary before relying on uploads in production.
+The database is MongoDB Atlas (database name from `MONGODB_DB`, default `vladimir-fasij` — set in `connectDB`, because Atlas URIs usually omit it). `npm run seed` (`scripts/seed.ts`) inserts missing default content and the admin account and never overwrites edited records; `npm run seed -- --reset-admin` sets the admin password. It refuses the `.env.example` placeholder credentials.
+
+Uploads go through `src/lib/storage.ts`: Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set, otherwise `public/uploads` (local development only). Server actions carry the whole form and Vercel rejects bodies over 4.5 MB, so single uploads are capped at 4 MB; larger files (video) need client-side Blob uploads.
 
 ### Styling
 
@@ -86,6 +88,5 @@ Tailwind v4 with semantic tokens in `src/app/globals.css`: `ivory` = page ground
 
 ## Known gaps
 
-- `npm run seed` is declared in package.json but `scripts/seed.ts` does not exist yet.
 - `AdminNav` links `/admin/content` (site content + SEO editing); that page has not been built.
-- `public/frames` and `public/images` are ~175 MB of committed assets; adding more project walkthroughs will grow the repo fast. Hosting stays on Vercel for the foreseeable future (a later move is the client's call), so frames and admin uploads should eventually move to object storage — Vercel Blob or Supabase Storage, depending on which hosted database is chosen (MongoDB Atlas or Supabase; undecided). See `TASKS.md`.
+- `public/frames` and `public/images` are ~175 MB of committed assets; adding more project walkthroughs will grow the repo fast. Hosting stays on Vercel for the foreseeable future (a later move is the client's call), so the frames should eventually move to Vercel Blob as well (admin uploads already use it). See `TASKS.md`.

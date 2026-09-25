@@ -14,7 +14,13 @@ export async function connectDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error("MONGODB_URI is not set. Copy .env.example to .env.local and fill it in.");
   if (cache.conn) return cache.conn;
-  cache.promise ??= mongoose.connect(uri, { bufferCommands: false, serverSelectionTimeoutMS: 8000 });
+  cache.promise ??= mongoose.connect(uri, {
+    // Atlas connection strings often carry no database name, which would put
+    // everything in "test". Name it explicitly.
+    dbName: process.env.MONGODB_DB || "vladimir-fasij",
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 8000,
+  });
   try {
     cache.conn = await cache.promise;
   } catch (err) {

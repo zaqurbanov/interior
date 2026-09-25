@@ -5,8 +5,9 @@ Görüləcək işlərin siyahısı. Bitən işi `[x]` ilə işarələyin.
 ## Vacib qeydlər
 
 - **Hostinq: uzun müddət Vercel.** Gələcək stack-i (öz server və s.) müştəri qərar verəcək.
-- **Verilənlər bazası onlayn olacaq: MongoDB Atlas və ya Supabase** — seçim hələ açıqdır. Kod hazırda MongoDB (Mongoose) üzərindədir: Atlas üçün yalnız `MONGODB_URI` kifayətdir; Supabase data qatının (modellər, admin action-ları, giriş) yenidən yazılmasını tələb edir.
-- **Vercel-də fayl sistemi yazmağa bağlıdır.** Admin paneldən şəkil/video yükləmə (`public/uploads`) orada işləmir — bulud yaddaşı lazımdır: Supabase seçilsə onun Storage-i, Atlas seçilsə Vercel Blob (dəyişiklik yalnız `src/lib/storage.ts`-dədir).
+- **Verilənlər bazası: MongoDB Atlas** (seçildi və qoşuldu). Baza adı `vladimir-fasij` (`MONGODB_DB` ilə dəyişdirilə bilər). Başlanğıc məzmun `npm run seed` ilə yazılıb: sayt məzmunu, 7 xidmət, 12 layihə.
+- **Yükləmələr: Vercel Blob.** `BLOB_READ_WRITE_TOKEN` varsa şəkillər Blob-a yazılır; yoxdursa lokalda `public/uploads`-a (Vercel-də isə aydın xəta verir). Tək fayl limiti 4 MB — Vercel funksiyaları 4.5 MB-dan böyük sorğunu qəbul etmir.
+- **Admin hesabında nümunə şifrə olmamalıdır.** `.env.local`-dakı `ADMIN_EMAIL` / `ADMIN_PASSWORD` `.env.example`-dakı nümunə dəyərlər idi; onlarla yaradılan hesab silindi. Seed skripti artıq nümunə dəyərlərlə və 10 simvoldan qısa şifrə ilə admin yaratmır.
 - **Kadr çıxarma (`ffmpeg`) Vercel funksiyalarında işləmir** — lokal skriptlə davam edir (`scripts/extract-project-frames.mjs`).
 - **Kadrları dəyişəndə versiyanı artır.** `/frames/*` bir illik keşlə verilir. Layihənin kadrlarını yenidən çıxaranda həm `scripts/extract-project-frames.mjs`-də, həm `src/lib/project-story.ts`-də `version` artırılmalıdır, yoxsa istifadəçilər köhnə kadrları görəcək.
 - **Mənbə videoları silməzdən əvvəl ehtiyat nüsxə saxla.** Sayt yalnız `public/frames`-i işlədir, amma kadrları yenidən çıxarmaq (keyfiyyət, uzunluq, kəsmə) üçün video lazımdır. Skript video tapmasa, həmin layihəni ötürür və kadrlara toxunmur.
@@ -33,13 +34,19 @@ Qalan layihələr üçün video lazımdır. Hər video üçün: faylı `videos/`
 
 Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
 
-- [ ] Baza seçimi: Atlas yoxsa Supabase (müştəri ilə razılaşdırmaq)
-- [ ] Onlayn bazanı yaratmaq və Vercel-də mühit dəyişənlərini yazmaq (`MONGODB_URI` və ya Supabase açarları, `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`)
-- [ ] Atlas: Network Access-də Vercel üçün `0.0.0.0/0` (Vercel-in sabit IP-si yoxdur), ayrıca DB istifadəçisi
-- [ ] Yükləmələr üçün bulud yaddaşı: Vercel Blob (Atlas ilə) və ya Supabase Storage
+- [x] Baza seçimi: MongoDB Atlas
+- [x] Atlas cluster, DB istifadəçisi, bağlantı (`MONGODB_URI`) — yoxlanıldı, MongoDB 8.0
+- [x] `scripts/seed.ts` yazıldı və işlədildi (təkrar işlətmək təhlükəsizdir, redaktə olunmuş məlumatın üzərinə yazmır)
+- [x] Yükləmələr Vercel Blob-a keçirildi (`src/lib/storage.ts`, `next.config.ts`-də Blob domeni)
+- [ ] **Real admin hesabı:** `.env.local`-da `ADMIN_EMAIL` və güclü `ADMIN_PASSWORD` (10+ simvol) yaz, sonra `npm run seed -- --reset-admin`. Hazırda bazada admin yoxdur — admin panelə heç kim girə bilmir.
+- [ ] Vercel → Environment Variables: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`, `NEXT_PUBLIC_SITE_URL` (real domen), istəyə görə `MONGODB_DB`. `BLOB_READ_WRITE_TOKEN` Blob qoşulanda avtomatik gəlir. (`ADMIN_*` yalnız seed üçündür, Vercel-də lazım deyil.)
+- [ ] Lokal yükləmə testi üçün `BLOB_READ_WRITE_TOKEN`-i Vercel-dən `.env.local`-a köçür (və ya `vercel env pull`)
+- [ ] Admin paneldən şəkil yükləməni real olaraq sınamaq (giriş → layihə → şəkil)
+- [ ] 4 MB-dan böyük fayllar (videolar) üçün birbaşa brauzerdən Blob-a yükləmə (`@vercel/blob/client`)
+- [ ] `.env.local`-dakı istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS` dəyişənlərini silmək (şifrə təkrarı)
+- [ ] Atlas: Network Access `0.0.0.0/0` açıqdırsa, DB şifrəsinin güclü olduğuna əmin ol
 
 - [ ] "Site content & SEO" səhifəsi (`/admin/content`) — menyuda link var, səhifə yoxdur (404)
-- [ ] `scripts/seed.ts` — `npm run seed` elan olunub, fayl yoxdur
 - [ ] Animasiya redaktoru: layihəyə video yükləmək, mərhələ mətnlərini və vaxtlarını admin paneldən dəyişmək
 - [ ] Mərhələ konfiqurasiyasını (`project-story.ts`) MongoDB-yə köçürmək
 - [ ] Video yüklənəndə kadrları serverdə `ffmpeg` ilə avtomatik çıxarmaq
