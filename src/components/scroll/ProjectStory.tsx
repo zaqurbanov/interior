@@ -5,14 +5,16 @@ import { gsap } from "gsap";
 import SkipArrow from "./SkipArrow";
 import { useAutoplayMode, watchVisibility } from "./use-autoplay";
 import ReplayButton from "./ReplayButton";
-import { createPlayer, type Player } from "@/lib/autoplay";
+import { createPlayer, createVideoPlayer, type Player } from "@/lib/autoplay";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
 import { SCROLL_SECTION_CLASS, linearOrder, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
 import {
   storyFirstFrame,
   storyFrameUrl,
+  storyMobileVideoUrl,
   storyScrollVh,
+  storySegments,
   storyTimeline,
   storyUnitToFrame,
   type ProjectStory as Story,
@@ -39,10 +41,37 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   const autoplay = useAutoplayMode();
   const [ended, setEnded] = useState(false);
   const playerRef = useRef<Player | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  // Phones play an MP4 (far lighter than the frames); frames remain the
+  // fallback if the browser will not autoplay it.
+  const [videoFailed, setVideoFailed] = useState(false);
+  const useVideo = autoplay === true && !videoFailed;
 
   const { totalFrames, totalUnits } = storyTimeline(story);
   const starts = story.stages.map((s) => s.at / totalUnits);
   const first = storyFirstFrame(story);
+
+  // Stage copy, facts and progress bar for a timeline position p (0–1). Shared
+  // by the scroll, frame-autoplay and video paths; touches only refs.
+  const fadeStage = (el: HTMLElement | null, i: number, p: number, offset: number) => {
+    if (!el) return;
+    const a = starts[i];
+    const b = starts[i + 1] ?? 1.01;
+    const fadeIn = i === 0 ? 1 : clamp01((p - a) / FADE);
+    const fadeOut = i === starts.length - 1 ? 1 : clamp01((b - p) / FADE);
+    const o = Math.min(fadeIn, fadeOut);
+    el.style.opacity = String(o);
+    el.style.transform = `translateY(${(1 - fadeIn) * offset - (1 - fadeOut) * offset}px)`;
+    el.setAttribute("aria-hidden", o > 0.5 ? "false" : "true");
+  };
+
+  const update = (p: number) => {
+    leftRefs.current.forEach((el, i) => fadeStage(el, i, p, 32));
+    rightRefs.current.forEach((el, i) => fadeStage(el, i, p, 20));
+    if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+    // With autoplay the arrow is the way on to the rest of the page, so it stays.
+    if (hintRef.current && !autoplay) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
+  };
 
   // Reduced motion, Data Saver or a very slow connection: a still image instead.
   useEffect(() => setLite(prefersLiteMedia()), []);
@@ -50,7 +79,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (lite || autoplay === null || !section || !canvas) return;
+    if (lite || autoplay === null || useVideo || !section || !canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -126,26 +155,6 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       }
     })();
 
-    const fadeStage = (el: HTMLElement | null, i: number, p: number, offset: number) => {
-      if (!el) return;
-      const a = starts[i];
-      const b = starts[i + 1] ?? 1.01;
-      const fadeIn = i === 0 ? 1 : clamp01((p - a) / FADE);
-      const fadeOut = i === starts.length - 1 ? 1 : clamp01((b - p) / FADE);
-      const o = Math.min(fadeIn, fadeOut);
-      el.style.opacity = String(o);
-      el.style.transform = `translateY(${(1 - fadeIn) * offset - (1 - fadeOut) * offset}px)`;
-      el.setAttribute("aria-hidden", o > 0.5 ? "false" : "true");
-    };
-
-    const update = (p: number) => {
-      leftRefs.current.forEach((el, i) => fadeStage(el, i, p, 32));
-      rightRefs.current.forEach((el, i) => fadeStage(el, i, p, 20));
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      // With autoplay the arrow is the way on to the rest of the page, so it stays.
-      if (hintRef.current && !autoplay) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
-    };
-
     const last = totalUnits - 1;
     let stopWatching = () => {};
     if (autoplay) {
@@ -202,7 +211,51 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       tween.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [story.slug, lite, autoplay]);
+  }, [story.slug, lite, autoplay, useVideo]);
+
+  // Phones: the MP4 is the clock; its time drives the same stage copy.
+  useEffect(() => {
+    const section = sectionRef.current;
+    const video = videoRef.current;
+    if (lite || !useVideo || !section || !video) return;
+    const last = totalUnits - 1;
+    const signal = { cancelled: false };
+    let player: Player | null = null;
+    let stopWatching = () => {};
+    const show = () => (video.style.opacity = "1");
+    update(0);
+    whenReadyToStream(section, signal).then(() => {
+      if (signal.cancelled) return;
+      video.muted = true; // required for autoplay; set as a property, React does not render the attribute
+      video.addEventListener("loadeddata", show, { once: true });
+      video.src = storyMobileVideoUrl(story);
+      const p = createVideoPlayer({
+        video,
+        fps: story.fps ?? 24,
+        segments: storySegments(story),
+        holds: starts.slice(1).map((s) => Math.round((s + FADE) * last)),
+        onUnit: (u) => {
+          update(u / last);
+          setEnded(false);
+        },
+        onEnd: () => setEnded(true),
+        onFail: () => setVideoFailed(true),
+      });
+      player = p;
+      playerRef.current = p;
+      stopWatching = watchVisibility(section, (visible) => (visible ? p.play() : p.pause()));
+    });
+    return () => {
+      signal.cancelled = true;
+      stopWatching();
+      player?.destroy();
+      playerRef.current = null;
+      video.removeEventListener("loadeddata", show);
+      video.removeAttribute("src");
+      video.load();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [story.slug, lite, useVideo]);
 
   const pct = Math.round((loaded / totalFrames) * 100);
 
@@ -248,6 +301,17 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
             className="absolute inset-0 h-full w-full object-cover"
           />
         </picture>
+        {useVideo && (
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300"
+          />
+        )}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-300"
@@ -312,7 +376,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
 
         {autoplay && ended && <ReplayButton onClick={() => playerRef.current?.restart()} />}
 
-        {pct < 100 && (
+        {pct < 100 && !useVideo && (
           // Top-right on phones, where it cannot collide with the centred arrow.
           <div className="absolute right-4 top-20 md:top-auto md:bottom-6 md:right-10" aria-live="polite">
             <span className="eyebrow text-[0.6rem] text-ink/60">Loading walkthrough {pct}%</span>

@@ -3,15 +3,17 @@ import path from "node:path";
 import { connectDB } from "./db";
 import { deleteUpload, isStoredUrl } from "./storage";
 import type { MediaItem, MediaUsage } from "./types";
-import { Media, Project, Service, SiteContent } from "@/models";
+import { isVideoUrl } from "./upload-config";
+import { Media, Project, Service, SiteContent, Story } from "@/models";
 
 /** Every image URL the database refers to, with where it is used. */
 export async function collectUsage(): Promise<Map<string, MediaUsage[]>> {
   await connectDB();
-  const [projects, services, site] = await Promise.all([
-    Project.find({}, { title: 1, coverImage: 1, gallery: 1 }).lean(),
+  const [projects, services, site, stories] = await Promise.all([
+    Project.find({}, { title: 1, slug: 1, coverImage: 1, gallery: 1 }).lean(),
     Service.find({}, { title: 1, image: 1 }).lean(),
     SiteContent.findOne({ key: "main" }, { seo: 1, team: 1 }).lean(),
+    Story.find({}, { slug: 1, sources: 1 }).lean(),
   ]);
 
   const usage = new Map<string, MediaUsage[]>();
@@ -30,6 +32,10 @@ export async function collectUsage(): Promise<Map<string, MediaUsage[]>> {
   for (const s of services) add(s.image, `${s.title} — service image`, `/admin/services/${s._id}`);
   add(site?.seo?.ogImage, "Social sharing image", "/admin/content#brand");
   for (const m of site?.team ?? []) add(m.photo, `${m.name || "Team member"} — photo`, "/admin/content#team");
+  for (const s of stories) {
+    const p = projects.find((x) => x.slug === s.slug);
+    for (const v of s.sources ?? []) add(v.url, `${p?.title ?? s.slug} — walkthrough video`, p ? `/admin/projects/${p._id}/story` : "/admin/projects");
+  }
   return usage;
 }
 
@@ -53,7 +59,8 @@ export async function listLibrary(): Promise<MediaItem[]> {
   const docs = await Media.find().sort({ createdAt: -1 }).lean();
   const byUrl = new Map(docs.map((d) => [d.url, d]));
 
-  const urls = [...docs.map((d) => d.url), ...[...usage.keys()].filter((u) => !byUrl.has(u))];
+  // Images only: walkthrough videos are managed on the walkthrough page.
+  const urls = [...docs.map((d) => d.url), ...[...usage.keys()].filter((u) => !byUrl.has(u) && !isVideoUrl(u))];
   return urls.map((url) => {
     const d = byUrl.get(url);
     return {

@@ -1,9 +1,12 @@
 import "server-only";
 import { connectDB, isDbConfigured } from "./db";
 import { isEnquiryStatus } from "./enquiries";
-import { Media, Project, Service, SiteContent } from "@/models";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { getProjectStory, type ProjectStory } from "./project-story";
+import { Media, Project, Service, SiteContent, Story } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
-import type { MessageData, ProjectData, ServiceData, SiteContentData } from "./types";
+import type { MessageData, ProjectData, ServiceData, SiteContentData, StoryAdminData } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const str = (v: any) => (v == null ? "" : String(v));
@@ -186,6 +189,71 @@ export function getImageAlts(): Promise<Record<string, string>> {
     const docs = await Media.find({ alt: { $ne: "" } }, { url: 1, alt: 1 }).lean();
     return Object.fromEntries(docs.map((d) => [d.url, d.alt]));
   }, {});
+}
+
+export function toStoryAdmin(d: any): StoryAdminData {
+  const status = str(d.job?.status);
+  return {
+    id: str(d._id),
+    slug: str(d.slug),
+    version: Number(d.version ?? 0),
+    base: str(d.base) || "/frames",
+    fps: Number(d.fps ?? 24),
+    hold: Number(d.hold ?? 0),
+    scenes: (d.scenes ?? []).map(Number),
+    sources: (d.sources ?? []).map((s: any) => ({ url: str(s.url), start: Number(s.start ?? 0), duration: Number(s.duration ?? 0) })),
+    extractFps: Number(d.extractFps ?? 24),
+    scrollVh: Number(d.scrollVh ?? 0),
+    pauses: (d.pauses ?? []).map((p: any) => ({ at: Number(p.at ?? 0), units: Number(p.units ?? 0) })),
+    stages: (d.stages ?? []).map((s: any) => ({
+      at: Number(s.at ?? 0),
+      eyebrow: str(s.eyebrow),
+      title: str(s.title),
+      text: str(s.text),
+      label: str(s.label),
+      facts: (s.facts ?? []).map(str),
+    })),
+    enabled: Boolean(d.enabled),
+    job: {
+      status: status === "processing" || status === "failed" ? status : "idle",
+      version: Number(d.job?.version ?? 0),
+      error: str(d.job?.error),
+      startedAt: d.job?.startedAt ? new Date(d.job.startedAt).toISOString() : "",
+    },
+  };
+}
+
+/** A story the public page can render: frames exist and there is copy. */
+export function storyFromAdmin(s: StoryAdminData): ProjectStory | null {
+  if (!s.enabled || !s.version || !s.scenes.length || !s.stages.length) return null;
+  return {
+    slug: s.slug,
+    version: s.version,
+    base: s.base,
+    fps: s.fps,
+    hold: s.hold,
+    scenes: s.scenes,
+    stages: s.stages,
+    ...(s.pauses.length ? { pauses: s.pauses } : {}),
+    ...(s.scrollVh ? { scrollVh: s.scrollVh } : {}),
+  };
+}
+
+/** Built-in story, if its frames were extracted into public/frames. */
+function codeStory(slug: string): ProjectStory | null {
+  return existsSync(path.join(process.cwd(), "public", "frames", slug)) ? getProjectStory(slug) : null;
+}
+
+/**
+ * The walkthrough for a project: an enabled story edited in the admin, else
+ * the built-in one from lib/project-story.ts.
+ */
+export function getStory(slug: string): Promise<ProjectStory | null> {
+  return withDb(async () => {
+    const d = await Story.findOne({ slug }).lean();
+    // A story still being prepared (not enabled, no frames yet) leaves the built-in one up.
+    return (d && storyFromAdmin(toStoryAdmin(d))) || codeStory(slug);
+  }, codeStory(slug));
 }
 
 export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");

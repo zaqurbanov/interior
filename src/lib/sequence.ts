@@ -15,6 +15,18 @@ export const TOTAL_UNITS = TOTAL_FRAMES + HOLD_UNITS;
 /** Unit where scene2 begins. */
 export const SCENE2_START = SCENE1_FRAMES + HOLD_UNITS;
 
+/** Phones play this instead of the frames; bump with HOME_VERSION in scripts/build-mobile-videos.mjs. */
+export const HOME_VIDEO = "/frames/home/v1/mobile.mp4";
+/** Frame rate of the home footage and of HOME_VIDEO. */
+export const HOME_FPS = 24;
+
+/** The same timeline as segments (see Segment in project-story.ts), for the video player. */
+export const HOME_SEGMENTS = [
+  { frame: 0, frames: SCENE1_FRAMES, units: SCENE1_FRAMES },
+  { frame: SCENE1_FRAMES - 1, frames: 1, units: HOLD_UNITS },
+  { frame: SCENE1_FRAMES, frames: SCENES[1].frames, units: SCENES[1].frames },
+];
+
 /** Unit at which each text stage starts; the last stage runs to the end. */
 export const STAGE_AT = [0, 55, 105, 150, 184, 250, 335, 420];
 export const STAGE_COUNT = STAGE_AT.length;

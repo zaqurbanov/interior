@@ -2,7 +2,7 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { saveLocalUpload, uploadDriver } from "@/lib/storage";
-import { IMAGE_TYPES, MAX_UPLOAD_BYTES } from "@/lib/upload-config";
+import { IMAGE_TYPES, MAX_UPLOAD_BYTES, MAX_VIDEO_BYTES, VIDEO_TYPES } from "@/lib/upload-config";
 
 // Admin uploads. The browser asks GET which driver is active, then either
 //  - blob:  sends handleUpload's JSON handshake here, gets a one-off client
@@ -43,6 +43,10 @@ export async function POST(request: Request) {
       // Runs before a token is issued — the only gate between the internet and the store.
       onBeforeGenerateToken: async (pathname) => {
         if (!(await auth())?.user) throw new Error("Please sign in again.");
+        // Images go under uploads/, walkthrough source videos under videos/.
+        if (pathname.startsWith("videos/")) {
+          return { allowedContentTypes: [...VIDEO_TYPES], maximumSizeInBytes: MAX_VIDEO_BYTES, addRandomSuffix: true };
+        }
         if (!pathname.startsWith("uploads/")) throw new Error("Invalid upload path.");
         return {
           allowedContentTypes: [...IMAGE_TYPES],

@@ -4,12 +4,18 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Admin panel
 
+- **[Mərhələ 4 — Animasiya redaktoru](admin-m4-animasiya-redaktoru.md)** _(2026-09-25)_ — Video yükləmə, avtomatik kadr çıxarma (GitHub Actions / öz server), vizual timeline redaktoru.
 - **[Mərhələ 3 — Sorğular (mesajlar)](admin-m3-sorgular.md)** _(2026-09-25)_ — Sorğulara status, teq, qeydlər; axtarış və filtr; Resend ilə e-poçt; spam qoruması; CSV ixracı.
 - **[Mərhələ 2 — Layihə redaktoru](admin-m2-layihe-redaktoru.md)** _(2026-09-25)_ — Qalereya/siyahı sıralaması, ⭐ seçilmiş şəkillər, planlaşdırma və preview linki, Tiptap redaktoru, qaralama qorunması.
 - **[Mərhələ 1 — Media əsası](admin-m1-media.md)** _(2026-09-25)_ — Birbaşa Blob-a yükləmə, brauzerdə sıxma, media kitabxanası, alt mətn.
 - **[Admin panelin inkişaf planı](admin-inkisaf-plani.md)** _(2026-09-25)_ — 5 mərhələli plan tərtib olundu; açıq mərhələlər `tasks/`-dadır.
 - **["Site content & SEO" səhifəsi](admin-site-content-sehifesi.md)** — `/admin/content`: brend, SEO, ana səhifə mərhələləri, haqqında, komanda, əlaqə.
 - **[Baza, seed və admin hesabı](admin-baza-ve-hesab.md)** — MongoDB Atlas seçildi və qoşuldu, seed yazıldı, real admin hesabı yaradıldı, yükləmələr Blob-a keçdi.
+
+## Performans
+
+- **[Sayt trafikinin (MB) azaldılması](trafik-azaltma.md)** _(2026-09-25)_ — Telefonda MP4-ə keçildi; kompüter olduğu kimi qalır (sifarişçinin qərarı).
+- **[Mobildə kadrlar əvəzinə MP4](mobil-mp4.md)** _(2026-09-25)_ — Telefonda animasiya bir MP4 yükləyir: ana səhifə 11.4 → 1.5 MB, layihələr 3–10 → 0.7–2 MB.
 
 ## Layihə animasiyaları
 
