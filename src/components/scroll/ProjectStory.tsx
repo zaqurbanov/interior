@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import SkipArrow from "./SkipArrow";
+import { useAutoplayMode, watchVisibility } from "./use-autoplay";
+import ReplayButton from "./ReplayButton";
+import { createPlayer, type Player } from "@/lib/autoplay";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
-import { SCROLL_SECTION_CLASS, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
+import { SCROLL_SECTION_CLASS, linearOrder, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
 import {
   storyFirstFrame,
   storyFrameUrl,
@@ -20,7 +23,10 @@ gsap.registerPlugin(ScrollTrigger);
 const FADE = 0.035;
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-/** Scroll-scrubbed walkthrough of a project, with copy on the left and facts on the right. */
+/**
+ * Walkthrough of a project, with copy on the left and facts on the right.
+ * Scroll-scrubbed from md up; on phones it plays by itself (lib/autoplay.ts).
+ */
 export default function ProjectStory({ story, title }: { story: Story; title: string }) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,6 +36,9 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   const hintRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(0);
   const [lite, setLite] = useState(false);
+  const autoplay = useAutoplayMode();
+  const [ended, setEnded] = useState(false);
+  const playerRef = useRef<Player | null>(null);
 
   const { totalFrames, totalUnits } = storyTimeline(story);
   const starts = story.stages.map((s) => s.at / totalUnits);
@@ -41,7 +50,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (lite || !section || !canvas) return;
+    if (lite || autoplay === null || !section || !canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -93,7 +102,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     };
 
     const loadRange = async (from: number, to: number) => {
-      const queue = progressiveOrder(from, to).filter((i) => !images[i]);
+      // Scrubbing wants the whole range coarse first; playback wants it in order.
+      const queue = (autoplay ? linearOrder : progressiveOrder)(from, to).filter((i) => !images[i]);
       const workers = Array.from({ length: 6 }, async () => {
         while (queue.length && !cancelled) await load(queue.shift()!);
       });
@@ -132,8 +142,41 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       leftRefs.current.forEach((el, i) => fadeStage(el, i, p, 32));
       rightRefs.current.forEach((el, i) => fadeStage(el, i, p, 20));
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      if (hintRef.current) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
+      // With autoplay the arrow is the way on to the rest of the page, so it stays.
+      if (hintRef.current && !autoplay) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
     };
+
+    const last = totalUnits - 1;
+    let stopWatching = () => {};
+    if (autoplay) {
+      const player = createPlayer({
+        totalUnits,
+        fps: story.fps ?? 24,
+        // Hold once each stage's copy has faded in.
+        holds: starts.slice(1).map((s) => Math.round((s + FADE) * last)),
+        ready: (u) => Boolean(images[storyUnitToFrame(story, u)]),
+        onUnit: (u) => {
+          state.unit = u;
+          render();
+          update(u / last);
+          setEnded(false);
+        },
+        onEnd: () => setEnded(true),
+      });
+      playerRef.current = player;
+      stopWatching = watchVisibility(section, (visible) => (visible ? player.play() : player.pause()));
+      update(0);
+      window.addEventListener("resize", resize);
+      return () => {
+        cancelled = true;
+        signal.cancelled = true;
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener("resize", resize);
+        stopWatching();
+        player.destroy();
+        playerRef.current = null;
+      };
+    }
 
     const tween = gsap.to(state, {
       unit: totalUnits - 1,
@@ -159,7 +202,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       tween.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [story.slug, lite]);
+  }, [story.slug, lite, autoplay]);
 
   const pct = Math.round((loaded / totalFrames) * 100);
 
@@ -266,6 +309,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
         <div ref={hintRef} className="absolute inset-x-0 bottom-0 flex justify-center">
           <SkipArrow sectionRef={sectionRef} label="Scroll to walk through" skipLabel="Skip" />
         </div>
+
+        {autoplay && ended && <ReplayButton onClick={() => playerRef.current?.restart()} />}
 
         {pct < 100 && (
           // Top-right on phones, where it cannot collide with the centred arrow.
