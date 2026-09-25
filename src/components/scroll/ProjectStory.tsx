@@ -5,9 +5,11 @@ import { gsap } from "gsap";
 import SkipArrow from "./SkipArrow";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
+import { prefersLiteMedia, progressiveOrder, whenReadyToStream } from "@/lib/frame-loader";
 import {
+  storyFirstFrame,
   storyFrameUrl,
-  storyPosterUrl,
+  storyScrollVh,
   storyTimeline,
   storyUnitToFrame,
   type ProjectStory as Story,
@@ -27,14 +29,19 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   const barRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(0);
+  const [lite, setLite] = useState(false);
 
   const { totalFrames, totalUnits } = storyTimeline(story);
   const starts = story.stages.map((s) => s.at / totalUnits);
+  const first = storyFirstFrame(story);
+
+  // Reduced motion, Data Saver or a very slow connection: a still image instead.
+  useEffect(() => setLite(prefersLiteMedia()), []);
 
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (!section || !canvas) return;
+    if (lite || !section || !canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -61,7 +68,11 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       drawn = images[i] ? i : -1;
       // Paint on the next frame so several scroll updates coalesce into one draw.
       if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => drawCover(ctx, canvas, frame));
+      raf = requestAnimationFrame(() => {
+        drawCover(ctx, canvas, frame);
+        // The server-rendered first frame stays underneath until now.
+        canvas.style.opacity = "1";
+      });
     };
 
     const resize = () => {
@@ -82,21 +93,25 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     };
 
     const loadRange = async (from: number, to: number) => {
-      const queue = Array.from({ length: to - from }, (_, k) => from + k);
+      const queue = progressiveOrder(from, to).filter((i) => !images[i]);
       const workers = Array.from({ length: 6 }, async () => {
         while (queue.length && !cancelled) await load(queue.shift()!);
       });
       await Promise.all(workers);
     };
 
+    const signal = { cancelled: false };
     (async () => {
+      // Frame 0 is the server-rendered LCP image, so this comes from cache.
       await load(0);
       resize();
-      // Scene by scene, so the first part is playable while the rest downloads.
+      // Everything else waits until the page itself has loaded (or the visitor
+      // is about to reach the section), then streams coarse-to-fine per scene.
+      await whenReadyToStream(section, signal);
       let from = 0;
       for (const frames of story.scenes) {
         if (cancelled) break;
-        await loadRange(from === 0 ? 1 : from, from + frames);
+        await loadRange(from, from + frames);
         from += frames;
       }
     })();
@@ -137,29 +152,64 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
     window.addEventListener("resize", resize);
     return () => {
       cancelled = true;
+      signal.cancelled = true;
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       tween.scrollTrigger?.kill();
       tween.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [story.slug]);
+  }, [story.slug, lite]);
 
   const pct = Math.round((loaded / totalFrames) * 100);
+
+  // Still version: first frame plus every stage as readable text.
+  if (lite) {
+    return (
+      <section aria-label={`${title} — walkthrough`} className="relative">
+        <picture>
+          <source media="(max-width: 767px)" srcSet={first.mobile} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={first.desktop} alt={`${title} — ${story.stages[0]?.title ?? "walkthrough"}`} className="aspect-video w-full object-cover" />
+        </picture>
+        <ol className="container-x grid gap-10 py-16 md:grid-cols-2">
+          {story.stages.map((s) => (
+            <li key={s.title}>
+              <p className="eyebrow text-bronze">{s.eyebrow}</p>
+              <h3 className="mt-3 font-serif text-3xl font-light">{s.title}</h3>
+              <p className="mt-3 leading-relaxed text-graphite">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    );
+  }
 
   return (
     <section
       ref={sectionRef}
       aria-label={`${title} — walkthrough`}
       className="relative"
-      style={{ height: `${story.scrollVh}vh` }}
+      style={{ height: `${storyScrollVh(story)}vh` }}
     >
       <div className="sticky top-0 h-svh w-full overflow-hidden bg-sand">
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-        <noscript>
+        {/* First frame as real HTML: the page's LCP image, visible before any JS runs. */}
+        <picture>
+          <source media="(max-width: 767px)" srcSet={first.mobile} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={storyPosterUrl(story)} alt={`${title} walkthrough`} className="absolute inset-0 h-full w-full object-cover" />
-        </noscript>
+          <img
+            src={first.desktop}
+            alt={`${title} — ${story.stages[0]?.title ?? "walkthrough"}`}
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </picture>
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-300"
+          aria-hidden="true"
+        />
 
         {/* Legibility */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/85 via-black/20 to-black/75" />

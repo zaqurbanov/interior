@@ -50,6 +50,14 @@ Both map scroll progress → timeline "unit" → global frame index, preload fra
 
 Stage positions are frame numbers, so they must be re-tuned whenever a video, its frame `step`, or the scene list changes.
 
+Loading and fallbacks (`src/lib/frame-loader.ts`), shared by both components:
+
+- Frame 0 is rendered server-side as a `<picture>` (`fetchPriority="high"`, mobile `<source>`) under the canvas. It is the page's LCP element and what crawlers see; the canvas fades in over it after its first draw.
+- Everything after frame 0 waits for `whenReadyToStream` (page `load` + idle, or the section coming within 1.5 viewports), then loads in `progressiveOrder` — every 8th frame, then 4th, 2nd, rest — so the whole sequence is scrubbable early and sharpens as it fills.
+- `prefersLiteMedia()` (reduced motion, Data Saver, 2G) swaps the animation for the still frame plus every stage as plain text.
+- New project stories can omit `scrollVh`: `storyScrollVh` derives it from the footage length (`fps`, default 24) at 40vh per second, so all walkthroughs share one pace. Existing hand-tuned values are kept on purpose.
+- Browser automation tabs run hidden: `img.decode()`, idle callbacks and rAF stall there, so a sequence that looks stuck in a hidden tab usually starts the moment the tab is visible.
+
 ### Project galleries
 
 `ShowcaseGallery` shows six selected images in a size rhythm (entrance tween plus a slow parallax drift inside each frame); everything else sits behind "View all N photos". The fullscreen `Lightbox` is where the gallery is actually browsed: it morphs out of the clicked tile, has a thumbnail rail, keyboard arrows, grab/drag navigation and a cursor-following magnifier (mouse only; it maps the pointer onto the object-contain box, so it stays accurate at any window size). Lightbox state lives in `useLightbox` (`src/components/site/use-lightbox.tsx`).
@@ -80,4 +88,4 @@ Tailwind v4 with semantic tokens in `src/app/globals.css`: `ivory` = page ground
 
 - `npm run seed` is declared in package.json but `scripts/seed.ts` does not exist yet.
 - `AdminNav` links `/admin/content` (site content + SEO editing); that page has not been built.
-- `public/frames` and `public/images` are ~107 MB of committed assets; adding more project walkthroughs will grow the repo fast.
+- `public/frames` and `public/images` are ~175 MB of committed assets; adding more project walkthroughs will grow the repo fast. Hosting stays on Vercel for the foreseeable future (a later move is the client's call), so frames and admin uploads should eventually move to object storage — Vercel Blob or Supabase Storage, depending on which hosted database is chosen (MongoDB Atlas or Supabase; undecided). See `TASKS.md`.

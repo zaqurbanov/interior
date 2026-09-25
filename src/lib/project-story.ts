@@ -25,18 +25,214 @@ export type ProjectStory = {
    * picture holds. `at` is a global frame index, `units` the length of the pause.
    */
   pauses?: { at: number; units: number }[];
-  /** Height of the scroll section, in vh. */
-  scrollVh: number;
+  /** Frame rate the frames were extracted at (default 24). */
+  fps?: number;
+  /**
+   * Height of the scroll section, in vh. Leave unset to get the site's standard
+   * pace (see storyScrollVh); set it only to tune one project by hand.
+   */
+  scrollVh?: number;
   stages: StoryStage[];
 };
 
 export const projectStories: Record<string, ProjectStory> = {
+  "cap-ferrat": {
+    slug: "cap-ferrat",
+    version: 1,
+    // Two videos at 15fps: capferat1 raises the mansion from a bare plot to the
+    // finished entrance, capferat2 walks the master bedroom into the bathroom.
+    scenes: [150, 150],
+    fps: 15,
+    hold: 12,
+    // Same length as the other two-video walkthroughs.
+    scrollVh: 720,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "From the ground up",
+        title: "A new house on a £70,000,000 estate",
+        text: "Designed with the construction company that builds it, the villa was re-planned floor by floor — a reconstruction of more than £20,000,000.",
+        label: "The project",
+        facts: ["South of France", "New layout on every floor", "Reconstruction over £20,000,000"],
+      },
+      {
+        at: 64,
+        eyebrow: "The house takes shape",
+        title: "A neoclassical façade",
+        text: "Columns, balustrades and a pedimented entrance give the main house its formal symmetry, with a guest house alongside.",
+        label: "Architecture",
+        facts: ["Neoclassical elevation", "Main house and guest house", "Stone-clad entrance hall"],
+      },
+      {
+        at: 100,
+        eyebrow: "The arrival",
+        title: "Gardens made for the Riviera",
+        text: "The landscape was redesigned with the house: palms and planting to the entrance, a pool with an outdoor kitchen, fountains and a Japanese garden.",
+        label: "Landscape",
+        facts: ["Pool with outdoor kitchen", "Fountains and Japanese garden", "Direct access to the sea"],
+      },
+      {
+        at: 165,
+        eyebrow: "The master suite",
+        title: "Crystal, panelling and light",
+        text: "One of six new bedrooms and a master suite — panelled walls, a sitting area and crystal chandeliers throughout.",
+        label: "Interior",
+        facts: ["Six new bedrooms and a master suite", "Crystal chandeliers", "Panelled walls and cornices"],
+      },
+      {
+        at: 228,
+        eyebrow: "The bathroom",
+        title: "Marble from floor to ceiling",
+        text: "The suite opens into a marble bathroom with a freestanding bath beneath the window — the same materials that run through the hall and stair.",
+        label: "Materials",
+        facts: ["Marble floors and walls", "Freestanding bath", "Onyx-clad cocktail bar downstairs"],
+      },
+    ],
+  },
+  "villa-luna-cap-martin": {
+    slug: "villa-luna-cap-martin",
+    version: 1,
+    // Two videos at 15fps: luna1 flies in over the bay to the roof terrace,
+    // luna2 is the terrace at sunset and then the library inside.
+    scenes: [150, 150],
+    fps: 15,
+    hold: 12,
+    // Same length as the other two-video walkthrough (Villa La Belle).
+    scrollVh: 720,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "Above the bay",
+        title: "A villa that looks over all of Monaco",
+        text: "Set on the rocks at Cap Martin, the house faces the bay, the harbour and the lights of the principality across the water.",
+        label: "The setting",
+        facts: ["Cap Martin, French Riviera", "Views over the whole of Monaco", "Cliff-top plot above the sea"],
+      },
+      {
+        at: 62,
+        eyebrow: "The villa",
+        title: "White volumes stepped into the rock",
+        text: "Each level steps back from the one below, so every floor opens onto its own terrace and its own view of the sea.",
+        label: "Architecture",
+        facts: ["Clean white modern volumes", "A terrace on every level", "Mediterranean planting on the rock"],
+      },
+      {
+        at: 100,
+        eyebrow: "The roof",
+        title: "An exclusive escape above it all",
+        text: "The roof terrace brings together an outdoor bar, a lounge and a jacuzzi, with a fire pit set within a cosy majlis for the evenings.",
+        label: "Roof terrace",
+        facts: ["Outdoor bar and lounge", "Jacuzzi with sea views", "Fire pit within a majlis"],
+      },
+      {
+        at: 165,
+        eyebrow: "Golden hour",
+        title: "Where the day ends",
+        text: "Under the planted pergola, low sofas and a glass balustrade keep nothing between the terrace and the sunset over the water.",
+        label: "Outdoor living",
+        facts: ["Pergola with climbing plants", "Frameless glass balustrade", "Sea-facing lounge"],
+      },
+      {
+        at: 228,
+        eyebrow: "The library",
+        title: "A quiet room lined with books",
+        text: "Inside, dark timber shelving runs floor to ceiling around a reading room — calm and warm, a counterpoint to the bright terraces.",
+        label: "Interior",
+        facts: ["Floor-to-ceiling timber joinery", "Warm, layered lighting", "Bedrooms and a grand master suite above"],
+      },
+    ],
+  },
+  "villa-nudra": {
+    slug: "villa-nudra",
+    version: 1,
+    // One scene at 24fps: the shell-and-core site becomes the finished villa,
+    // then the camera passes through the glass into the living room.
+    scenes: [240],
+    hold: 0,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "Shell and core",
+        title: "A white canvas on the Gulf coast",
+        text: "The villa reached us as a bare concrete frame — the chance to shape a residence entirely around the client, from structure to finishes.",
+        label: "The starting point",
+        facts: ["Nudra development, Saadiyat Island", "1,350 sq.m private villa", "Handed over as shell and core"],
+      },
+      {
+        at: 64,
+        eyebrow: "The façade",
+        title: "Jerusalem stone and sleek metal",
+        text: "Stone sourced from Jerusalem, paired with slim metal elements, gives the elevation a modern line and a warm, tactile surface.",
+        label: "Architecture",
+        facts: ["Jerusalem stone cladding", "Slim metal detailing", "Pool terrace facing the sea"],
+      },
+      {
+        at: 112,
+        eyebrow: "Inside",
+        title: "Light that reaches the lower floor",
+        text: "In the garden, a fountain with a glass bottom lets daylight fall straight through into the spa below — the house's signature detail.",
+        label: "Signature detail",
+        facts: ["Glass-bottomed garden fountain", "Daylit spa beneath", "Floor-to-ceiling glazing"],
+      },
+      {
+        at: 176,
+        eyebrow: "Our scope",
+        title: "From frame to finished home",
+        text: "A £5,000,000 property and a construction budget of about £3,500,000, designed and visualised end to end before work began on site.",
+        label: "Delivery",
+        facts: ["Interior architecture and design", "Photo-real 3D visualisation", "Tailored to the client's brief"],
+      },
+    ],
+  },
+  "villa-at-saadiyat-island": {
+    slug: "villa-at-saadiyat-island",
+    version: 1,
+    // One scene at 24fps: up the marble stair, through the timber door and into
+    // the double-height living room.
+    scenes: [240],
+    hold: 0,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "The stair",
+        title: "Marble, glass and light",
+        text: "White marble treads rise beside a frameless glass balustrade, washed in daylight from the windows above.",
+        label: "Materials",
+        facts: ["White marble slabs throughout", "Frameless glass balustrade", "Classic wall mouldings"],
+      },
+      {
+        at: 80,
+        eyebrow: "The threshold",
+        title: "Through the timber doors",
+        text: "Full-height walnut doors separate the private stair from the family rooms, so each space keeps its own quiet.",
+        label: "Joinery",
+        facts: ["Full-height timber doors", "Bespoke hardware", "Silk wallpaper inlays"],
+      },
+      {
+        at: 126,
+        eyebrow: "The living room",
+        title: "A double-height room for the whole family",
+        text: "A spacious majlis and dining for twelve open onto the garden and the sea, with the home cinema and show kitchen alongside.",
+        label: "Ground floor",
+        facts: ["Majlis with sitting area", "Dining table for twelve", "Home cinema and show kitchen"],
+      },
+      {
+        at: 196,
+        eyebrow: "Our scope",
+        title: "A £2,000,000 transformation",
+        text: "From relocating the pool and redesigning the landscape to every interior — furnished with Baker, Promemoria and Rubelli, lit by Bella Figura.",
+        label: "Delivery",
+        facts: ["Landscape to interior design", "Master suite with two walk-in wardrobes", "Five individually designed bedrooms"],
+      },
+    ],
+  },
   cannes: {
     slug: "cannes",
     version: 2,
     // One scene at 15fps: the camera drops from an aerial view to the pool
     // terrace (first 6.5s of the clip).
     scenes: [98],
+    fps: 15,
     hold: 0,
     scrollVh: 350,
     stages: [
@@ -122,6 +318,7 @@ export const projectStories: Record<string, ProjectStory> = {
     // Two videos at 15fps (see scripts/extract-project-frames.mjs):
     // scene 1 = arrival & garage, scene 2 = interior.
     scenes: [150, 150],
+    fps: 15,
     hold: 20,
     scrollVh: 720,
     stages: [
@@ -168,6 +365,24 @@ export const projectStories: Record<string, ProjectStory> = {
     ],
   },
 };
+
+/** Scroll runway per second of footage — the site's standard pace. */
+const VH_PER_SECOND = 40;
+
+/**
+ * Section height in vh: 100vh for the pinned screen plus a fixed amount of
+ * scroll per second of footage, so every walkthrough moves at the same speed.
+ */
+export function storyScrollVh(story: ProjectStory): number {
+  if (story.scrollVh) return story.scrollVh;
+  const seconds = storyTimeline(story).totalUnits / (story.fps ?? 24);
+  return Math.round(100 + seconds * VH_PER_SECOND);
+}
+
+/** First frame of the desktop and mobile sets — the LCP image for the page. */
+export function storyFirstFrame(story: ProjectStory) {
+  return { desktop: storyFrameUrl(story, 0, "desktop"), mobile: storyFrameUrl(story, 0, "mobile") };
+}
 
 export function getProjectStory(slug: string): ProjectStory | null {
   return projectStories[slug] ?? null;

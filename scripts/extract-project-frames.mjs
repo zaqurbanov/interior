@@ -28,6 +28,35 @@ const stories = [
     version: 2,
     fps: 15,
   },
+  {
+    slug: "villa-at-saadiyat-island",
+    // Interior walk: marble stair, through the timber door, into the living room.
+    scenes: ["videos/islandVideo.mp4"],
+    version: 1,
+  },
+  {
+    slug: "villa-nudra",
+    // Shell-and-core site turning into the finished villa, then inside to the living room.
+    scenes: ["videos/nudra-uae.mp4"],
+    version: 1,
+  },
+  {
+    slug: "villa-luna-cap-martin",
+    // luna1 = aerial over the bay to the roof terrace, luna2 = sunset terrace into the library.
+    // 15fps: the sun glare on the sea compresses badly at 24fps (43 MB).
+    scenes: ["videos/luna1.mp4", "videos/luna2.mp4"],
+    version: 1,
+    fps: 15,
+  },
+  {
+    slug: "cap-ferrat",
+    // capferat1 = the mansion rising from a bare plot to the finished entrance,
+    // capferat2 = master bedroom through to the marble bathroom. 15fps, like the
+    // other two-video walkthroughs.
+    scenes: ["videos/capferat1.mp4", "videos/capferat2.mp4"],
+    version: 1,
+    fps: 15,
+  },
 ];
 const sizes = [
   { name: "desktop", width: 1440, quality: 50 },

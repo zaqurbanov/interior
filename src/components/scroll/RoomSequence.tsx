@@ -6,6 +6,7 @@ import SkipArrow from "./SkipArrow";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Stage } from "@/lib/types";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
+import { prefersLiteMedia, progressiveOrder, whenReadyToStream } from "@/lib/frame-loader";
 import {
   SCENE1_FRAMES,
   SCENE2_START,
@@ -41,13 +42,17 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   const hintRef = useRef<HTMLDivElement>(null);
   const darkRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(0);
+  const [lite, setLite] = useState(false);
 
   const starts = STAGE_STARTS.slice(0, stages.length);
+
+  // Reduced motion, Data Saver or a very slow connection: a still image instead.
+  useEffect(() => setLite(prefersLiteMedia()), []);
 
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (!section || !canvas) return;
+    if (lite || !section || !canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -74,7 +79,11 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       drawn = images[i] ? i : -1;
       // Paint on the next frame so several scroll updates coalesce into one draw.
       if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => drawCover(ctx, canvas, frame));
+      raf = requestAnimationFrame(() => {
+        drawCover(ctx, canvas, frame);
+        // The server-rendered first frame stays underneath until now.
+        canvas.style.opacity = "1";
+      });
     };
 
     const resize = () => {
@@ -96,7 +105,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
     };
 
     const loadRange = async (from: number, to: number) => {
-      const queue = Array.from({ length: to - from }, (_, k) => from + k);
+      // Coarse-to-fine, so the whole scene is scrubbable before it is complete.
+      const queue = progressiveOrder(from, to).filter((i) => !images[i]);
       const workers = Array.from({ length: 6 }, async () => {
         while (queue.length && !cancelled) await load(queue.shift()!);
       });
@@ -111,9 +121,12 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       scene2Started = true;
       loadRange(SCENE1_FRAMES, TOTAL_FRAMES);
     };
+    const signal = { cancelled: false };
     (async () => {
+      // Frame 0 is the server-rendered LCP image, so this comes from cache.
       await load(0);
       resize();
+      await whenReadyToStream(section, signal);
       await loadRange(1, SCENE1_FRAMES);
       startScene2();
     })();
@@ -164,15 +177,44 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
     window.addEventListener("resize", resize);
     return () => {
       cancelled = true;
+      signal.cancelled = true;
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       tween.scrollTrigger?.kill();
       tween.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stages.length]);
+  }, [stages.length, lite]);
 
   const pct = Math.round((loaded / TOTAL_FRAMES) * 100);
+
+  // Still version: the finished room and every stage as readable text.
+  if (lite) {
+    return (
+      <section aria-label="From empty room to finished interior" className="relative pt-16 md:pt-20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/frames/final.webp" alt="Finished living room interior" fetchPriority="high" className="aspect-video w-full object-cover" />
+        <div className="container-x py-16">
+          {stages[0] && (
+            <>
+              <p className="eyebrow text-bronze">{stages[0].eyebrow}</p>
+              <h1 className="mt-4 font-serif text-[clamp(2.6rem,6vw,5rem)] font-light leading-[0.95]">{stages[0].title}</h1>
+              <p className="mt-6 max-w-xl text-lg text-graphite">{stages[0].text}</p>
+            </>
+          )}
+          <ol className="mt-16 grid gap-10 md:grid-cols-2">
+            {stages.slice(1).map((s) => (
+              <li key={s.title}>
+                <p className="eyebrow text-bronze">{s.eyebrow}</p>
+                <h2 className="mt-3 font-serif text-3xl font-light">{s.title}</h2>
+                <p className="mt-3 leading-relaxed text-graphite">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -182,11 +224,23 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       style={{ height: `${SCROLL_VH}vh` }}
     >
       <div ref={stickyRef} data-dark="false" className="group sticky top-0 h-svh w-full overflow-hidden bg-sand">
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-        <noscript>
+        {/* First frame as real HTML: the page's LCP image, visible before any JS runs. */}
+        <picture>
+          <source media="(max-width: 767px)" srcSet={frameUrl(0, "mobile")} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/frames/final.webp" alt="Finished living room interior" className="absolute inset-0 h-full w-full object-cover" />
-        </noscript>
+          <img
+            src={frameUrl(0, "desktop")}
+            alt="An empty, unfurnished living room before the design"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </picture>
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-300"
+          aria-hidden="true"
+        />
 
         {/* Legibility gradients: light for scene1, dark for scene2 close-ups */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ivory/90 via-ivory/40 to-transparent md:via-ivory/25" />
