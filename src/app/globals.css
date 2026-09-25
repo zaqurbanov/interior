@@ -186,6 +186,8 @@ html.lenis, html.lenis body { height: auto; }
   font-size: 0.9rem;
   outline: none;
 }
+/* Anchor targets focused by in-page links (SmoothScroll) need no ring. */
+[tabindex="-1"]:focus { outline: none; }
 .field:focus { border-color: var(--color-bronze); box-shadow: 0 0 0 3px rgb(143 113 85 / 0.15); }
 .label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--color-graphite); margin-bottom: 0.35rem; }
 .btn {

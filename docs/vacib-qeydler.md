@@ -16,6 +16,7 @@ Daimi qaydalar və qərarlar (tapşırıq deyil). Açıq işlər: [../TASKS.md](
 - **Kadr sıxlığı:** tək videolu layihələr 24 fps; dəniz, ağac və parıltı olan videolar pis sıxılır — onlar üçün 15 fps (bir səhifədə kompüter dəsti ~15 MB-dan çox olmasın).
 - **localhost:3000-də başqa layihədən qalmış service worker** saytı sındırırdı (`yolai-cache-v1`), təmizləndi. Eyni xəta ("client-side exception") yenə çıxsa, brauzerdə `localhost:3000` üçün service worker-i ləğv et.
 - **Server kodu `public/frames` / `public/images`-ə `fs` ilə baxmamalıdır.** Belə baxanda Next bütün kadrları (~220 MB) hər server funksiyasına qoşurdu və Vercel-in 10 GB-lıq "Functions Storage" limiti doldu (2026-09-25). `next.config.ts`-də `outputFileTracingExcludes` bunun qarşısını alır.
+- **QA:** böyük dəyişiklikdən sonra "qa agenti ilə saytı yoxla" (`.claude/agents/qa.md`) və ya `npm run qa -- --base=URL`. Test brauzerində H.264 və YouTube yoxdur — onlarla bağlı xətalar səs-küydür.
 - **Deploy-dan əvvəl `npm run build`** — dev server dayandırılmış halda.
 - **Kadrlar Blob-dadırsa** (`NEXT_PUBLIC_FRAMES_BASE` doludur): lokal skriptlərlə (`extract-project-frames.mjs`, `build-mobile-videos.mjs`) yeni kadr çıxaranda `scripts/frames-to-blob.mjs`-i yenidən işlət, yoxsa sayt yeni faylları tapmır. Admin paneldən yaradılan animasiyalar buna ehtiyac duymur.
 - **Öz serverə keçilsə**, `/frames/*` üçün bir illik `immutable` keş başlığı nginx-də də olmalıdır (Vercel-də `next.config.ts`-də var).

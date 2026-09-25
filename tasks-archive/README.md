@@ -43,5 +43,6 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Test
 
+- **[QA agenti və ilk tam yoxlama](qa-ilk-yoxlama.md)** _(2026-09-26)_ — Crawler + QA agenti; 5 problem tapıldı, 4-ü düzəldildi (telefonda `/#services`, skip link, lightbox fokusu, uzun meta təsvirlər).
 - **[Qənaət rejimi testi](test-qenaet-rejimi.md)** _(2026-09-26)_ — Reduced motion, Data Saver və 2G-də animasiya şəkil + mətnə çevrilir; kadr yüklənmir.
 - **[Mobil/planşet layout yoxlaması](test-mobil-layout.md)** — 390×844, 375×667, 768×1024: scroll mətni, menyu, qalereya, lightbox.
