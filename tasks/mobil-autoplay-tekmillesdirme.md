@@ -16,3 +16,11 @@ Mobildə scroll animasiyaları avtomatik oynayır ([arxiv](../tasks-archive/mobi
   - [ ] Toxunaraq dayandırmaq / davam etdirmək
   - [ ] Mərhələ fasiləsinin (`STAGE_HOLD_MS`, 2.6 s) və sürətin tənzimlənməsi
   - [ ] Mətnin oxunaqlığı, keçid animasiyaları
+
+## Scroll kilidi (PR #6) — sonrakı addımlar
+
+Mobildə animasiya oynayarkən səhifə bölmədə saxlanılır, yalnız ox ("Continue") ilə keçilir ([arxiv](../tasks-archive/mobil-scroll-kilidi.md)).
+
+- [ ] Risk: ziyarətçi oxu görməsə "ilişib qaldığını" düşünə bilər — real telefonda yoxlamaq
+- [ ] Video bitəndə kilidi avtomatik açmaq (asan dəyişiklik, `useScrollGate`-də `release()` çağırmaq)
+- [ ] Lazım olsa oxu daha görünən etmək (ölçü, yüngül animasiya)
