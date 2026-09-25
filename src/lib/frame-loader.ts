@@ -66,23 +66,15 @@ export function whenReadyToStream(near: Element, signal: { cancelled: boolean })
   });
 }
 
-/**
- * On phones a finger flick covers far less of a long section than a mouse
- * wheel, so the desktop runway (1000vh on the home page) turns into minutes of
- * swiping. Below the md breakpoint the pinned screen keeps its 100vh and the
- * scrub part shrinks to this share. Progress is relative to the section
- * height, so stage timing is unchanged — it just goes by faster.
- */
-const MOBILE_RUNWAY = 0.45;
-
-export const mobileScrollVh = (desktopVh: number) => Math.round(100 + (desktopVh - 100) * MOBILE_RUNWAY);
+/** Frame indices in plain order — for autoplay, which needs them contiguous. */
+export const linearOrder = (from: number, to: number) => Array.from({ length: Math.max(0, to - from) }, (_, k) => from + k);
 
 /**
- * Height of a scroll section: `svh` on phones (fixed, so the collapsing
- * address bar does not resize the section mid-scrub), `vh` from md up.
- * Use with SCROLL_SECTION_CLASS.
+ * Height of a scroll section: one screen on phones, where the sequence plays
+ * by itself (see lib/autoplay.ts; `svh`, so the collapsing address bar does
+ * not resize it), and the scroll runway from md up. Use with
+ * SCROLL_SECTION_CLASS.
  */
-export const scrollSectionStyle = (desktopVh: number) =>
-  ({ "--scroll-vh": desktopVh, "--scroll-vh-mobile": mobileScrollVh(desktopVh) }) as React.CSSProperties;
+export const scrollSectionStyle = (desktopVh: number) => ({ "--scroll-vh": desktopVh }) as React.CSSProperties;
 
-export const SCROLL_SECTION_CLASS = "h-[calc(var(--scroll-vh-mobile)*1svh)] md:h-[calc(var(--scroll-vh)*1vh)]";
+export const SCROLL_SECTION_CLASS = "h-svh md:h-[calc(var(--scroll-vh)*1vh)]";

@@ -15,3 +15,5 @@
 | Belgravia | ~5 ekran | ~2.8 ekran |
 
 Telefon emulyasiyasında (iPhone 13) yoxlanıb. Real telefonda yoxlama: [tasks/test-real-cihaz.md](../tasks/test-real-cihaz.md). Uzun/qısa görünsə `MOBILE_RUNWAY` (0.45) dəyişdirilir.
+
+**Sonra əvəz olundu:** telefonda artıq avtomatik oynatma var — [mobil-avtomatik-video](mobil-avtomatik-video.md).

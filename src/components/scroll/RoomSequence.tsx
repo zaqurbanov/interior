@@ -6,7 +6,10 @@ import SkipArrow from "./SkipArrow";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Stage } from "@/lib/types";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
-import { SCROLL_SECTION_CLASS, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
+import { SCROLL_SECTION_CLASS, linearOrder, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
+import { createPlayer, type Player } from "@/lib/autoplay";
+import { useAutoplayMode, watchVisibility } from "./use-autoplay";
+import ReplayButton from "./ReplayButton";
 import {
   SCENE1_FRAMES,
   SCENE2_START,
@@ -29,6 +32,9 @@ const FADE = 0.03;
 const DARK_FROM = STAGE_AT[5] / TOTAL_UNITS;
 const SCENE2_PROGRESS = SCENE2_START / TOTAL_UNITS;
 
+// Frame rate the home-page videos were extracted at (scripts/extract-frames.mjs).
+const HOME_FPS = 24;
+
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const shortLabel = (eyebrow: string) => eyebrow.split("—").pop()?.trim() ?? eyebrow;
 
@@ -43,6 +49,10 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   const darkRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(0);
   const [lite, setLite] = useState(false);
+  // Phones play the sequence by itself instead of scrubbing it (lib/autoplay.ts).
+  const autoplay = useAutoplayMode();
+  const [ended, setEnded] = useState(false);
+  const playerRef = useRef<Player | null>(null);
 
   const starts = STAGE_STARTS.slice(0, stages.length);
 
@@ -52,7 +62,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (lite || !section || !canvas) return;
+    if (lite || autoplay === null || !section || !canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -106,7 +116,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
 
     const loadRange = async (from: number, to: number) => {
       // Coarse-to-fine, so the whole scene is scrubbable before it is complete.
-      const queue = progressiveOrder(from, to).filter((i) => !images[i]);
+      // Playback needs the frames in order instead.
+      const queue = (autoplay ? linearOrder : progressiveOrder)(from, to).filter((i) => !images[i]);
       const workers = Array.from({ length: 6 }, async () => {
         while (queue.length && !cancelled) await load(queue.shift()!);
       });
@@ -153,12 +164,44 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
         else d.removeAttribute("aria-current");
       });
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      if (hintRef.current) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
+      // With autoplay the arrow is the way on to the rest of the page, so it stays.
+      if (hintRef.current && !autoplay) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
       const dark = clamp01((p - DARK_FROM + FADE) / FADE);
       if (darkRef.current) darkRef.current.style.opacity = String(dark);
       stickyRef.current?.setAttribute("data-dark", String(dark > 0.5));
       if (p > SCENE2_PROGRESS * 0.8) startScene2();
     };
+
+    const last = TOTAL_UNITS - 1;
+    if (autoplay) {
+      const player = createPlayer({
+        totalUnits: TOTAL_UNITS,
+        fps: HOME_FPS,
+        // Hold once each stage's copy has faded in.
+        holds: starts.slice(1).map((s) => Math.round((s + FADE) * last)),
+        ready: (u) => Boolean(images[unitToFrame(u)]),
+        onUnit: (u) => {
+          state.unit = u;
+          render();
+          updateOverlays(u / last);
+          setEnded(false);
+        },
+        onEnd: () => setEnded(true),
+      });
+      playerRef.current = player;
+      const stopWatching = watchVisibility(section, (visible) => (visible ? player.play() : player.pause()));
+      updateOverlays(0);
+      window.addEventListener("resize", resize);
+      return () => {
+        cancelled = true;
+        signal.cancelled = true;
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener("resize", resize);
+        stopWatching();
+        player.destroy();
+        playerRef.current = null;
+      };
+    }
 
     const tween = gsap.to(state, {
       unit: TOTAL_UNITS - 1,
@@ -184,7 +227,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       tween.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stages.length, lite]);
+  }, [stages.length, lite, autoplay]);
 
   const pct = Math.round((loaded / TOTAL_FRAMES) * 100);
 
@@ -330,6 +373,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
         <div ref={hintRef} className="absolute inset-x-0 bottom-0 flex justify-center">
           <SkipArrow sectionRef={sectionRef} label="Scroll to design" skipLabel="Skip" />
         </div>
+
+        {autoplay && ended && <ReplayButton onClick={() => playerRef.current?.restart()} />}
 
         {/* Loader */}
         {pct < 100 && (
