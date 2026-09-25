@@ -14,7 +14,7 @@ Mobildə scroll animasiyaları avtomatik oynayır ([arxiv](../tasks-archive/mobi
 - [ ] Ehtimal olunan variantlar (qeydlərə görə seçilir):
   - [ ] Başlanğıcda gözləməni azaltmaq (MP4 artıq var — [arxiv](../tasks-archive/mobil-mp4.md))
   - [ ] Toxunaraq dayandırmaq / davam etdirmək
-  - [ ] Mərhələ fasiləsinin (`STAGE_HOLD_MS`, 2.6 s) və sürətin tənzimlənməsi
+  - [x] Mərhələdə tam fasilə əvəzinə yavaşlama ([arxiv](../tasks-archive/mobil-yavas-fasile.md)); lazım olsa `SLOW_RATE` / `STAGE_HOLD_MS` tənzimlənir
   - [ ] Mətnin oxunaqlığı, keçid animasiyaları
 
 ## Scroll kilidi (PR #6) — sonrakı addımlar

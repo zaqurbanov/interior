@@ -190,7 +190,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       const player = createPlayer({
         totalUnits: TOTAL_UNITS,
         fps: HOME_FPS,
-        // Hold once each stage's copy has faded in.
+        // Slow down once each stage's copy has faded in.
         holds: starts.slice(1).map((s) => Math.round((s + FADE) * last)),
         ready: (u) => Boolean(images[unitToFrame(u)]),
         onUnit: (u) => {

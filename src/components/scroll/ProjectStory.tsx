@@ -163,7 +163,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
       const player = createPlayer({
         totalUnits,
         fps: story.fps ?? 24,
-        // Hold once each stage's copy has faded in.
+        // Slow down once each stage's copy has faded in.
         holds: starts.slice(1).map((s) => Math.round((s + FADE) * last)),
         ready: (u) => Boolean(images[storyUnitToFrame(story, u)]),
         onUnit: (u) => {
