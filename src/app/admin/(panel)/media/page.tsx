@@ -3,7 +3,8 @@ import { listLibrary } from "@/lib/media";
 
 export const metadata = { title: "Media" };
 
-export default async function AdminMedia() {
+export default async function AdminMedia({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+  const { filter } = await searchParams;
   const items = await listLibrary();
   return (
     <div className="space-y-6">
@@ -14,7 +15,7 @@ export default async function AdminMedia() {
           wherever the image appears.
         </p>
       </div>
-      <MediaLibrary items={items} />
+      <MediaLibrary items={items} initialFilter={filter === "no-alt" || filter === "unused" ? filter : "all"} />
     </div>
   );
 }

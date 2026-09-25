@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 import ProjectForm from "@/components/admin/ProjectForm";
+import RevisionList from "@/components/admin/RevisionList";
+import { listRevisions } from "@/lib/revisions";
 import { connectDB } from "@/lib/db";
 import { toProject } from "@/lib/data";
 import { toHtml } from "@/lib/rich-text";
@@ -25,6 +27,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
         <Link href={`/admin/projects/${project.id}/story`} className="btn btn-ghost">Walkthrough →</Link>
       </div>
       <ProjectForm project={project} />
+      <RevisionList items={await listRevisions("project", id)} />
     </div>
   );
 }

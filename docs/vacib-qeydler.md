@@ -34,4 +34,4 @@ Bunun üçün iki adapter: **saxlama** (`src/lib/storage.ts` — Blob / lokal di
 
 GitHub Actions: public repoda pulsuz, private repoda aylıq pulsuz dəqiqə limiti var (bir video ~2–5 dəq). Ödəniş limitini 0 qoymaq kifayətdir ki, heç vaxt pul çıxmasın.
 
-Mərhələlər: M1–M4 bitib ([arxiv](../tasks-archive/README.md)); M5 [TASKS.md](../TASKS.md)-dədir.
+Mərhələlər: M1–M5 bitib ([arxiv](../tasks-archive/README.md)).

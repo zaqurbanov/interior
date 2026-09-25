@@ -1,6 +1,7 @@
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
+import PageViewTracker from "@/components/site/PageViewTracker";
 import Reveal from "@/components/site/Reveal";
 import PageTransition from "@/components/site/PageTransition";
 import { getSiteContent } from "@/lib/data";
@@ -16,6 +17,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </a>
       <PageTransition brandName={site.brandName} />
       <SmoothScroll />
+      <PageViewTracker />
       <Reveal />
       <Header brandName={site.brandName} />
       <main id="main">{children}</main>
