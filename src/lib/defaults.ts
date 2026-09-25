@@ -180,6 +180,7 @@ export const defaultProjects: ProjectData[] = source.projects
       highlights: [],
       publishAt: "",
       previewToken: "",
+      createdAt: "",
     } satisfies ProjectData;
   })
   .sort((a, b) => a.order - b.order);

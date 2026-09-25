@@ -32,7 +32,6 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 ## SEO
 
 - **[PageSpeed / Lighthouse və Search Console](tasks/seo-lighthouse-search-console.md)** — Deploy-dan sonra performans yoxlaması və sitemap-in Google-a göndərilməsi.
-- **[`VideoObject` strukturlaşdırılmış məlumatı](tasks/seo-videoobject.md)** — Google-da video nəticəsi kimi görünmək üçün layihə videolarına schema.org `VideoObject`.
 - **[Layihə mətnlərinin düzəlişi](tasks/mezmun-duzelisleri.md)** — Mənbə saytdan gələn yazı səhvləri və Villa Luna-nın səhv təsviri.
 
 ## Test

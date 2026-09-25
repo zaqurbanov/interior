@@ -67,6 +67,8 @@ export interface StoryDoc extends Timestamps {
   stages: StoryStageDoc[];
   /** Shown on the site. */
   enabled: boolean;
+  /** When the live frames were made (VideoObject uploadDate). */
+  framesAt: Date | null;
   /** Frame extraction job: runs on GitHub Actions or locally (lib/frame-jobs.ts). */
   job: { status: string; version: number; error: string; startedAt: Date | null };
 }
@@ -217,6 +219,7 @@ const storySchema = new Schema<StoryDoc>(
       default: [],
     },
     enabled: { type: Boolean, default: false },
+    framesAt: { type: Date, default: null },
     job: {
       status: { type: String, default: "idle" },
       version: { type: Number, default: 0 },

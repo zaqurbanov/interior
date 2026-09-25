@@ -32,6 +32,7 @@ export function toProject(d: any): ProjectData {
     seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
     publishAt: d.publishAt ? new Date(d.publishAt).toISOString() : "",
     previewToken: str(d.previewToken),
+    createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : "",
   };
 }
 
@@ -214,6 +215,7 @@ export function toStoryAdmin(d: any): StoryAdminData {
       facts: (s.facts ?? []).map(str),
     })),
     enabled: Boolean(d.enabled),
+    framesAt: d.framesAt ? new Date(d.framesAt).toISOString() : "",
     job: {
       status: status === "processing" || status === "failed" ? status : "idle",
       version: Number(d.job?.version ?? 0),
@@ -236,6 +238,7 @@ export function storyFromAdmin(s: StoryAdminData): ProjectStory | null {
     stages: s.stages,
     ...(s.pauses.length ? { pauses: s.pauses } : {}),
     ...(s.scrollVh ? { scrollVh: s.scrollVh } : {}),
+    ...(s.framesAt ? { uploadDate: s.framesAt } : {}),
   };
 }
 

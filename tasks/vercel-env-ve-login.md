@@ -13,7 +13,7 @@ Deploy-da admin login `{"message":"There was a problem with the server configura
 - [ ] `AUTH_SECRET` yarat (`npx auth secret --raw` və ya `openssl rand -base64 32`) və Vercel → Settings → Environment Variables-a əlavə et
 - [ ] `AUTH_TRUST_HOST=true`
 - [ ] `MONGODB_URI` (`.env.local`-dan), istəyə görə `MONGODB_DB`
-- [ ] `NEXT_PUBLIC_SITE_URL` — real domen (hazırda `localhost:3001`, sitemap-də də bu görünür)
+- [ ] `NEXT_PUBLIC_SITE_URL` — real domen (sitemap, e-poçt linkləri və video təsvirləri bundan qurulur; Claude sessiya mühitində `https://yolai.az` görünürdü — başqa layihədən qalıb)
 - [ ] Hər dəyişəndə **Production** və **Preview** seçilsin (PR preview-ları üçün)
 - [ ] Atlas → Network Access: `0.0.0.0/0` (Vercel IP-ləri sabit deyil)
 - [ ] Storage → Blob store layihəyə qoşulsun (`BLOB_READ_WRITE_TOKEN` avtomatik gəlir)
