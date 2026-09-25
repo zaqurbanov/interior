@@ -24,11 +24,15 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 - **[Animasiya: Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md)** — `persian-gulf-coast-villa` üçün scroll video — video lazımdır.
 - **[Animasiya: Villa at Cap d'Ail](tasks/animasiya-cap-d-ail.md)** — `cap-d-ail` üçün scroll video — video lazımdır.
 - **[Animasiya: Windsor Estate](tasks/animasiya-windsor.md)** — `windsor` üçün scroll video — video lazımdır.
-- **[Mobil avtomatik oynatmanın təkmilləşdirilməsi](tasks/mobil-autoplay-tekmillesdirme.md)** — Sifarişçi yoxladı: avtomatik oynatma işləyir, amma daha yaxşı ola bilər — nəyin dəyişəcəyi dəqiqləşdirilməlidir.
+- **[Mobil avtomatik oynatmanın təkmilləşdirilməsi](tasks/mobil-autoplay-tekmillesdirme.md)** — Avtomatik oynatma və scroll kilidi işləyir; təkmilləşdirmə qeydləri, "ilişib qalma" riski və video bitəndə kilidin avtomatik açılması.
 
 ## Fayllar və ehtiyat nüsxə
 
 - **[Mənbə videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md)** — Kadrları yenidən çıxarmaq üçün orijinal MP4-lər lazımdır; çoxu artıq `videos/`-da yoxdur.
+
+## Təhlükəsizlik
+
+- **[Təhlükəsizlik yoxlamasının nəticələri](tasks/tehlukesizlik-yoxlamasi.md)** — Ciddi boşluq yoxdur; təhlükəsizlik başlıqları, login limiti, təsdiq e-poçtu sui-istifadəsi, ziyarət sayğacı, Next yeniləməsi.
 
 ## SEO
 
