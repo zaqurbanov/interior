@@ -57,6 +57,20 @@ const stories = [
     version: 1,
     fps: 15,
   },
+  {
+    slug: "chelsea",
+    // ch1 = living room with the media-wall fireplace into the dark-timber kitchen,
+    // ch2 = bedroom through to the travertine bathroom.
+    scenes: ["videos/ch1.mp4", "videos/ch2.mp4"],
+    version: 1,
+    fps: 15,
+  },
+  {
+    slug: "belgravia",
+    // Panelled corridor, past the library joinery, to the marble fireplace.
+    scenes: ["videos/belg.mp4"],
+    version: 1,
+  },
 ];
 const sizes = [
   { name: "desktop", width: 1440, quality: 50 },

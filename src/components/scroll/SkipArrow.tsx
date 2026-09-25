@@ -73,9 +73,13 @@ export default function SkipArrow({
       type="button"
       onClick={skip}
       aria-label="Skip the animation and continue"
-      className="group absolute bottom-6 left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2 text-ink drop-shadow-[0_2px_14px_rgba(0,0,0,0.75)] transition-colors"
+      className="group absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2 whitespace-nowrap text-ink drop-shadow-[0_2px_14px_rgba(0,0,0,0.75)] transition-colors md:bottom-6"
     >
-      <span className="eyebrow text-[0.6rem] text-ink/85 transition-opacity duration-300 group-hover:opacity-0">{label}</span>
+      {/* Phones get the short word so the label never wraps over the copy. */}
+      <span className="eyebrow text-[0.6rem] text-ink/85 transition-opacity duration-300 group-hover:opacity-0">
+        <span className="md:hidden">Scroll</span>
+        <span className="hidden md:inline">{label}</span>
+      </span>
       <span className="eyebrow absolute top-0 text-[0.6rem] text-bronze opacity-0 transition-opacity duration-300 group-hover:opacity-100">
         {skipLabel}
       </span>

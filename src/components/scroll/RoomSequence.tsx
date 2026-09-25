@@ -251,7 +251,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
         </div>
 
         {/* Stage copy */}
-        <div className="container-x relative flex h-full items-end pb-[14vh] md:items-center md:pb-0">
+        <div className="container-x relative flex h-full items-end pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:items-center md:pb-0">
           <div className="relative w-full max-w-xl">
             {stages.map((s, i) => {
               const Heading = i === 0 ? "h1" : "h2";
@@ -333,7 +333,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
 
         {/* Loader */}
         {pct < 100 && (
-          <div className="absolute bottom-6 right-4 md:right-10" aria-live="polite">
+          // Top-right on phones, where it cannot collide with the centred arrow.
+          <div className="absolute right-4 top-20 md:top-auto md:bottom-6 md:right-10" aria-live="polite">
             <span className="eyebrow text-[0.6rem] text-ink/60">Loading scene {pct}%</span>
           </div>
         )}

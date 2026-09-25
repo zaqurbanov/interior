@@ -36,6 +36,100 @@ export type ProjectStory = {
 };
 
 export const projectStories: Record<string, ProjectStory> = {
+  belgravia: {
+    slug: "belgravia",
+    version: 1,
+    // One scene at 24fps: down the panelled corridor, past the library joinery
+    // and on to the marble fireplace.
+    scenes: [240],
+    hold: 0,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "Belgravia, London",
+        title: "A home in London's most opulent enclave",
+        text: "Design intent drawings for a Belgravia residence — the blueprint for its bespoke furniture, marble bathroom cladding and lighting.",
+        label: "The project",
+        facts: ["Design intent drawings", "Floor and ceiling plans for five rooms", "Built by one of London's premier contractors"],
+      },
+      {
+        at: 60,
+        eyebrow: "The corridor",
+        title: "Panelled in dark timber",
+        text: "Floor-to-ceiling timber panelling and tall black doors, lit by a quiet rhythm of downlights set into the ceiling.",
+        label: "Joinery",
+        facts: ["Timber wall panelling", "Full-height doors", "Ceiling and lighting plans"],
+      },
+      {
+        at: 115,
+        eyebrow: "The library",
+        title: "Joinery drawn to the millimetre",
+        text: "Bespoke bookcases and cabinetry set into panelled walls — every piece detailed in drawings and 3D for fabrication.",
+        label: "Bespoke furniture",
+        facts: ["Bespoke bookcases and TV units", "Wardrobes in every bedroom", "3D visuals for fabrication"],
+      },
+      {
+        at: 180,
+        eyebrow: "The drawing room",
+        title: "Marble and firelight",
+        text: "A carved marble fireplace anchors the room, with wall lights and elevations coordinated with the architect.",
+        label: "Details",
+        facts: ["Marble fireplace surround", "Wall elevations and sockets", "Coordinated with the architect"],
+      },
+    ],
+  },
+  chelsea: {
+    slug: "chelsea",
+    version: 1,
+    // Two videos at 15fps: ch1 crosses the living room into the kitchen,
+    // ch2 walks from the bedroom into the travertine bathroom.
+    scenes: [150, 150],
+    fps: 15,
+    hold: 12,
+    scrollVh: 720,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "Chelsea, London",
+        title: "A contemporary apartment, redesigned",
+        text: "A complete redesign of a Chelsea apartment — calm, pared-back rooms in a soft pastel palette, finished in natural stone.",
+        label: "The project",
+        facts: ["Full interior redesign", "Soft pastel palette", "Travertine throughout"],
+      },
+      {
+        at: 40,
+        eyebrow: "The living room",
+        title: "Soft furnishings, sleek fixtures",
+        text: "Deep, tactile seating faces a dark media wall with a linear fireplace and back-lit shelving, framed by full-height linen curtains.",
+        label: "Living",
+        facts: ["Bespoke media wall", "Linear fireplace", "Silk-effect wall coverings in pastel taupe"],
+      },
+      {
+        at: 88,
+        eyebrow: "The kitchen",
+        title: "Precision-crafted surfaces",
+        text: "Dark timber joinery and a black marble splashback, with state-of-the-art appliances set flush into the cabinetry beside a marble dining table.",
+        label: "Kitchen",
+        facts: ["Dark timber joinery", "Black marble splashback", "Integrated appliances"],
+      },
+      {
+        at: 165,
+        eyebrow: "The bedroom",
+        title: "A sanctuary of tranquillity",
+        text: "Minimalistic opulence: layered neutrals, soft textiles and daylight filtered through sheer curtains.",
+        label: "Bedroom",
+        facts: ["Layered neutral textiles", "Full-height windows", "Hidden door to the en-suite"],
+      },
+      {
+        at: 245,
+        eyebrow: "The en-suite",
+        title: "Wrapped in travertine",
+        text: "Travertine walls, a back-lit mirror and a floating timber vanity turn the bathroom into a warm, quiet retreat.",
+        label: "Materials",
+        facts: ["Travertine walls and floor", "Back-lit mirror", "Floating timber vanity"],
+      },
+    ],
+  },
   "cap-ferrat": {
     slug: "cap-ferrat",
     version: 1,

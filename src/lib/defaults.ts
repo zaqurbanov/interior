@@ -78,9 +78,9 @@ export const defaultSiteContent: SiteContentData = {
     youtube: "https://www.youtube.com/@akaFLASHone1",
   },
   seo: {
-    title: "Vladimir Fasij — 3D Visualisation & Interior Design Studio, London",
+    title: "Vladimir Fasij — 3D Visualisation & Interior Design, London",
     description:
-      "London design studio of architects, interior designers and 3D visualisers. Photo-realistic 3D visualisation, animation, VR, architecture, interior design, FF&E and CAD drawings for luxury homes in the UK, France, Monaco, Switzerland and the UAE.",
+      "Interior design and photo-real 3D visualisation from London — renders, animation and VR for luxury homes and developments in the UK, France, Monaco and the UAE.",
     keywords:
       "interior design London, 3D visualisation, architectural rendering, 3D animation, virtual reality, FF&E, bespoke furniture, CAD drawings, luxury villa design",
     ogImage: "/og-image.jpg",

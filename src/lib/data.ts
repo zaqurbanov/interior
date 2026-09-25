@@ -57,7 +57,7 @@ export function toMessage(d: any): MessageData {
   };
 }
 
-function mergeSite(d: any): SiteContentData {
+export function toSiteContent(d: any): SiteContentData {
   const def = defaultSiteContent;
   const pick = (v: any, fallback: string) => (v ? String(v) : fallback);
   return {
@@ -108,7 +108,7 @@ async function withDb<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 }
 
 export function getSiteContent(): Promise<SiteContentData> {
-  return withDb(async () => mergeSite(await SiteContent.findOne({ key: "main" }).lean()), defaultSiteContent);
+  return withDb(async () => toSiteContent(await SiteContent.findOne({ key: "main" }).lean()), defaultSiteContent);
 }
 
 export function getServices(includeUnpublished = false): Promise<ServiceData[]> {

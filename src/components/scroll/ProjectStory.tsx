@@ -215,7 +215,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/85 via-black/20 to-black/75" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent lg:hidden" />
 
-        <div className="container-x relative flex h-full items-end pb-[12vh] lg:items-center lg:pb-0">
+        <div className="container-x relative flex h-full items-end pb-[calc(8.5rem+env(safe-area-inset-bottom))] lg:items-center lg:pb-0">
           <div className="grid w-full gap-8 lg:grid-cols-12">
             {/* Left: stage copy */}
             <div className="relative lg:col-span-6">
@@ -268,7 +268,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
         </div>
 
         {pct < 100 && (
-          <div className="absolute bottom-6 right-4 md:right-10" aria-live="polite">
+          // Top-right on phones, where it cannot collide with the centred arrow.
+          <div className="absolute right-4 top-20 md:top-auto md:bottom-6 md:right-10" aria-live="polite">
             <span className="eyebrow text-[0.6rem] text-ink/60">Loading walkthrough {pct}%</span>
           </div>
         )}

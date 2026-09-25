@@ -19,7 +19,8 @@ const chillax = localFont({
 });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
-export const viewport: Viewport = { themeColor: "#000000", colorScheme: "dark" };
+// viewport-fit=cover makes env(safe-area-inset-*) report the iPhone home-indicator area.
+export const viewport: Viewport = { themeColor: "#000000", colorScheme: "dark", viewportFit: "cover" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteContent();

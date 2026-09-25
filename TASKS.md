@@ -18,7 +18,7 @@ Görüləcək işlərin siyahısı. Bitən işi `[x]` ilə işarələyin.
 
 ## 1. Layihə animasiyaları (scroll video)
 
-Animasiyası olanlar: Albert Mews, Cannes, Villa at Saadiyat Island, Villa La Belle, Villa Nudra, Villa Luna, Villa La Fadarello.
+Animasiyası olanlar: Albert Mews, Cannes, Villa at Saadiyat Island, Villa La Belle, Villa Nudra, Villa Luna, Villa La Fadarello, Chelsea Apartment, Belgravia.
 
 Qalan layihələr üçün video lazımdır. Hər video üçün: faylı `videos/`-a qoy → `scripts/extract-project-frames.mjs`-ə əlavə et → `src/lib/project-story.ts`-də mərhələ mətnlərini yaz.
 
@@ -26,9 +26,9 @@ Qalan layihələr üçün video lazımdır. Hər video üçün: faylı `videos/`
 - [x] Villa Luna (`villa-luna-cap-martin`) — `luna1.mp4` + `luna2.mp4`, 15 fps
 - [ ] Villa at Cap d'Ail (`cap-d-ail`)
 - [x] Villa La Fadarello (`cap-ferrat`) — `capferat1.mp4` + `capferat2.mp4`, 15 fps
-- [ ] Belgravia (`belgravia`)
+- [x] Belgravia (`belgravia`) — `belg.mp4`, 24 fps, v1
 - [ ] Windsor Estate (`windsor`)
-- [ ] Chelsea Apartment (`chelsea`)
+- [x] Chelsea Apartment (`chelsea`) — ch1 + ch2, 15fps, v1
 
 ## 2. Admin panel
 
@@ -38,7 +38,7 @@ Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
 - [x] Atlas cluster, DB istifadəçisi, bağlantı (`MONGODB_URI`) — yoxlanıldı, MongoDB 8.0
 - [x] `scripts/seed.ts` yazıldı və işlədildi (təkrar işlətmək təhlükəsizdir, redaktə olunmuş məlumatın üzərinə yazmır)
 - [x] Yükləmələr Vercel Blob-a keçirildi (`src/lib/storage.ts`, `next.config.ts`-də Blob domeni)
-- [ ] **Real admin hesabı:** `.env.local`-da `ADMIN_EMAIL` və güclü `ADMIN_PASSWORD` (10+ simvol) yaz, sonra `npm run seed -- --reset-admin`. Hazırda bazada admin yoxdur — admin panelə heç kim girə bilmir.
+- [x] Real admin hesabı yaradıldı (`npm run seed -- --reset-admin`), nümunə hesab silindi — yoxlanıldı
 - [ ] Vercel → Environment Variables: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`, `NEXT_PUBLIC_SITE_URL` (real domen), istəyə görə `MONGODB_DB`. `BLOB_READ_WRITE_TOKEN` Blob qoşulanda avtomatik gəlir. (`ADMIN_*` yalnız seed üçündür, Vercel-də lazım deyil.)
 - [ ] Lokal yükləmə testi üçün `BLOB_READ_WRITE_TOKEN`-i Vercel-dən `.env.local`-a köçür (və ya `vercel env pull`)
 - [ ] Admin paneldən şəkil yükləməni real olaraq sınamaq (giriş → layihə → şəkil)
@@ -46,7 +46,8 @@ Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
 - [ ] `.env.local`-dakı istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS` dəyişənlərini silmək (şifrə təkrarı)
 - [ ] Atlas: Network Access `0.0.0.0/0` açıqdırsa, DB şifrəsinin güclü olduğuna əmin ol
 
-- [ ] "Site content & SEO" səhifəsi (`/admin/content`) — menyuda link var, səhifə yoxdur (404)
+- [x] "Site content & SEO" səhifəsi (`/admin/content`) — brend, SEO (Google önizləməsi), ana səhifə animasiyasının 8 mərhələsi, haqqında, rəqəmlər, proses, komanda (foto ilə), əlaqə və sosial linklər
+- [ ] "Site content & SEO"-da real saxlama testi (Save → saytda dəyişikliyin görünməsi)
 - [ ] Animasiya redaktoru: layihəyə video yükləmək, mərhələ mətnlərini və vaxtlarını admin paneldən dəyişmək
 - [ ] Mərhələ konfiqurasiyasını (`project-story.ts`) MongoDB-yə köçürmək
 - [ ] Video yüklənəndə kadrları serverdə `ffmpeg` ilə avtomatik çıxarmaq
@@ -66,14 +67,22 @@ Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
 
 - [ ] Deploy-dan sonra PageSpeed / Lighthouse yoxlaması (LCP, CLS, mobil)
 - [ ] Google Search Console-a sitemap göndərmək
-- [ ] Animasiyalar üçün `VideoObject` strukturlaşdırılmış məlumatı (MP4 serverdə olarsa)
+- [x] Ana səhifənin SEO mətnləri qısaldıldı: başlıq 66 → 59 simvol, təsvir 245 → 160 simvol (bazada və `defaults.ts`-də)
+- [ ] **`VideoObject` strukturlaşdırılmış məlumatı** (Google-da video nəticəsi kimi görünmək üçün). Mənbə MP4-lər silinib, ona görə:
+  - [ ] Chelsea — YouTube videosu var (`youtube:tu3II9r7n_o`): `embedUrl` + `thumbnailUrl` ilə əlavə etmək
+  - [ ] Windsor — Vimeo videosu var (`vimeo:898678481`): eyni qaydada
+  - [ ] Qalan animasiyalı layihələr: mövcud kadrlardan ffmpeg ilə qısa MP4 yığmaq (və ya sifarişçidən orijinalı almaq), Blob-a yükləmək, `contentUrl` kimi vermək
+  - [ ] Hər video üçün: `name`, `description`, `uploadDate`, `duration`, `thumbnailUrl` (poster.webp) — Rich Results Test ilə yoxlamaq
+- [ ] Mənbə videoların ehtiyat nüsxəsi: `videos/` qovluğu git-də deyil və silinib — kadrları yenidən çıxarmaq lazım olsa orijinallar lazımdır (Drive / xarici disk)
 - [ ] Layihə təsvirlərindəki yazı səhvləri (mənbə saytdan olduğu kimi köçürülüb)
 - [ ] Villa Luna (Cap Martin) təsviri səhvən Saadiyat villasının mətnidir ("Family villa at Saadiyat island in Abu Dhabi…") — sifarişçidən düzgün mətn alınmalıdır. Animasiya mərhələlərində yalnız bu villaya aid faktlar işlədilib.
 
 ## 5. Test
 
 - [ ] Qənaət rejimi: `prefers-reduced-motion` və "Data Saver" ilə animasiyanın statik şəkil + mətnə çevrilməsi (brauzerdə hələ sınanmayıb)
-- [ ] Bütün scroll səhifələri və qalereya telefonda (iOS Safari, Android Chrome)
+- [x] Mobil/planşet layout yoxlaması (390×844, 375×667, 768×1024 — iframe-də ölçü ilə): scroll mətni ↔ ox, yükləmə yazısı, menyu, qalereya, lightbox
+- [ ] Real cihazda test (iOS Safari, Android Chrome): ünvan zolağı gizlənəndə `svh` hündürlüyü, toxunma ilə scroll, iPhone-un alt zolağı (safe-area)
+- [ ] Portret ekranda 16:9 video mərkəzdən kəsilir — lazım olsa layihə üzrə fokus nöqtəsi (məs. villa sağdadırsa) əlavə etmək
 - [ ] Lightbox: lupa, sürüşdürmə, thumbnail lenti — müxtəlif ekran ölçülərində
 
 ## 6. Fayllar və ehtiyat nüsxə

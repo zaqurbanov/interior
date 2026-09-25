@@ -217,7 +217,7 @@ export default function Lightbox({
         if (Math.abs(drag.current.dx) < 6) close();
       }}
     >
-      <div ref={backdropRef} className="absolute inset-0 bg-black/95" />
+      <div ref={backdropRef} className="absolute inset-0 bg-black" />
 
       <div
         ref={frameRef}
@@ -257,7 +257,7 @@ export default function Lightbox({
         data-on={zoom}
         aria-pressed={zoom}
         aria-label={zoom ? "Turn the magnifier off" : "Magnify this image"}
-        className="zoom-halo group absolute bottom-40 right-6 z-[72] grid h-14 w-14 cursor-pointer place-items-center rounded-full border border-bronze/70 bg-black/45 text-white shadow-[0_10px_30px_-8px_rgb(0_0_0/0.8)] backdrop-blur-[2px] transition-colors duration-300 hover:bg-bronze hover:text-black data-[on=true]:border-bronze data-[on=true]:bg-bronze data-[on=true]:text-black md:bottom-44 md:right-10 md:h-16 md:w-16"
+        className="zoom-halo group absolute bottom-40 right-6 z-[72] grid pointer-coarse:hidden h-14 w-14 cursor-pointer place-items-center rounded-full border border-bronze/70 bg-black/45 text-white shadow-[0_10px_30px_-8px_rgb(0_0_0/0.8)] backdrop-blur-[2px] transition-colors duration-300 hover:bg-bronze hover:text-black data-[on=true]:border-bronze data-[on=true]:bg-bronze data-[on=true]:text-black md:bottom-44 md:right-10 md:h-16 md:w-16"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-6 w-6 md:h-7 md:w-7" aria-hidden="true">
           <circle cx="10.5" cy="10.5" r="6.5" />
