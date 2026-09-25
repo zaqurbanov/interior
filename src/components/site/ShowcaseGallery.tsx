@@ -13,9 +13,9 @@ const PREVIEW = 6;
 const SPAN = ["md:col-span-7 aspect-[16/10]", "md:col-span-5 aspect-[4/5]", "md:col-span-5 aspect-[4/5]", "md:col-span-7 aspect-[16/10]", "md:col-span-6 aspect-[4/3]", "md:col-span-6 aspect-[4/3]"];
 
 /** Six selected images on the page; everything else lives in the fullscreen viewer. */
-export default function ShowcaseGallery({ images, title }: { images: string[]; title: string }) {
+export default function ShowcaseGallery({ images, title, alts }: { images: string[]; title: string; alts?: Record<string, string> }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const { openAt, element } = useLightbox(images, title);
+  const { openAt, element } = useLightbox(images, title, alts);
   const preview = images.slice(0, PREVIEW);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function ShowcaseGallery({ images, title }: { images: string[]; t
           >
             <SkeletonImage
               src={src}
-              alt={`${title} — image ${i + 1}`}
+              alt={alts?.[src] || `${title} — image ${i + 1}`}
               {...(i < 2 ? { priority: true } : {})}
               sizes="(min-width: 768px) 55vw, 92vw"
               className="scale-110 object-cover"

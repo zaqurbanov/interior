@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
     // Admin uploads are served from Vercel Blob.
     remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
   },
-  experimental: { serverActions: { bodySizeLimit: "10mb" } },
   async headers() {
     return [
       {

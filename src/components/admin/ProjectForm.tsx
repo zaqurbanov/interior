@@ -1,19 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef } from "react";
 import { saveProject } from "@/app/actions/admin";
 import type { ProjectData } from "@/lib/types";
 import type { FormState } from "@/lib/validators";
 import { Card, Field, SubmitButton, Toggle, submitWith } from "./fields";
+import { GalleryField, ImageField } from "./ImageUpload";
 
 const slugify = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 export default function ProjectForm({ project }: { project?: ProjectData }) {
   const [state, action, pending] = useActionState(saveProject.bind(null, project?.id ?? null), { ok: false, message: "" } as FormState);
-  const [gallery, setGallery] = useState(project?.gallery ?? []);
-  const [coverPreview, setCoverPreview] = useState(project?.coverImage ?? "");
   const slugRef = useRef<HTMLInputElement>(null);
   const slugTouched = useRef(Boolean(project));
   const e = state.errors ?? {};
@@ -56,26 +55,8 @@ export default function ProjectForm({ project }: { project?: ProjectData }) {
         </Card>
 
         <Card title="Gallery">
-          {gallery.length > 0 && (
-            <ul className="grid grid-cols-3 gap-3 md:grid-cols-4">
-              {gallery.map((src) => (
-                <li key={src} className="group relative aspect-square overflow-hidden rounded bg-sand">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" className="h-full w-full object-cover" />
-                  <input type="hidden" name="keepGallery" value={src} />
-                  <button
-                    type="button"
-                    onClick={() => setGallery((g) => g.filter((x) => x !== src))}
-                    className="absolute right-1 top-1 rounded bg-white/90 px-2 py-0.5 text-xs text-red-700"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <input type="file" name="galleryFiles" multiple accept="image/jpeg,image/png,image/webp,image/avif" className="text-sm" />
-          <p className="text-xs text-graphite">JPG, PNG, WebP or AVIF, up to 8 MB each.</p>
+          <GalleryField name="gallery" defaultValue={project?.gallery} />
+          {e.gallery && <p className="text-xs text-red-700">{e.gallery[0]}</p>}
         </Card>
 
         <Card title="Videos">
@@ -108,20 +89,8 @@ export default function ProjectForm({ project }: { project?: ProjectData }) {
           </div>
         </Card>
         <Card title="Cover image">
-          {coverPreview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverPreview} alt="" className="aspect-[4/3] w-full rounded object-cover" />
-          )}
-          <input
-            type="file"
-            name="coverFile"
-            accept="image/jpeg,image/png,image/webp,image/avif"
-            className="text-sm"
-            onChange={(ev) => {
-              const f = ev.target.files?.[0];
-              if (f) setCoverPreview(URL.createObjectURL(f));
-            }}
-          />
+          <ImageField name="coverImage" defaultValue={project?.coverImage} removable hint="Shown on project cards and at the top of the page." />
+          {e.coverImage && <p className="text-xs text-red-700">{e.coverImage[0]}</p>}
         </Card>
       </div>
     </form>

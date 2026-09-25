@@ -1,6 +1,6 @@
 import "server-only";
 import { connectDB, isDbConfigured } from "./db";
-import { Message, Project, Service, SiteContent } from "@/models";
+import { Media, Message, Project, Service, SiteContent } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
 import type { MessageData, ProjectData, ServiceData, SiteContentData } from "./types";
 
@@ -157,6 +157,15 @@ export async function getMessages(): Promise<MessageData[]> {
   await connectDB();
   const docs = await Message.find().sort({ createdAt: -1 }).lean();
   return docs.map(toMessage);
+}
+
+/** Alt text edited in the media library, by image URL. Pages fall back to a
+ *  generated description ("Title — image 3") where none is set. */
+export function getImageAlts(): Promise<Record<string, string>> {
+  return withDb(async () => {
+    const docs = await Media.find({ alt: { $ne: "" } }, { url: 1, alt: 1 }).lean();
+    return Object.fromEntries(docs.map((d) => [d.url, d.alt]));
+  }, {});
 }
 
 export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");

@@ -5,6 +5,7 @@ import { saveSiteContent } from "@/app/actions/admin";
 import type { SiteContentData } from "@/lib/types";
 import type { FormState } from "@/lib/validators";
 import { Card, Field, SubmitButton, submitWith } from "./fields";
+import { ImageField } from "./ImageUpload";
 
 const SECTIONS = [
   { id: "brand", label: "Brand & SEO" },
@@ -46,11 +47,10 @@ export default function SiteContentForm({ content }: { content: SiteContentData 
 
   const [seoTitle, setSeoTitle] = useState(content.seo.title);
   const [seoDescription, setSeoDescription] = useState(content.seo.description);
-  const [ogPreview, setOgPreview] = useState(content.seo.ogImage);
 
   const [stats, setStats] = useState(() => withKeys(content.stats));
   const [process, setProcess] = useState(() => withKeys(content.process));
-  const [team, setTeam] = useState(() => withKeys(content.team.map((m) => ({ ...m, preview: m.photo }))));
+  const [team, setTeam] = useState(() => withKeys(content.team));
 
   // Bring the status message into view after saving.
   const statusRef = useRef<HTMLParagraphElement>(null);
@@ -111,22 +111,14 @@ export default function SiteContentForm({ content }: { content: SiteContentData 
         </div>
 
         <Card title="Social sharing image">
-          <input type="hidden" name="seo.ogImage" value={content.seo.ogImage} />
-          {ogPreview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={ogPreview} alt="" className="aspect-[1200/630] w-full rounded object-cover" />
-          )}
-          <input
-            type="file"
-            name="ogFile"
-            accept="image/jpeg,image/png,image/webp"
-            className="text-sm"
-            onChange={(ev) => {
-              const f = ev.target.files?.[0];
-              if (f) setOgPreview(URL.createObjectURL(f));
-            }}
+          <ImageField
+            name="seo.ogImage"
+            defaultValue={content.seo.ogImage}
+            aspect="aspect-[1200/630]"
+            prepare={{ maxEdge: 1200, format: "jpeg" }}
+            hint="Shown when the site is shared on WhatsApp, Facebook or LinkedIn. Use a 1200 × 630 px image; it is saved as JPEG."
           />
-          <p className="text-xs text-graphite">Shown when the site is shared on WhatsApp, Facebook or LinkedIn. 1200 × 630 px, under 4 MB.</p>
+          {err("seo.ogImage") && <p className="text-xs text-red-700">{err("seo.ogImage")![0]}</p>}
         </Card>
       </div>
 
@@ -201,27 +193,9 @@ export default function SiteContentForm({ content }: { content: SiteContentData 
           <div className="grid gap-4 md:grid-cols-2">
             {team.map((m, i) => (
               <div key={m.key} className="grid grid-cols-[6rem_1fr] gap-4 rounded-md border border-black/5 p-4">
-                <div className="space-y-2">
-                  <div className="aspect-[3/4] overflow-hidden rounded bg-sand">
-                    {m.preview && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={m.preview} alt="" className="h-full w-full object-cover" />
-                    )}
-                  </div>
-                  <input type="hidden" name="team.photo" value={m.photo} />
-                  <label className="block cursor-pointer text-center text-xs text-graphite hover:text-ink">
-                    Change photo
-                    <input
-                      type="file"
-                      name="team.photoFile"
-                      accept="image/jpeg,image/png,image/webp"
-                      className="sr-only"
-                      onChange={(ev) => {
-                        const f = ev.target.files?.[0];
-                        if (f) setTeam((l) => l.map((x) => (x.key === m.key ? { ...x, preview: URL.createObjectURL(f) } : x)));
-                      }}
-                    />
-                  </label>
+                <div>
+                  <ImageField name="team.photo" defaultValue={m.photo} aspect="aspect-[3/4]" compact prepare={{ maxEdge: 1200 }} />
+                  {err(`team.${i}.photo`) && <p className="mt-1 text-xs text-red-700">{err(`team.${i}.photo`)![0]}</p>}
                 </div>
                 <div className="space-y-3">
                   <Field label="Name" name="team.name" defaultValue={m.name} error={err(`team.${i}.name`)} />
@@ -234,7 +208,7 @@ export default function SiteContentForm({ content }: { content: SiteContentData 
               </div>
             ))}
           </div>
-          <RowButton onClick={() => setTeam((l) => [...l, ...withKeys([{ name: "", role: "", bio: "", photo: "", preview: "" }])])}>
+          <RowButton onClick={() => setTeam((l) => [...l, ...withKeys([{ name: "", role: "", bio: "", photo: "" }])])}>
             + Add a team member
           </RowButton>
         </Card>

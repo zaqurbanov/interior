@@ -28,6 +28,9 @@ export interface SiteContentDoc extends Timestamps {
   socials?: { instagram?: string; linkedin?: string; youtube?: string };
   seo?: { title?: string; description?: string; keywords?: string; ogImage?: string };
 }
+export interface MediaDoc extends Timestamps {
+  url: string; name: string; contentType: string; size: number; width: number; height: number; alt: string;
+}
 export interface UserDoc extends Timestamps {
   email: string; name: string; passwordHash: string; role: string;
 }
@@ -127,6 +130,22 @@ const siteContentSchema = new Schema<SiteContentDoc>(
   { timestamps: true },
 );
 
+// One record per image, keyed by URL. Projects, services and site content keep
+// plain URL strings; this collection only adds metadata (alt text, size), so
+// images shipped with the site get a record the first time their alt is edited.
+const mediaSchema = new Schema<MediaDoc>(
+  {
+    url: { type: String, required: true, unique: true },
+    name: { type: String, default: "" },
+    contentType: { type: String, default: "" },
+    size: { type: Number, default: 0 },
+    width: { type: Number, default: 0 },
+    height: { type: Number, default: 0 },
+    alt: { type: String, default: "" },
+  },
+  { timestamps: true },
+);
+
 const userSchema = new Schema<UserDoc>(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -147,3 +166,4 @@ export const Service = (models.Service as unknown as Model<ServiceDoc> | undefin
 export const Message = (models.Message as unknown as Model<MessageDoc> | undefined) ?? mongoose.model<MessageDoc>("Message", messageSchema);
 export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDoc> | undefined) ?? mongoose.model<SiteContentDoc>("SiteContent", siteContentSchema);
 export const User = (models.User as unknown as Model<UserDoc> | undefined) ?? mongoose.model<UserDoc>("User", userSchema);
+export const Media = (models.Media as unknown as Model<MediaDoc> | undefined) ?? mongoose.model<MediaDoc>("Media", mediaSchema);

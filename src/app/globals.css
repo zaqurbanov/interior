@@ -191,7 +191,7 @@ html.lenis, html.lenis body { height: auto; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   border-radius: 6px; padding: 0.55rem 1rem; font-size: 0.85rem; font-weight: 500;
-  background: var(--color-ink); color: var(--color-ivory); transition: opacity 0.2s;
+  background: var(--color-ink); color: var(--color-ivory); transition: opacity 0.2s; cursor: pointer;
 }
 .btn:hover { opacity: 0.85; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ProjectCard from "./ProjectCard";
 import type { ProjectData } from "@/lib/types";
 
-export default function ProjectGrid({ projects }: { projects: ProjectData[] }) {
+export default function ProjectGrid({ projects, alts }: { projects: ProjectData[]; alts?: Record<string, string> }) {
   const categories = useMemo(() => ["All", ...new Set(projects.map((p) => p.category).filter(Boolean))], [projects]);
   const [active, setActive] = useState("All");
   const list = active === "All" ? projects : projects.filter((p) => p.category === active);
@@ -36,7 +36,7 @@ export default function ProjectGrid({ projects }: { projects: ProjectData[] }) {
       <section data-grid className="container-x grid gap-x-8 gap-y-20 pb-32 md:grid-cols-2">
         {list.map((p, i) => (
           <div key={p.slug} className={i % 2 === 1 ? "md:mt-32" : ""}>
-            <ProjectCard project={p} index={i} />
+            <ProjectCard project={p} index={i} alt={alts?.[p.coverImage]} />
           </div>
         ))}
         {!list.length && <p className="text-graphite">New projects coming soon.</p>}

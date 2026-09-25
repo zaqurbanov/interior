@@ -80,7 +80,9 @@ Admin forms submit through `submitWith()` (`src/components/admin/fields.tsx`) in
 
 The database is MongoDB Atlas (database name from `MONGODB_DB`, default `vladimir-fasij` — set in `connectDB`, because Atlas URIs usually omit it). `npm run seed` (`scripts/seed.ts`) inserts missing default content and the admin account and never overwrites edited records; `npm run seed -- --reset-admin` sets the admin password. It refuses the `.env.example` placeholder credentials.
 
-Uploads go through `src/lib/storage.ts`: Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set, otherwise `public/uploads` (local development only). Server actions carry the whole form and Vercel rejects bodies over 4.5 MB, so single uploads are capped at 4 MB; larger files (video) need client-side Blob uploads.
+Uploads never pass through a server action (Vercel rejects bodies over 4.5 MB). The browser shrinks each image (`src/lib/upload-client.ts`: longest edge 2560px, WebP; the social-sharing image 1200px JPEG), then `/api/admin/upload` either hands it a one-off Vercel Blob client token (`BLOB_READ_WRITE_TOKEN` set) or takes the file itself and writes `public/uploads` (local development / a future self-hosted server; refused on Vercel). The route is outside `/admin`, so it checks the session itself. Forms then carry only URLs (hidden inputs from `ImageField` / `GalleryField` in `src/components/admin/ImageUpload.tsx`), validated by `isAllowedImageUrl` — uploads or files shipped under `/images`. `submitWith()` refuses to save while an upload is still running.
+
+The media library (`/admin/media`, `Media` model) keys metadata — alt text, size, dimensions — by URL; content documents keep plain URL strings, so nothing was migrated. `listLibrary()` merges registered uploads with every URL the content refers to, and public pages read alt text through `getImageAlts()`, falling back to a generated description. Because one library image can be used in several places, saves and deletes remove a stored file only through `deleteIfUnused()` (`src/lib/media.ts`).
 
 ### Styling
 
@@ -88,5 +90,4 @@ Tailwind v4 with semantic tokens in `src/app/globals.css`: `ivory` = page ground
 
 ## Known gaps
 
-- `AdminNav` links `/admin/content` (site content + SEO editing); that page has not been built.
 - `public/frames` and `public/images` are ~175 MB of committed assets; adding more project walkthroughs will grow the repo fast. Hosting stays on Vercel for the foreseeable future (a later move is the client's call), so the frames should eventually move to Vercel Blob as well (admin uploads already use it). See `TASKS.md`.

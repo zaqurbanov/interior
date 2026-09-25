@@ -68,13 +68,14 @@ GitHub Actions: public repoda pulsuz, private repoda aylıq pulsuz dəqiqə limi
 
 ### Mərhələ 1 — Media əsası (hər şey buna bağlıdır)
 
-İndiki problem: layihə formu bütün qalereya şəkillərini bir server action sorğusunda göndərir, Vercel isə 4.5 MB-dan böyük sorğunu qəbul etmir — 2–3 şəkil birlikdə yükləmək də sına bilər. Formda "8 MB" yazılıb, `storage.ts` isə 4 MB-dan böyük faylı rədd edir.
+Əvvəlki problem (həll olundu): layihə formu bütün qalereya şəkillərini bir server action sorğusunda göndərir, Vercel isə 4.5 MB-dan böyük sorğunu qəbul etmir — 2–3 şəkil birlikdə yükləmək də sına bilər. Formda "8 MB" yazılıb, `storage.ts` isə 4 MB-dan böyük faylı rədd edir.
 
-- [ ] Birbaşa brauzerdən Blob-a yükləmə (`@vercel/blob/client`): fayl Blob-a gedir, server action-a yalnız URL çatır; ölçü limiti aradan qalxır, videolar da yüklənə bilir
-- [ ] Yükləmə interfeysi: sürüklə-burax, hər fayl üçün irəliləyiş, brauzerdə sıxma (WebP, maks. 2560px)
-- [ ] Formdakı "8 MB" yazısını real limitlə uyğunlaşdırmaq
-- [ ] Media kitabxanası (`/admin/media`, `Media` modeli): bütün şəkillər bir yerdə, axtarış, harada istifadə olunduğu, istifadəsizləri silmək; hər yerdə "kitabxanadan seç"
-- [ ] Hər şəkil üçün alt mətn (SEO + əlçatanlıq)
+- [x] Birbaşa brauzerdən Blob-a yükləmə (`@vercel/blob/client`): fayl Blob-a gedir, server action-a yalnız URL çatır; ölçü limiti aradan qalxır (hələlik yalnız şəkil qəbul olunur; video Mərhələ 4-də əlavə olunacaq)
+- [x] Yükləmə interfeysi: sürüklə-burax, hər fayl üçün irəliləyiş, brauzerdə sıxma (WebP, maks. 2560px)
+- [x] Formdakı "8 MB" yazısını real limitlə uyğunlaşdırmaq
+- [x] Media kitabxanası (`/admin/media`, `Media` modeli): bütün şəkillər bir yerdə, axtarış, harada istifadə olunduğu, istifadəsizləri silmək; hər yerdə "kitabxanadan seç"
+- [x] Hər şəkil üçün alt mətn (SEO + əlçatanlıq) — saytda layihə, xidmət, komanda şəkillərində və kartlarda istifadə olunur; boş olanda avtomatik mətn
+- [ ] Real yoxlama (Vercel preview və ya `.env.local` ilə): Blob-a yükləmə, kitabxanada alt mətnin saxlanması, istifadə olunmayan şəklin silinməsi. Bu sessiyada baza olmadığı üçün yalnız lokal yükləmə, sıxma və interfeys sınanıb
 
 ### Mərhələ 2 — Layihə redaktoru
 

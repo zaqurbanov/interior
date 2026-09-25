@@ -3,10 +3,15 @@
 import { startTransition } from "react";
 
 /** Submit handler that runs a server action without React's automatic form reset,
- *  so field values survive validation errors. */
+ *  so field values survive validation errors. Holds the save while an image is
+ *  still uploading (ImageUpload marks itself with data-uploading). */
 export function submitWith(action: (fd: FormData) => void) {
   return (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
+    if (ev.currentTarget.querySelector("[data-uploading]")) {
+      window.alert("An image is still uploading — save again once it has finished.");
+      return;
+    }
     const fd = new FormData(ev.currentTarget);
     startTransition(() => action(fd));
   };

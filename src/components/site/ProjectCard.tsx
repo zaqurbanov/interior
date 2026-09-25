@@ -2,14 +2,14 @@ import SkeletonImage from "./SkeletonImage";
 import Link from "next/link";
 import type { ProjectData } from "@/lib/types";
 
-export default function ProjectCard({ project, index, large }: { project: ProjectData; index: number; large?: boolean }) {
+export default function ProjectCard({ project, index, large, alt }: { project: ProjectData; index: number; large?: boolean; alt?: string }) {
   return (
     <Link href={`/projects/${project.slug}`} className="reveal group block">
       <div className={`relative overflow-hidden bg-sand ${large ? "aspect-[4/3] md:aspect-[16/10]" : "aspect-[4/3]"}`}>
         {project.coverImage ? (
           <SkeletonImage
             src={project.coverImage}
-            alt={`${project.title} — ${project.category || "interior project"} in ${project.location}`}
+            alt={alt || `${project.title} — ${project.category || "interior project"} in ${project.location}`}
             sizes={large ? "(min-width: 768px) 60vw, 100vw" : "(min-width: 768px) 40vw, 100vw"}
             className="object-cover ease-out group-hover:scale-[1.04]"
           />

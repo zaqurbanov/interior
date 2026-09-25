@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import JsonLd from "@/components/site/JsonLd";
 import PageHero from "@/components/site/PageHero";
-import { getSiteContent, siteUrl } from "@/lib/data";
+import { getImageAlts, getSiteContent, siteUrl } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "About — Our team",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const site = await getSiteContent();
+  const [site, alts] = await Promise.all([getSiteContent(), getImageAlts()]);
   const url = siteUrl();
 
   return (
@@ -46,7 +46,7 @@ export default async function AboutPage() {
           <article key={m.name} className="reveal">
             <div className="relative aspect-[3/4] overflow-hidden bg-sand">
               {m.photo && (
-                <Image src={m.photo} alt={`${m.name}, ${m.role}`} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="object-cover grayscale-[20%]" />
+                <Image src={m.photo} alt={alts[m.photo] || `${m.name}, ${m.role}`} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="object-cover grayscale-[20%]" />
               )}
             </div>
             <h2 className="mt-6 font-serif text-3xl">{m.name}</h2>

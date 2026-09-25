@@ -65,3 +65,18 @@ export type MessageData = {
   read: boolean;
   createdAt: string;
 };
+
+export type MediaUsage = { label: string; href: string };
+
+export type MediaItem = {
+  url: string;
+  name: string;
+  alt: string;
+  size: number;
+  width: number;
+  height: number;
+  createdAt: string | null;
+  usedBy: MediaUsage[];
+  /** Uploaded through the admin (Blob or public/uploads), so it can be deleted. */
+  stored: boolean;
+};

@@ -9,7 +9,7 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/site/JsonLd";
 import ShowcaseGallery from "@/components/site/ShowcaseGallery";
 import VideoEmbed from "@/components/site/VideoEmbed";
-import { getProject, getProjects, getSiteContent, siteUrl } from "@/lib/data";
+import { getImageAlts, getProject, getProjects, getSiteContent, siteUrl } from "@/lib/data";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const [project, all, site] = await Promise.all([getProject(slug), getProjects(), getSiteContent()]);
+  const [project, all, site, alts] = await Promise.all([getProject(slug), getProjects(), getSiteContent(), getImageAlts()]);
   if (!project) notFound();
   // Only use the scroll story when its frames have actually been extracted.
   const story = existsSync(path.join(process.cwd(), "public", "frames", project.slug)) ? getProjectStory(project.slug) : null;
@@ -87,7 +87,7 @@ export default async function ProjectPage({ params }: Props) {
       ) : (
         project.coverImage && (
           <div className="relative mx-auto aspect-[16/9] w-full max-w-[1600px] overflow-hidden bg-sand">
-            <SkeletonImage src={project.coverImage} alt={`${project.title} interior`} priority sizes="100vw" className="object-cover" />
+            <SkeletonImage src={project.coverImage} alt={alts[project.coverImage] || `${project.title} interior`} priority sizes="100vw" className="object-cover" />
           </div>
         )
       )}
@@ -104,7 +104,7 @@ export default async function ProjectPage({ params }: Props) {
       {project.gallery.length > 0 && (
         <section aria-labelledby="gallery-title" className="overflow-hidden pb-24">
           <h2 id="gallery-title" className="container-x eyebrow mb-10 text-bronze">Gallery</h2>
-          <ShowcaseGallery images={project.gallery} title={project.title} />
+          <ShowcaseGallery images={project.gallery} title={project.title} alts={alts} />
         </section>
       )}
 
