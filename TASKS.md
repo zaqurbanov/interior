@@ -30,6 +30,10 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 
 - **[Mənbə videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md)** — Kadrları yenidən çıxarmaq üçün orijinal MP4-lər lazımdır; çoxu artıq `videos/`-da yoxdur.
 
+## Təhlükəsizlik
+
+- **[Təhlükəsizlik yoxlamasının nəticələri](tasks/tehlukesizlik-yoxlamasi.md)** — Ciddi boşluq yoxdur; təhlükəsizlik başlıqları, login limiti, təsdiq e-poçtu sui-istifadəsi, ziyarət sayğacı, Next yeniləməsi.
+
 ## SEO
 
 - **[PageSpeed / Lighthouse və Search Console](tasks/seo-lighthouse-search-console.md)** — Deploy-dan sonra performans yoxlaması və sitemap-in Google-a göndərilməsi.
