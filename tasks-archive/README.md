@@ -11,6 +11,10 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 - **["Site content & SEO" səhifəsi](admin-site-content-sehifesi.md)** — `/admin/content`: brend, SEO, ana səhifə mərhələləri, haqqında, komanda, əlaqə.
 - **[Baza, seed və admin hesabı](admin-baza-ve-hesab.md)** — MongoDB Atlas seçildi və qoşuldu, seed yazıldı, real admin hesabı yaradıldı, yükləmələr Blob-a keçdi.
 
+## Performans
+
+- **[Mobildə kadrlar əvəzinə MP4](mobil-mp4.md)** _(2026-09-25)_ — Telefonda animasiya bir MP4 yükləyir: ana səhifə 11.4 → 1.5 MB, layihələr 3–10 → 0.7–2 MB.
+
 ## Layihə animasiyaları
 
 - **[Mobildə animasiyaların avtomatik oynaması](mobil-avtomatik-video.md)** _(2026-09-25)_ — Telefonda scroll əvəzinə video kimi avtomatik oynayır; hər mərhələdə fasilə, sonda "Replay".

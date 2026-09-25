@@ -20,7 +20,7 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 
 ## Performans
 
-- **[Sayt trafikinin (MB) azaldılması](tasks/trafik-azaltma.md)** — Hər layihə səhifəsi telefonda 3–10 MB, kompüterdə 5–17 MB yükləyir (animasiya kadrları); MP4-ə keçidlə mobildə ~4–6 dəfə azalır.
+- **[Sayt trafikinin (MB) azaldılması](tasks/trafik-azaltma.md)** — Telefon həll olundu (MP4); qalan: kompüterdə kadr çəkisi (5–17 MB/layihə, ana səhifə 28 MB) və yükləmənin vaxtı.
 
 ## Layihə animasiyaları
 

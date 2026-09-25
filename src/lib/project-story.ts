@@ -482,7 +482,8 @@ export function getProjectStory(slug: string): ProjectStory | null {
   return projectStories[slug] ?? null;
 }
 
-type Segment = { frame: number; frames: number; units: number };
+/** A stretch of the timeline: `frames` > 1 plays them one per unit; 1 holds a frame for `units`. */
+export type Segment = { frame: number; frames: number; units: number };
 
 const timelines = new WeakMap<ProjectStory, { totalFrames: number; totalUnits: number; segments: Segment[] }>();
 
@@ -525,6 +526,12 @@ function buildTimeline(story: ProjectStory) {
   timelines.set(story, entry);
   return entry;
 }
+
+/** Timeline segments, for the phone video player (lib/autoplay.ts). */
+export const storySegments = (story: ProjectStory): Segment[] => buildTimeline(story).segments;
+
+/** H.264 of the mobile frames that phones play instead (scripts/build-mobile-videos.mjs). */
+export const storyMobileVideoUrl = (story: ProjectStory) => `/frames/${story.slug}/v${story.version}/mobile.mp4`;
 
 export function storyTimeline(story: ProjectStory) {
   const { totalFrames, totalUnits } = buildTimeline(story);

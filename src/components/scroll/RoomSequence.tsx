@@ -7,10 +7,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Stage } from "@/lib/types";
 import { drawCover, loadFrame, type Frame } from "@/lib/canvas-frame";
 import { SCROLL_SECTION_CLASS, linearOrder, prefersLiteMedia, progressiveOrder, scrollSectionStyle, whenReadyToStream } from "@/lib/frame-loader";
-import { createPlayer, type Player } from "@/lib/autoplay";
+import { createPlayer, createVideoPlayer, type Player } from "@/lib/autoplay";
 import { useAutoplayMode, watchVisibility } from "./use-autoplay";
 import ReplayButton from "./ReplayButton";
 import {
+  HOME_FPS,
+  HOME_SEGMENTS,
+  HOME_VIDEO,
   SCENE1_FRAMES,
   SCENE2_START,
   SCROLL_VH,
@@ -32,9 +35,6 @@ const FADE = 0.03;
 const DARK_FROM = STAGE_AT[5] / TOTAL_UNITS;
 const SCENE2_PROGRESS = SCENE2_START / TOTAL_UNITS;
 
-// Frame rate the home-page videos were extracted at (scripts/extract-frames.mjs).
-const HOME_FPS = 24;
-
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const shortLabel = (eyebrow: string) => eyebrow.split("—").pop()?.trim() ?? eyebrow;
 
@@ -53,8 +53,44 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   const autoplay = useAutoplayMode();
   const [ended, setEnded] = useState(false);
   const playerRef = useRef<Player | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  // Phones play an MP4 (far lighter than the frames); frames remain the
+  // fallback if the browser will not autoplay it.
+  const [videoFailed, setVideoFailed] = useState(false);
+  const useVideo = autoplay === true && !videoFailed;
 
   const starts = STAGE_STARTS.slice(0, stages.length);
+
+  // Stage copy, dots, progress bar and the dark overlay for a timeline position
+  // p (0–1). Shared by the scroll, frame-autoplay and video paths; touches only refs.
+  const overlays = (p: number) => {
+    stageRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const a = starts[i];
+      const b = starts[i + 1] ?? 1.01;
+      const fadeIn = i === 0 ? 1 : clamp01((p - a) / FADE);
+      const fadeOut = i === starts.length - 1 ? 1 : clamp01((b - p) / FADE);
+      const o = Math.min(fadeIn, fadeOut);
+      el.style.opacity = String(o);
+      el.style.transform = `translateY(${(1 - fadeIn) * 40 - (1 - fadeOut) * 40}px)`;
+      el.style.pointerEvents = o > 0.5 ? "auto" : "none";
+      el.setAttribute("aria-hidden", o > 0.5 ? "false" : "true");
+    });
+    const active = starts.reduce((acc, s, i) => (p >= s - 0.001 ? i : acc), 0);
+    dotRefs.current.forEach((d, i) => {
+      if (!d) return;
+      const state = i === active ? "current" : i < active ? "past" : "future";
+      d.setAttribute("data-state", state);
+      if (state === "current") d.setAttribute("aria-current", "step");
+      else d.removeAttribute("aria-current");
+    });
+    if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+    // With autoplay the arrow is the way on to the rest of the page, so it stays.
+    if (hintRef.current && !autoplay) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
+    const dark = clamp01((p - DARK_FROM + FADE) / FADE);
+    if (darkRef.current) darkRef.current.style.opacity = String(dark);
+    stickyRef.current?.setAttribute("data-dark", String(dark > 0.5));
+  };
 
   // Reduced motion, Data Saver or a very slow connection: a still image instead.
   useEffect(() => setLite(prefersLiteMedia()), []);
@@ -62,7 +98,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (lite || autoplay === null || !section || !canvas) return;
+    if (lite || autoplay === null || useVideo || !section || !canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
@@ -143,32 +179,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
     })();
 
     const updateOverlays = (p: number) => {
-      stageRefs.current.forEach((el, i) => {
-        if (!el) return;
-        const a = starts[i];
-        const b = starts[i + 1] ?? 1.01;
-        const fadeIn = i === 0 ? 1 : clamp01((p - a) / FADE);
-        const fadeOut = i === starts.length - 1 ? 1 : clamp01((b - p) / FADE);
-        const o = Math.min(fadeIn, fadeOut);
-        el.style.opacity = String(o);
-        el.style.transform = `translateY(${(1 - fadeIn) * 40 - (1 - fadeOut) * 40}px)`;
-        el.style.pointerEvents = o > 0.5 ? "auto" : "none";
-        el.setAttribute("aria-hidden", o > 0.5 ? "false" : "true");
-      });
-      const active = starts.reduce((acc, s, i) => (p >= s - 0.001 ? i : acc), 0);
-      dotRefs.current.forEach((d, i) => {
-        if (!d) return;
-        const state = i === active ? "current" : i < active ? "past" : "future";
-        d.setAttribute("data-state", state);
-        if (state === "current") d.setAttribute("aria-current", "step");
-        else d.removeAttribute("aria-current");
-      });
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      // With autoplay the arrow is the way on to the rest of the page, so it stays.
-      if (hintRef.current && !autoplay) hintRef.current.style.opacity = String(1 - clamp01((p - 0.92) / 0.06));
-      const dark = clamp01((p - DARK_FROM + FADE) / FADE);
-      if (darkRef.current) darkRef.current.style.opacity = String(dark);
-      stickyRef.current?.setAttribute("data-dark", String(dark > 0.5));
+      overlays(p);
       if (p > SCENE2_PROGRESS * 0.8) startScene2();
     };
 
@@ -227,7 +238,51 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
       tween.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stages.length, lite, autoplay]);
+  }, [stages.length, lite, autoplay, useVideo]);
+
+  // Phones: the MP4 is the clock; its time drives the same stage copy.
+  useEffect(() => {
+    const section = sectionRef.current;
+    const video = videoRef.current;
+    if (lite || !useVideo || !section || !video) return;
+    const last = TOTAL_UNITS - 1;
+    const signal = { cancelled: false };
+    let player: Player | null = null;
+    let stopWatching = () => {};
+    const show = () => (video.style.opacity = "1");
+    overlays(0);
+    whenReadyToStream(section, signal).then(() => {
+      if (signal.cancelled) return;
+      video.muted = true; // required for autoplay; set as a property, React does not render the attribute
+      video.addEventListener("loadeddata", show, { once: true });
+      video.src = HOME_VIDEO;
+      const p = createVideoPlayer({
+        video,
+        fps: HOME_FPS,
+        segments: HOME_SEGMENTS,
+        holds: starts.slice(1).map((s) => Math.round((s + FADE) * last)),
+        onUnit: (u) => {
+          overlays(u / last);
+          setEnded(false);
+        },
+        onEnd: () => setEnded(true),
+        onFail: () => setVideoFailed(true),
+      });
+      player = p;
+      playerRef.current = p;
+      stopWatching = watchVisibility(section, (visible) => (visible ? p.play() : p.pause()));
+    });
+    return () => {
+      signal.cancelled = true;
+      stopWatching();
+      player?.destroy();
+      playerRef.current = null;
+      video.removeEventListener("loadeddata", show);
+      video.removeAttribute("src");
+      video.load();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stages.length, lite, useVideo]);
 
   const pct = Math.round((loaded / TOTAL_FRAMES) * 100);
 
@@ -279,6 +334,17 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
             className="absolute inset-0 h-full w-full object-cover"
           />
         </picture>
+        {useVideo && (
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300"
+          />
+        )}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-300"
@@ -377,7 +443,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
         {autoplay && ended && <ReplayButton onClick={() => playerRef.current?.restart()} />}
 
         {/* Loader */}
-        {pct < 100 && (
+        {pct < 100 && !useVideo && (
           // Top-right on phones, where it cannot collide with the centred arrow.
           <div className="absolute right-4 top-20 md:top-auto md:bottom-6 md:right-10" aria-live="polite">
             <span className="eyebrow text-[0.6rem] text-ink/60">Loading scene {pct}%</span>
