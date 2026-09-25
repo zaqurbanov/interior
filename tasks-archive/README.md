@@ -13,6 +13,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Performans
 
+- **[Sayt trafikinin (MB) azaldılması](trafik-azaltma.md)** _(2026-09-25)_ — Telefonda MP4-ə keçildi; kompüter olduğu kimi qalır (sifarişçinin qərarı).
 - **[Mobildə kadrlar əvəzinə MP4](mobil-mp4.md)** _(2026-09-25)_ — Telefonda animasiya bir MP4 yükləyir: ana səhifə 11.4 → 1.5 MB, layihələr 3–10 → 0.7–2 MB.
 
 ## Layihə animasiyaları

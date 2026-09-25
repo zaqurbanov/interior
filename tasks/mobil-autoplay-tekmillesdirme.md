@@ -12,7 +12,7 @@ Mobildə scroll animasiyaları avtomatik oynayır ([arxiv](../tasks-archive/mobi
 
 - [ ] Sifarişçidən konkret qeydləri almaq (nə pis görünür / nə istənir)
 - [ ] Ehtimal olunan variantlar (qeydlərə görə seçilir):
-  - [ ] Başlanğıcda gözləməni azaltmaq (MP4 ilə — bax [trafik-azaltma](trafik-azaltma.md))
+  - [ ] Başlanğıcda gözləməni azaltmaq (MP4 artıq var — [arxiv](../tasks-archive/mobil-mp4.md))
   - [ ] Toxunaraq dayandırmaq / davam etdirmək
   - [ ] Mərhələ fasiləsinin (`STAGE_HOLD_MS`, 2.6 s) və sürətin tənzimlənməsi
   - [ ] Mətnin oxunaqlığı, keçid animasiyaları

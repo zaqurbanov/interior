@@ -18,10 +18,6 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 - **[Mərhələ 4 — Animasiya redaktoru](tasks/admin-m4-animasiya-redaktoru.md)** — Story-ləri bazaya köçürmək, video yükləmə, GitHub Actions ilə kadr çıxarma, vizual timeline, kadrları Blob-a köçürmək.
 - **[Mərhələ 5 — Dashboard və əlavələr](tasks/admin-m5-dashboard.md)** — Sorğu qrafiki, "diqqət tələb edir" siyahısı, dəyişiklik tarixçəsi, yeni bölmələr.
 
-## Performans
-
-- **[Sayt trafikinin (MB) azaldılması](tasks/trafik-azaltma.md)** — Telefon həll olundu (MP4); qalan: kompüterdə kadr çəkisi (5–17 MB/layihə, ana səhifə 28 MB) və yükləmənin vaxtı.
-
 ## Layihə animasiyaları
 
 - **[Animasiya: Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md)** — `persian-gulf-coast-villa` üçün scroll video — video lazımdır.
