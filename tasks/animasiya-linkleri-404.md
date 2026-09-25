@@ -27,7 +27,7 @@ Bu linklər `https://vladimir-fasij.com` ilə açılanda "Page not found" çıx�
 
 ## Addımlar
 
-- [ ] Eyni yolu Vercel ünvanında açmaq: **production** `https://interior-plum-kappa.vercel.app` (məs. `https://interior-plum-kappa.vercel.app/projects/belgravia`); branch preview: `https://interior-git-claude-gifted-cray-qxf2t8-zaqurbanovs-projects.vercel.app`
+- [x] (2026-09-26: Vercel ünvanında layihə səhifələri açılır — problem domendədir) Eyni yolu Vercel ünvanında açmaq: **production** `https://interior-plum-kappa.vercel.app` (məs. `https://interior-plum-kappa.vercel.app/projects/belgravia`); branch preview: `https://interior-git-claude-gifted-cray-qxf2t8-zaqurbanovs-projects.vercel.app`
   - açılırsa → problem domendədir, aşağıdakı addım
   - orada da 404-dürsə → Vercel → Deployments → Logs; bazadakı layihələrin slug-larını yoxlamaq (admin → Projects → hər layihənin "Slug")
 - [ ] Domeni yeni sayta bağlamaq: Vercel → Settings → Domains → `vladimir-fasij.com` (+ `www`), domen panelində göstərilən DNS qeydləri. Köhnə saytın vacib ünvanları üçün yönləndirmələr (redirect) düşünülsün — köhnə linklər Google-da və sosial şəbəkələrdə var

@@ -11,7 +11,7 @@
 ## Addımlar
 
 - [x] Kodu düzəltmək (`data.ts`, `next.config.ts`)
-- [ ] Commit + push (istifadəçi özü edir)
-- [ ] Vercel → Deployments → filtr "Preview" → köhnə deploy-ları silmək (Production "Current" qalır)
+- [x] Commit + push (`9cf84ea`) — yeni deploy-da funksiyalar 2.6–3.6 MB (əvvəl hərəsi ~220 MB+)
+- [x] Vercel → Deployments → köhnə Preview deploy-lar silindi (2026-09-26)
 - [ ] Settings → Security → Deployment Retention Policy: Preview üçün avtomatik silinmə (məs. 30 gün)
 - [ ] Bir-iki gün sonra Usage-də Functions / Deployment Storage-in düşdüyünü yoxlamaq
