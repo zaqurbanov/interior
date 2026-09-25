@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import SkipArrow from "./SkipArrow";
-import { useAutoplayMode, watchVisibility } from "./use-autoplay";
+import { useAutoplayMode, useScrollGate, watchVisibility } from "./use-autoplay";
 import ReplayButton from "./ReplayButton";
 import { createPlayer, createVideoPlayer, type Player } from "@/lib/autoplay";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -39,6 +39,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   const [loaded, setLoaded] = useState(0);
   const [lite, setLite] = useState(false);
   const autoplay = useAutoplayMode();
+  // Phones: the page waits on this section until the arrow is tapped.
+  const gate = useScrollGate(sectionRef, autoplay === true && !lite);
   const [ended, setEnded] = useState(false);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -371,7 +373,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
         </div>
 
         <div ref={hintRef} className="absolute inset-x-0 bottom-0 flex justify-center">
-          <SkipArrow sectionRef={sectionRef} label="Scroll to walk through" skipLabel="Skip" />
+          <SkipArrow sectionRef={sectionRef} label="Scroll to walk through" skipLabel="Skip" locked={gate.locked} onSkip={gate.release} />
         </div>
 
         {autoplay && ended && <ReplayButton onClick={() => playerRef.current?.restart()} />}
