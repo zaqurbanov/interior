@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Static assets are served by the CDN; keep them out of the server function
+  // bundles, which Vercel stores per deployment.
+  outputFileTracingExcludes: {
+    "*": ["public/frames/**", "public/images/**", "public/uploads/**", "videos/**"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     // Admin uploads are served from Vercel Blob.

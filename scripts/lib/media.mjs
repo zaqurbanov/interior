@@ -1,6 +1,6 @@
 // ffmpeg helpers shared by the frame and video scripts.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -21,7 +21,14 @@ export function encodeMobileVideo(sceneDirs, fps, out) {
   let n = 0;
   for (const dir of sceneDirs) {
     for (const f of readdirSync(path.join(dir, "mobile")).filter((f) => f.endsWith(".webp")).sort()) {
-      symlinkSync(path.resolve(dir, "mobile", f), path.join(tmp, `${String(++n).padStart(5, "0")}.webp`));
+      const from = path.resolve(dir, "mobile", f);
+      const to = path.join(tmp, `${String(++n).padStart(5, "0")}.webp`);
+      // Windows refuses symlinks without Developer Mode; copying works everywhere.
+      try {
+        symlinkSync(from, to);
+      } catch {
+        copyFileSync(from, to);
+      }
     }
   }
   mkdirSync(path.dirname(out), { recursive: true });

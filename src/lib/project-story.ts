@@ -50,6 +50,56 @@ export const BUILTIN_VIDEO_DATE = "2026-09-25T00:00:00Z";
 const root = (story: ProjectStory) => `${story.base ?? "/frames"}/${story.slug}/v${story.version}`;
 
 export const projectStories: Record<string, ProjectStory> = {
+  windsor: {
+    slug: "windsor",
+    version: 1,
+    // One scene at 24fps in four cuts: gym (0–63), indoor pool (64–127),
+    // steam room (128–175), entrance hall (176–239).
+    scenes: [240],
+    hold: 0,
+    stages: [
+      {
+        at: 0,
+        eyebrow: "Windsor, UK",
+        title: "Where grandeur meets well-being",
+        text: "A multi-million-pound estate on the outskirts of Windsor, designed with the construction company and the architects around a private wellness wing.",
+        label: "The project",
+        facts: ["Budget of £5,000,000", "Designed with the builders and architects", "Private wellness wing"],
+      },
+      {
+        at: 28,
+        eyebrow: "The gym",
+        title: "Built for serious training",
+        text: "A gym fitted with a professional boxing ring and Pilates reformers, for the fitness needs of the most discerning clientele.",
+        label: "Fitness",
+        facts: ["Professional boxing ring", "Pilates reformer equipment", "Fully equipped gym"],
+      },
+      {
+        at: 68,
+        eyebrow: "The pool hall",
+        title: "Light on the water",
+        text: "A long indoor pool beneath crystal chandeliers, with a canopy daybed and garden views through tall glazing.",
+        label: "Pool",
+        facts: ["Indoor swimming pool", "Crystal chandeliers", "Outdoor pool with loungers and bar"],
+      },
+      {
+        at: 132,
+        eyebrow: "The spa",
+        title: "Steam under a starlit ceiling",
+        text: "Steam rooms and saunas beside the pool, and a beauty room offering a full suite of massage therapies.",
+        label: "Spa",
+        facts: ["Steam rooms and saunas", "Beauty and massage rooms", "Fibre-optic starlit ceiling"],
+      },
+      {
+        at: 182,
+        eyebrow: "The hall",
+        title: "An estate made for arrivals",
+        text: "Arched windows, herringbone floors and chandeliers — and beyond them a Japanese garden with koi ponds and a kitchen garden of berries and vegetables.",
+        label: "Estate",
+        facts: ["Herringbone timber floors", "Japanese garden with koi ponds", "Kitchen garden"],
+      },
+    ],
+  },
   belgravia: {
     slug: "belgravia",
     version: 1,

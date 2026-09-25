@@ -15,6 +15,7 @@ Daimi qaydalar və qərarlar (tapşırıq deyil). Açıq işlər: [../TASKS.md](
 - **Temp:** yeni layihədə `scrollVh` yazmasan, videonun uzunluğundan avtomatik hesablanır (saniyəyə 40vh). İki videolu layihələr (Villa La Belle, Villa Luna, Villa La Fadarello) əl ilə 720vh-dır.
 - **Kadr sıxlığı:** tək videolu layihələr 24 fps; dəniz, ağac və parıltı olan videolar pis sıxılır — onlar üçün 15 fps (bir səhifədə kompüter dəsti ~15 MB-dan çox olmasın).
 - **localhost:3000-də başqa layihədən qalmış service worker** saytı sındırırdı (`yolai-cache-v1`), təmizləndi. Eyni xəta ("client-side exception") yenə çıxsa, brauzerdə `localhost:3000` üçün service worker-i ləğv et.
+- **Server kodu `public/frames` / `public/images`-ə `fs` ilə baxmamalıdır.** Belə baxanda Next bütün kadrları (~220 MB) hər server funksiyasına qoşurdu və Vercel-in 10 GB-lıq "Functions Storage" limiti doldu (2026-09-25). `next.config.ts`-də `outputFileTracingExcludes` bunun qarşısını alır.
 - **Deploy-dan əvvəl `npm run build`** — dev server dayandırılmış halda.
 - **Öz serverə keçilsə**, `/frames/*` üçün bir illik `immutable` keş başlığı nginx-də də olmalıdır (Vercel-də `next.config.ts`-də var).
 

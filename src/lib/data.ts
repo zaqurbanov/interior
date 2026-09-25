@@ -1,8 +1,6 @@
 import "server-only";
 import { connectDB, isDbConfigured } from "./db";
 import { isEnquiryStatus } from "./enquiries";
-import { existsSync } from "node:fs";
-import path from "node:path";
 import { getProjectStory, type ProjectStory } from "./project-story";
 import { Media, Project, Service, SiteContent, Story } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
@@ -242,9 +240,13 @@ export function storyFromAdmin(s: StoryAdminData): ProjectStory | null {
   };
 }
 
-/** Built-in story, if its frames were extracted into public/frames. */
+/**
+ * Built-in story from lib/project-story.ts; an entry is only added together with
+ * its frames. No filesystem check: touching public/frames from server code makes
+ * Next trace every frame into each function bundle (GBs of Vercel storage).
+ */
 function codeStory(slug: string): ProjectStory | null {
-  return existsSync(path.join(process.cwd(), "public", "frames", slug)) ? getProjectStory(slug) : null;
+  return getProjectStory(slug);
 }
 
 /**

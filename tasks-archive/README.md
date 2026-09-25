@@ -20,6 +20,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Layihə animasiyaları
 
+- **[Animasiya: Windsor Estate](animasiya-windsor.md)** _(2026-09-25)_ — `windsor.mp4`, 24 fps: idman zalı, qapalı hovuz, buxar otağı, giriş holu.
 - **[Mobildə mətn çıxanda video dayanmır](mobil-yavas-fasile.md)** _(2026-09-25)_ — Hər mərhələdə tam fasilə əvəzinə video ~0.3× sürətlə yavaşlayır; “ilişib” hissi aradan qalxdı.
 - **[Mobildə animasiyadan yalnız ox ilə keçmək](mobil-scroll-kilidi.md)** _(2026-09-25)_ — Telefonda aşağı sürüşdürmə animasiyadan çıxarmır; keçid ox (“Continue”) ilə.
 - **[Mobildə animasiyaların avtomatik oynaması](mobil-avtomatik-video.md)** _(2026-09-25)_ — Telefonda scroll əvəzinə video kimi avtomatik oynayır; hər mərhələdə fasilə, sonda "Replay".

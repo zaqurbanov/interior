@@ -2,6 +2,7 @@
 // used by the project scroll story. Usage: node scripts/extract-project-frames.mjs
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { encodeMobileVideo } from "./lib/media.mjs";
 
 const stories = [
   {
@@ -71,6 +72,12 @@ const stories = [
     scenes: ["videos/belg.mp4"],
     version: 1,
   },
+  {
+    slug: "windsor",
+    // Four cuts: gym, indoor pool, star-ceiling steam room, entrance hall.
+    scenes: ["videos/windsor.mp4"],
+    version: 1,
+  },
 ];
 const sizes = [
   { name: "desktop", width: 1440, quality: 50 },
@@ -87,7 +94,11 @@ const sceneTrim = (scene) => {
   return [...(scene.start ? ["-ss", String(scene.start)] : []), ...(scene.duration ? ["-t", String(scene.duration)] : [])];
 };
 
+// Optional slugs limit the run: node scripts/extract-project-frames.mjs windsor
+const only = process.argv.slice(2);
+
 for (const story of stories) {
+  if (only.length && !only.includes(story.slug)) continue;
   // Check the sources first: never delete existing frames for a missing video.
   const missing = story.scenes.map(sceneSrc).filter((src) => !existsSync(src));
   if (missing.length) {
@@ -110,5 +121,8 @@ for (const story of stories) {
   });
   // Poster: first frame of the first scene.
   ff("-i", sceneSrc(story.scenes[0]), ...sceneTrim(story.scenes[0]), "-frames:v", "1", "-c:v", "libwebp", "-quality", "82", `${base}/poster.webp`);
+  // Phones play this instead of the frames; the folder was wiped above, so rebuild it.
+  const n = encodeMobileVideo(story.scenes.map((_, i) => `${base}/scene${i + 1}`), fps ?? 24, `${base}/mobile.mp4`);
+  console.log(`${base}/mobile.mp4: ${n} frames`);
 }
 console.log("Done.");
