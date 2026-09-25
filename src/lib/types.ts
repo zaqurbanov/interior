@@ -90,3 +90,21 @@ export type MediaItem = {
   /** Uploaded through the admin (Blob or public/uploads), so it can be deleted. */
   stored: boolean;
 };
+
+/** A walkthrough as the admin editor sees it (Story model). */
+export type StoryAdminData = {
+  id: string;
+  slug: string;
+  version: number;
+  base: string;
+  fps: number;
+  hold: number;
+  scenes: number[];
+  sources: { url: string; start: number; duration: number }[];
+  extractFps: number;
+  scrollVh: number;
+  pauses: { at: number; units: number }[];
+  stages: { at: number; eyebrow: string; title: string; text: string; label: string; facts: string[] }[];
+  enabled: boolean;
+  job: { status: "idle" | "processing" | "failed"; version: number; error: string; startedAt: string };
+};

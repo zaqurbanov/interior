@@ -2,7 +2,7 @@
 // it in the media library. Import only from client components.
 import { upload } from "@vercel/blob/client";
 import { registerMedia } from "@/app/actions/media";
-import { IMAGE_TYPES, MAX_IMAGE_EDGE, MAX_UPLOAD_BYTES, UPLOAD_ENDPOINT, formatBytes, type UploadDriver } from "./upload-config";
+import { IMAGE_TYPES, MAX_IMAGE_EDGE, MAX_UPLOAD_BYTES, MAX_VIDEO_BYTES, UPLOAD_ENDPOINT, VIDEO_TYPES, formatBytes, type UploadDriver } from "./upload-config";
 
 export type PrepareOptions = {
   /** Longest edge after resizing. */
@@ -131,4 +131,23 @@ export async function uploadImage(original: File, opts: PrepareOptions & { onPro
     (err) => console.warn("[upload] media library:", err),
   );
   return { url, width, height, size: file.size };
+}
+
+/** Upload a walkthrough source video as is (no media-library entry). Progress 0–100. */
+export async function uploadVideo(file: File, onProgress?: (pct: number) => void): Promise<string> {
+  if (!(VIDEO_TYPES as readonly string[]).includes(file.type)) throw new Error(`${file.name}: use an MP4, MOV or WebM video.`);
+  if (file.size > MAX_VIDEO_BYTES) throw new Error(`${file.name} is ${formatBytes(file.size)} — the limit is ${formatBytes(MAX_VIDEO_BYTES)}.`);
+  const driver = await getDriver();
+  if (driver === "blob") {
+    const blob = await upload(`videos/${safeName(file.name)}`, file, {
+      access: "public",
+      handleUploadUrl: UPLOAD_ENDPOINT,
+      contentType: file.type,
+      // Parts upload in parallel and retry on their own — steadier for large files.
+      multipart: true,
+      onUploadProgress: (p) => onProgress?.(p.percentage),
+    });
+    return blob.url;
+  }
+  return postLocal(file, onProgress);
 }

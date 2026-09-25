@@ -2,8 +2,8 @@ import "server-only";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { del } from "@vercel/blob";
-import { IMAGE_TYPES, MAX_UPLOAD_BYTES, isStoredUrl, type UploadDriver } from "./upload-config";
+import { del, list } from "@vercel/blob";
+import { IMAGE_TYPES, MAX_UPLOAD_BYTES, MAX_VIDEO_BYTES, VIDEO_TYPES, isStoredUrl, type UploadDriver } from "./upload-config";
 
 export { isAllowedImageUrl, isStoredUrl } from "./upload-config";
 
@@ -13,12 +13,24 @@ export { isAllowedImageUrl, isStoredUrl } from "./upload-config";
 // to public/uploads, which works in local development and on a self-hosted
 // server, but not on Vercel, whose filesystem is read-only.
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
-const EXT: Record<string, string> = { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/avif": ".avif" };
+const EXT: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "image/avif": ".avif",
+  "video/mp4": ".mp4",
+  "video/quicktime": ".mov",
+  "video/webm": ".webm",
+};
 
 export const uploadDriver = (): UploadDriver => (process.env.BLOB_READ_WRITE_TOKEN ? "blob" : "local");
 
-export function checkImage(type: string, size: number) {
-  if (!(IMAGE_TYPES as readonly string[]).includes(type)) throw new Error("Only JPG, PNG, WebP or AVIF images are allowed.");
+export function checkUpload(type: string, size: number) {
+  if ((VIDEO_TYPES as readonly string[]).includes(type)) {
+    if (size > MAX_VIDEO_BYTES) throw new Error(`Videos must be smaller than ${MAX_VIDEO_BYTES / 1024 / 1024} MB.`);
+    return;
+  }
+  if (!(IMAGE_TYPES as readonly string[]).includes(type)) throw new Error("Only JPG, PNG, WebP or AVIF images (or MP4 / MOV / WebM video) are allowed.");
   if (size > MAX_UPLOAD_BYTES) throw new Error(`Images must be smaller than ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`);
 }
 
@@ -27,7 +39,7 @@ export async function saveLocalUpload(file: File): Promise<string> {
   if (process.env.VERCEL) {
     throw new Error("Uploads need a Vercel Blob store: connect one so BLOB_READ_WRITE_TOKEN is set.");
   }
-  checkImage(file.type, file.size);
+  checkUpload(file.type, file.size);
   const base = path.parse(file.name).name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "image";
   const name = `${base}-${randomUUID().slice(0, 8)}${EXT[file.type]}`;
   await mkdir(UPLOAD_DIR, { recursive: true });
@@ -42,4 +54,15 @@ export async function deleteUpload(url: string) {
     return;
   }
   await unlink(path.join(UPLOAD_DIR, path.basename(url))).catch(() => {});
+}
+
+/** Remove every Blob file under a prefix (e.g. a walkthrough's frames/<slug>/). */
+export async function deleteBlobPrefix(prefix: string) {
+  if (uploadDriver() !== "blob") return;
+  let cursor: string | undefined;
+  do {
+    const page = await list({ prefix, cursor, limit: 1000 });
+    if (page.blobs.length) await del(page.blobs.map((b) => b.url));
+    cursor = page.hasMore ? page.cursor : undefined;
+  } while (cursor);
 }

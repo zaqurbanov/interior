@@ -66,6 +66,7 @@ function Row({ row, position }: { row: ProjectRow; position: number }) {
       </div>
       <div className="flex shrink-0 gap-4">
         <Link href={`/admin/projects/${row.id}`} className="text-sm hover:underline">Edit</Link>
+        <Link href={`/admin/projects/${row.id}/story`} className="hidden text-sm text-graphite hover:text-ink hover:underline md:inline">Walkthrough</Link>
         <DeleteButton action={deleteProject.bind(null, row.id)} />
       </div>
     </li>

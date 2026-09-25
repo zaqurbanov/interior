@@ -11,11 +11,12 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 - **[Vercel mühit dəyişənləri və admin login](tasks/vercel-env-ve-login.md)** — Deploy-da login `MissingSecret` xətası verir; `AUTH_SECRET`, `MONGODB_URI` və s. Vercel-ə əlavə olunmalı, Blob qoşulmalı.
 - **[`.env.local` və Atlas təhlükəsizliyi](tasks/env-local-temizlik.md)** — Lokal Blob token-i, istifadə olunmayan DB dəyişənlərinin silinməsi, Atlas şifrəsinin gücü.
 - **[Resend (e-poçt) qurulması](tasks/resend-qurulmasi.md)** — Sorğu bildirişləri və müştəriyə avtomatik cavab üçün Resend hesabı, domen təsdiqi və Vercel dəyişənləri.
+- **[Animasiya redaktoru üçün kadr işinin qurulması](tasks/kadr-isi-qurulmasi.md)** — Admin paneldə "Make frames" işləsin deyə GitHub token-i, repo secret-ləri və Vercel dəyişənləri.
 
 ## Admin panel
 
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
-- **[Mərhələ 4 — Animasiya redaktoru](tasks/admin-m4-animasiya-redaktoru.md)** — Story-ləri bazaya köçürmək, video yükləmə, GitHub Actions ilə kadr çıxarma, vizual timeline, kadrları Blob-a köçürmək.
+- **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — `public/frames` (~210 MB) repodadır; yeni animasiyalar artıq Blob-a yazılır, köhnələri də köçürülsə repo və deploy kiçilir.
 - **[Mərhələ 5 — Dashboard və əlavələr](tasks/admin-m5-dashboard.md)** — Sorğu qrafiki, "diqqət tələb edir" siyahısı, dəyişiklik tarixçəsi, yeni bölmələr.
 
 ## Layihə animasiyaları

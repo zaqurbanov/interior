@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import SkeletonImage from "@/components/site/SkeletonImage";
-import { existsSync } from "node:fs";
-import path from "node:path";
 import ProjectStory from "@/components/scroll/ProjectStory";
-import { getProjectStory } from "@/lib/project-story";
 import Link from "next/link";
 import { cookies, draftMode } from "next/headers";
 import { notFound } from "next/navigation";
@@ -11,7 +8,7 @@ import JsonLd from "@/components/site/JsonLd";
 import ShowcaseGallery from "@/components/site/ShowcaseGallery";
 import VideoEmbed from "@/components/site/VideoEmbed";
 import { toHtml } from "@/lib/rich-text";
-import { getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, siteUrl } from "@/lib/data";
+import { getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, getStory, siteUrl } from "@/lib/data";
 import { PREVIEW_COOKIE } from "@/lib/preview";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -53,8 +50,7 @@ export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
   const [{ project, preview }, all, site, alts] = await Promise.all([loadProject(slug), getProjects(), getSiteContent(), getImageAlts()]);
   if (!project) notFound();
-  // Only use the scroll story when its frames have actually been extracted.
-  const story = existsSync(path.join(process.cwd(), "public", "frames", project.slug)) ? getProjectStory(project.slug) : null;
+  const story = await getStory(project.slug);
 
   const idx = all.findIndex((p) => p.slug === project.slug);
   const next = all.length > 1 ? all[(idx + 1) % all.length] : null;

@@ -5,17 +5,14 @@
 //   public/frames/home/v<HOME_VERSION>/mobile.mp4 (home page, scene1 + scene2)
 // Usage: node scripts/build-mobile-videos.mjs [slug …]   (FFMPEG=/path/to/ffmpeg)
 // Re-run after re-extracting frames; the version folder keeps caches honest.
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import { encodeMobileVideo } from "./lib/media.mjs";
 
-const FFMPEG = process.env.FFMPEG || "ffmpeg";
 // Keep in sync with HOME_VIDEO in src/lib/sequence.ts.
 const HOME_VERSION = 1;
 const HOME_FPS = 24;
 
-const ff = (...args) => execFileSync(FFMPEG, ["-v", "error", "-y", ...args], { stdio: "inherit" });
 const mb = (file) => (statSync(file).size / 1048576).toFixed(2);
 
 /** Frame rate per slug, read from src/lib/project-story.ts (default 24). */
@@ -30,27 +27,8 @@ function storyFps() {
   return out;
 }
 
-/** Scene directories in order, each holding mobile/0001.webp… */
 function encode(sceneDirs, fps, out) {
-  // Number every frame of every scene into one continuous sequence.
-  const tmp = mkdtempSync(path.join(tmpdir(), "vf-frames-"));
-  let n = 0;
-  for (const dir of sceneDirs) {
-    for (const f of readdirSync(path.join(dir, "mobile")).filter((f) => f.endsWith(".webp")).sort()) {
-      symlinkSync(path.resolve(dir, "mobile", f), path.join(tmp, `${String(++n).padStart(5, "0")}.webp`));
-    }
-  }
-  mkdirSync(path.dirname(out), { recursive: true });
-  ff(
-    "-framerate", String(fps),
-    "-i", path.join(tmp, "%05d.webp"),
-    "-c:v", "libx264", "-preset", "slow", "-crf", "27",
-    "-profile:v", "high", "-level", "4.0", "-pix_fmt", "yuv420p",
-    // Keyframes every 4 s: frequent enough for Replay, far cheaper than every second.
-    "-g", String(fps * 4), "-movflags", "+faststart", "-an",
-    out,
-  );
-  rmSync(tmp, { recursive: true, force: true });
+  const n = encodeMobileVideo(sceneDirs, fps, out);
   console.log(`${out}: ${n} frames @ ${fps}fps, ${mb(out)} MB`);
 }
 

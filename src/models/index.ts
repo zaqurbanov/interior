@@ -43,6 +43,33 @@ export interface SiteContentDoc extends Timestamps {
 export interface MediaDoc extends Timestamps {
   url: string; name: string; contentType: string; size: number; width: number; height: number; alt: string;
 }
+export interface StoryStageDoc {
+  at: number; eyebrow: string; title: string; text: string; label: string; facts: string[];
+}
+/** A project walkthrough edited in the admin (see lib/project-story.ts for the fields). */
+export interface StoryDoc extends Timestamps {
+  slug: string;
+  /** Live frame-set version (0 until frames exist). */
+  version: number;
+  /** "/frames" (in the repo) or the Blob URL prefix the frames were written to. */
+  base: string;
+  fps: number;
+  hold: number;
+  /** Frame count per scene of the live version. */
+  scenes: number[];
+  /** Source videos (uploads) with an optional trim, one per scene. */
+  sources: { url: string; start: number; duration: number }[];
+  /** Frame rate for the next extraction (`fps` is the live frames' rate). */
+  extractFps: number;
+  /** Hand-tuned scroll height in vh (0 = derived from the footage). */
+  scrollVh: number;
+  pauses: { at: number; units: number }[];
+  stages: StoryStageDoc[];
+  /** Shown on the site. */
+  enabled: boolean;
+  /** Frame extraction job: runs on GitHub Actions or locally (lib/frame-jobs.ts). */
+  job: { status: string; version: number; error: string; startedAt: Date | null };
+}
 export interface UserDoc extends Timestamps {
   email: string; name: string; passwordHash: string; role: string;
 }
@@ -165,6 +192,34 @@ const mediaSchema = new Schema<MediaDoc>(
   { timestamps: true },
 );
 
+const storySchema = new Schema<StoryDoc>(
+  {
+    slug: { type: String, required: true, unique: true },
+    version: { type: Number, default: 0 },
+    base: { type: String, default: "/frames" },
+    fps: { type: Number, default: 24 },
+    hold: { type: Number, default: 0 },
+    scenes: { type: [Number], default: [] },
+    sources: { type: [{ url: String, start: Number, duration: Number, _id: false }], default: [] },
+    extractFps: { type: Number, default: 24 },
+    scrollVh: { type: Number, default: 0 },
+    pauses: { type: [{ at: Number, units: Number, _id: false }], default: [] },
+    stages: {
+      type: [{ at: Number, eyebrow: String, title: String, text: String, label: String, facts: [String], _id: false }],
+      default: [],
+    },
+    enabled: { type: Boolean, default: false },
+    job: {
+      status: { type: String, default: "idle" },
+      version: { type: Number, default: 0 },
+      error: { type: String, default: "" },
+      startedAt: { type: Date, default: null },
+      _id: false,
+    },
+  },
+  { timestamps: true },
+);
+
 const userSchema = new Schema<UserDoc>(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -186,3 +241,4 @@ export const Message = (models.Message as unknown as Model<MessageDoc> | undefin
 export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDoc> | undefined) ?? mongoose.model<SiteContentDoc>("SiteContent", siteContentSchema);
 export const User = (models.User as unknown as Model<UserDoc> | undefined) ?? mongoose.model<UserDoc>("User", userSchema);
 export const Media = (models.Media as unknown as Model<MediaDoc> | undefined) ?? mongoose.model<MediaDoc>("Media", mediaSchema);
+export const Story = (models.Story as unknown as Model<StoryDoc> | undefined) ?? mongoose.model<StoryDoc>("Story", storySchema);

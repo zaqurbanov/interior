@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 import ProjectForm from "@/components/admin/ProjectForm";
@@ -19,7 +20,10 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
   project.content = project.content && toHtml(project.content);
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-4xl">Edit: {project.title}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-serif text-4xl">Edit: {project.title}</h1>
+        <Link href={`/admin/projects/${project.id}/story`} className="btn btn-ghost">Walkthrough →</Link>
+      </div>
       <ProjectForm project={project} />
     </div>
   );

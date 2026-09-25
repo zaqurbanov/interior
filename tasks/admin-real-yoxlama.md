@@ -21,3 +21,4 @@ Mərhələ 1 (media), 2 (layihə redaktoru) və 3 (sorğular) bazası və Blob t
 - [ ] Saytdan sorğu göndərmək → "Enquiries"-də görünmək; status, teq, qeyd dəyişikliklərinin saxlanması
 - [ ] CSV ixracını Excel-də açmaq (hərflər düzgün görünür)
 - [ ] Eyni brauzerdən 4-cü sorğu 10 dəqiqə ərzində limitə düşür
+- [ ] Walkthrough: mövcud animasiyanı "Edit" ilə açmaq, mətni dəyişib saxlamaq → saytda görünmək

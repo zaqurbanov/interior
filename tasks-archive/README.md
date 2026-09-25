@@ -4,6 +4,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Admin panel
 
+- **[Mərhələ 4 — Animasiya redaktoru](admin-m4-animasiya-redaktoru.md)** _(2026-09-25)_ — Video yükləmə, avtomatik kadr çıxarma (GitHub Actions / öz server), vizual timeline redaktoru.
 - **[Mərhələ 3 — Sorğular (mesajlar)](admin-m3-sorgular.md)** _(2026-09-25)_ — Sorğulara status, teq, qeydlər; axtarış və filtr; Resend ilə e-poçt; spam qoruması; CSV ixracı.
 - **[Mərhələ 2 — Layihə redaktoru](admin-m2-layihe-redaktoru.md)** _(2026-09-25)_ — Qalereya/siyahı sıralaması, ⭐ seçilmiş şəkillər, planlaşdırma və preview linki, Tiptap redaktoru, qaralama qorunması.
 - **[Mərhələ 1 — Media əsası](admin-m1-media.md)** _(2026-09-25)_ — Birbaşa Blob-a yükləmə, brauzerdə sıxma, media kitabxanası, alt mətn.

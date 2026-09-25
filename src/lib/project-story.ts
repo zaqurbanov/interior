@@ -1,5 +1,7 @@
-// Scroll-driven walkthroughs for individual projects (frames from videos/*.mp4,
-// extracted by scripts/extract-project-frames.mjs).
+// Scroll-driven walkthroughs for individual projects. The stories below are
+// the built-in set (frames in public/frames, from scripts/extract-project-frames.mjs);
+// stories edited in the admin live in MongoDB (Story model) and take
+// precedence — see getStory() in lib/data.ts.
 
 export type StoryStage = {
   /** Timeline unit where this stage starts. */
@@ -33,7 +35,14 @@ export type ProjectStory = {
    */
   scrollVh?: number;
   stages: StoryStage[];
+  /**
+   * Where the `<slug>/v<version>/…` folders live: "/frames" (public/, the
+   * default) or a Vercel Blob URL for walkthroughs generated from the admin.
+   */
+  base?: string;
 };
+
+const root = (story: ProjectStory) => `${story.base ?? "/frames"}/${story.slug}/v${story.version}`;
 
 export const projectStories: Record<string, ProjectStory> = {
   belgravia: {
@@ -531,7 +540,7 @@ function buildTimeline(story: ProjectStory) {
 export const storySegments = (story: ProjectStory): Segment[] => buildTimeline(story).segments;
 
 /** H.264 of the mobile frames that phones play instead (scripts/build-mobile-videos.mjs). */
-export const storyMobileVideoUrl = (story: ProjectStory) => `/frames/${story.slug}/v${story.version}/mobile.mp4`;
+export const storyMobileVideoUrl = (story: ProjectStory) => `${root(story)}/mobile.mp4`;
 
 export function storyTimeline(story: ProjectStory) {
   const { totalFrames, totalUnits } = buildTimeline(story);
@@ -553,7 +562,7 @@ export function storyFrameUrl(story: ProjectStory, globalIndex: number, set: "de
   let index = globalIndex;
   for (let i = 0; i < story.scenes.length; i++) {
     if (index < story.scenes[i]) {
-      return `/frames/${story.slug}/v${story.version}/scene${i + 1}/${set}/${String(index + 1).padStart(4, "0")}.webp`;
+      return `${root(story)}/scene${i + 1}/${set}/${String(index + 1).padStart(4, "0")}.webp`;
     }
     index -= story.scenes[i];
   }
@@ -561,5 +570,5 @@ export function storyFrameUrl(story: ProjectStory, globalIndex: number, set: "de
 }
 
 export function storyPosterUrl(story: ProjectStory) {
-  return `/frames/${story.slug}/v${story.version}/poster.webp`;
+  return `${root(story)}/poster.webp`;
 }
