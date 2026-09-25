@@ -65,7 +65,7 @@ function MediaCard({ item }: { item: MediaItem }) {
 
   const save = () =>
     start(async () => {
-      const res = await saveMediaAlt(item.url, alt);
+      const res = await saveMediaAlt(item.url, alt).catch((e: Error) => ({ ok: false, message: e.message }));
       setStatus(res.message);
       if (res.ok) router.refresh();
     });
@@ -73,7 +73,7 @@ function MediaCard({ item }: { item: MediaItem }) {
   const remove = () =>
     confirm("Delete this image permanently?") &&
     start(async () => {
-      const res = await deleteMedia(item.url);
+      const res = await deleteMedia(item.url).catch((e: Error) => ({ ok: false, message: e.message }));
       if (res.ok) router.refresh();
       else setStatus(res.message);
     });

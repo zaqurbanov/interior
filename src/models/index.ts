@@ -22,6 +22,12 @@ export interface ServiceDoc extends Timestamps {
 }
 export interface MessageDoc extends Timestamps {
   name: string; email: string; phone: string; subject: string; body: string; read: boolean;
+  /** Sales pipeline stage; see ENQUIRY_STATUSES in lib/enquiries.ts. */
+  status: string;
+  tags: string[];
+  notes: { text: string; at: Date }[];
+  /** Salted hash of the sender's IP, for rate limiting. Never the IP itself. */
+  ipHash: string;
 }
 export interface SiteContentDoc extends Timestamps {
   key: string; brandName?: string; tagline?: string;
@@ -94,6 +100,10 @@ const messageSchema = new Schema<MessageDoc>(
     subject: { type: String, default: "" },
     body: { type: String, required: true },
     read: { type: Boolean, default: false },
+    status: { type: String, default: "new", index: true },
+    tags: { type: [String], default: [] },
+    notes: { type: [{ text: String, at: Date, _id: false }], default: [] },
+    ipHash: { type: String, default: "", index: true },
   },
   { timestamps: true },
 );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { sendMessage } from "@/app/actions/contact";
 import type { FormState } from "@/lib/validators";
 
@@ -41,6 +41,9 @@ function Input({
 
 export default function ContactForm() {
   const [state, action, pending] = useActionState(sendMessage, initial);
+  // When the form appeared; the server drops submissions made implausibly fast (bots).
+  const [startedAt, setStartedAt] = useState("");
+  useEffect(() => setStartedAt(String(Date.now())), []);
 
   if (state.ok) {
     return (
@@ -51,7 +54,17 @@ export default function ContactForm() {
   }
 
   return (
-    <form action={action} className="grid gap-8 md:grid-cols-2" noValidate>
+    <form
+      // Submitted by hand rather than through `action`, so React does not clear
+      // what the visitor typed when the server sends back a validation error.
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => action(fd));
+      }}
+      className="grid gap-8 md:grid-cols-2"
+      noValidate
+    >
       <Input name="name" label="Name" required error={state.errors?.name} />
       <Input name="email" label="Email" type="email" required error={state.errors?.email} />
       <Input name="phone" label="Phone" type="tel" error={state.errors?.phone} />
@@ -60,6 +73,7 @@ export default function ContactForm() {
         <Input name="body" label="Tell us about your space" required textarea error={state.errors?.body} />
       </div>
       <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+      <input type="hidden" name="startedAt" value={startedAt} />
       <div className="flex flex-wrap items-center gap-6 md:col-span-2">
         <button
           type="submit"

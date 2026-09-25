@@ -8,7 +8,11 @@ export const contactSchema = z.object({
   subject: z.string().trim().max(200).optional().default(""),
   body: z.string().trim().min(10, "Tell us a little more about your project").max(5000),
   company: z.string().optional(), // honeypot: real users leave it empty
+  startedAt: z.string().regex(/^\d*$/).optional(), // ms timestamp from when the form was shown
 });
+
+/** Admin: status, tags and notes on an enquiry. */
+export const enquiryNoteSchema = z.string().trim().min(1, "Write a note first").max(2000);
 
 const slug = z
   .string()

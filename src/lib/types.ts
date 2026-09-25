@@ -68,8 +68,13 @@ export type MessageData = {
   subject: string;
   body: string;
   read: boolean;
+  status: EnquiryStatus;
+  tags: string[];
+  notes: { text: string; at: string }[];
   createdAt: string;
 };
+
+export type EnquiryStatus = "new" | "replied" | "proposal" | "won" | "lost" | "spam";
 
 export type MediaUsage = { label: string; href: string };
 

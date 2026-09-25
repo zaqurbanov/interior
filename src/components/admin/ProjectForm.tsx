@@ -45,7 +45,7 @@ function PreviewLink({ id, token: initialToken }: { id: string; token: string })
 
   if (!token) {
     return (
-      <button type="button" onClick={() => ensurePreviewToken(id).then(setToken)} className="cursor-pointer text-xs text-bronze hover:underline">
+      <button type="button" onClick={() => ensurePreviewToken(id).then(setToken, (e: Error) => window.alert(e.message))} className="cursor-pointer text-xs text-bronze hover:underline">
         Create a preview link
       </button>
     );

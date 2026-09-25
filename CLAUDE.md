@@ -33,7 +33,7 @@ When a task is finished: `git mv` its file to `tasks-archive/`, set `Status: bit
 
 ## Environment
 
-Copy `.env.example` to `.env.local`: `MONGODB_URI`, `MONGODB_DB`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
+Copy `.env.example` to `.env.local`: `MONGODB_URI`, `MONGODB_DB`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`, and optionally `RESEND_API_KEY` / `MAIL_FROM` / `NOTIFY_EMAIL` for enquiry emails. Without `MONGODB_URI` the public site still renders — see the fallback below — but admin login and the contact form fail.
 
 ## Architecture
 
@@ -95,6 +95,8 @@ Descriptions are HTML from a Tiptap editor, sanitised on save and on render by `
 The database is MongoDB Atlas (database name from `MONGODB_DB`, default `vladimir-fasij` — set in `connectDB`, because Atlas URIs usually omit it). `npm run seed` (`scripts/seed.ts`) inserts missing default content and the admin account and never overwrites edited records; `npm run seed -- --reset-admin` sets the admin password. It refuses the `.env.example` placeholder credentials.
 
 Uploads never pass through a server action (Vercel rejects bodies over 4.5 MB). The browser shrinks each image (`src/lib/upload-client.ts`: longest edge 2560px, WebP; the social-sharing image 1200px JPEG), then `/api/admin/upload` either hands it a one-off Vercel Blob client token (`BLOB_READ_WRITE_TOKEN` set) or takes the file itself and writes `public/uploads` (local development / a future self-hosted server; refused on Vercel). The route is outside `/admin`, so it checks the session itself. Forms then carry only URLs (hidden inputs from `ImageField` / `GalleryField` in `src/components/admin/ImageUpload.tsx`), validated by `isAllowedImageUrl` — uploads or files shipped under `/images`. `submitWith()` refuses to save while an upload is still running.
+
+Enquiries (`/admin/messages`, the `Message` model) carry a pipeline `status` (`src/lib/enquiries.ts`; `spam` is hidden unless filtered for), `tags` and timestamped `notes`; filters live in the URL and `enquiryQuery()` serves both the list and the CSV export (`/api/admin/enquiries/export`, session-checked, formula-escaped). The contact action (`src/app/actions/contact.ts`) drops honeypot and too-fast submissions silently, rate-limits by a salted IP hash (3 per 10 min, 10 per day), files link-stuffed messages as spam, and sends the studio alert and the client receipt through Resend (`src/lib/mail.ts`) in `after()`, so mail problems never block the form. Client components that call server actions must catch rejections (expired session, database down) — an uncaught one replaces the page with the error boundary.
 
 The media library (`/admin/media`, `Media` model) keys metadata — alt text, size, dimensions — by URL; content documents keep plain URL strings, so nothing was migrated. `listLibrary()` merges registered uploads with every URL the content refers to, and public pages read alt text through `getImageAlts()`, falling back to a generated description. Because one library image can be used in several places, saves and deletes remove a stored file only through `deleteIfUnused()` (`src/lib/media.ts`).
 

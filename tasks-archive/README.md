@@ -4,6 +4,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Admin panel
 
+- **[Mərhələ 3 — Sorğular (mesajlar)](admin-m3-sorgular.md)** _(2026-09-25)_ — Sorğulara status, teq, qeydlər; axtarış və filtr; Resend ilə e-poçt; spam qoruması; CSV ixracı.
 - **[Mərhələ 2 — Layihə redaktoru](admin-m2-layihe-redaktoru.md)** _(2026-09-25)_ — Qalereya/siyahı sıralaması, ⭐ seçilmiş şəkillər, planlaşdırma və preview linki, Tiptap redaktoru, qaralama qorunması.
 - **[Mərhələ 1 — Media əsası](admin-m1-media.md)** _(2026-09-25)_ — Birbaşa Blob-a yükləmə, brauzerdə sıxma, media kitabxanası, alt mətn.
 - **[Admin panelin inkişaf planı](admin-inkisaf-plani.md)** _(2026-09-25)_ — 5 mərhələli plan tərtib olundu; açıq mərhələlər `tasks/`-dadır.

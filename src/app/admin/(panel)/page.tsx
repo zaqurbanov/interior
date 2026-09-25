@@ -10,15 +10,15 @@ export default async function Dashboard() {
   const [projects, services, messages, unread, latest] = await Promise.all([
     Project.countDocuments(),
     Service.countDocuments(),
-    Message.countDocuments(),
-    Message.countDocuments({ read: false }),
-    Message.find().sort({ createdAt: -1 }).limit(5).lean(),
+    Message.countDocuments({ status: { $ne: "spam" } }),
+    Message.countDocuments({ read: false, status: { $ne: "spam" } }),
+    Message.find({ status: { $ne: "spam" } }).sort({ createdAt: -1 }).limit(5).lean(),
   ]);
 
   const cards = [
     { label: "Projects", value: projects, href: "/admin/projects" },
     { label: "Services", value: services, href: "/admin/services" },
-    { label: "Messages", value: messages, href: "/admin/messages" },
+    { label: "Enquiries", value: messages, href: "/admin/messages" },
     { label: "Unread", value: unread, href: "/admin/messages" },
   ];
 

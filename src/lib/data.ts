@@ -1,6 +1,7 @@
 import "server-only";
 import { connectDB, isDbConfigured } from "./db";
-import { Media, Message, Project, Service, SiteContent } from "@/models";
+import { isEnquiryStatus } from "./enquiries";
+import { Media, Project, Service, SiteContent } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
 import type { MessageData, ProjectData, ServiceData, SiteContentData } from "./types";
 
@@ -68,6 +69,9 @@ export function toMessage(d: any): MessageData {
     subject: str(d.subject),
     body: str(d.body),
     read: Boolean(d.read),
+    status: isEnquiryStatus(str(d.status)) ? d.status : "new",
+    tags: (d.tags ?? []).map(str),
+    notes: (d.notes ?? []).map((n: any) => ({ text: str(n.text), at: new Date(n.at ?? Date.now()).toISOString() })),
     createdAt: new Date(d.createdAt ?? Date.now()).toISOString(),
   };
 }
@@ -173,12 +177,6 @@ export async function getProjectPreview(slug: string, token: string): Promise<Pr
   await connectDB();
   const d = await Project.findOne({ slug, previewToken: token }).lean();
   return d ? toProject(d) : null;
-}
-
-export async function getMessages(): Promise<MessageData[]> {
-  await connectDB();
-  const docs = await Message.find().sort({ createdAt: -1 }).lean();
-  return docs.map(toMessage);
 }
 
 /** Alt text edited in the media library, by image URL. Pages fall back to a
