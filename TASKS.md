@@ -42,16 +42,70 @@ Baza: MongoDB Atlas və ya Supabase (yuxarıdakı qeydə bax).
 - [ ] Vercel → Environment Variables: `MONGODB_URI`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`, `NEXT_PUBLIC_SITE_URL` (real domen), istəyə görə `MONGODB_DB`. `BLOB_READ_WRITE_TOKEN` Blob qoşulanda avtomatik gəlir. (`ADMIN_*` yalnız seed üçündür, Vercel-də lazım deyil.)
 - [ ] Lokal yükləmə testi üçün `BLOB_READ_WRITE_TOKEN`-i Vercel-dən `.env.local`-a köçür (və ya `vercel env pull`)
 - [ ] Admin paneldən şəkil yükləməni real olaraq sınamaq (giriş → layihə → şəkil)
-- [ ] 4 MB-dan böyük fayllar (videolar) üçün birbaşa brauzerdən Blob-a yükləmə (`@vercel/blob/client`)
 - [ ] `.env.local`-dakı istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS` dəyişənlərini silmək (şifrə təkrarı)
 - [ ] Atlas: Network Access `0.0.0.0/0` açıqdırsa, DB şifrəsinin güclü olduğuna əmin ol
 
 - [x] "Site content & SEO" səhifəsi (`/admin/content`) — brend, SEO (Google önizləməsi), ana səhifə animasiyasının 8 mərhələsi, haqqında, rəqəmlər, proses, komanda (foto ilə), əlaqə və sosial linklər
 - [ ] "Site content & SEO"-da real saxlama testi (Save → saytda dəyişikliyin görünməsi)
-- [ ] Animasiya redaktoru: layihəyə video yükləmək, mərhələ mətnlərini və vaxtlarını admin paneldən dəyişmək
-- [ ] Mərhələ konfiqurasiyasını (`project-story.ts`) MongoDB-yə köçürmək
-- [ ] Video yüklənəndə kadrları serverdə `ffmpeg` ilə avtomatik çıxarmaq
-- [ ] Qalereya üçün "seçilmiş 6 şəkil"i admin paneldən seçmək (hazırda ilk 6 şəkil göstərilir)
+
+- Yükləmə, animasiya redaktoru, "seçilmiş 6 şəkil" və qalan admin işləri aşağıdakı **2a. Admin panel: inkişaf planı**-na köçürüldü.
+
+## 2a. Admin panel: inkişaf planı
+
+Hər mərhələ ayrıca PR olaraq, `npm run build` ilə yoxlanılıb push edilir. Plandan kənar: çoxdillilik, login gücləndirilməsi (2FA, giriş limiti), bir neçə istifadəçi və rollar.
+
+**Hostinq qaydası:** hələlik Vercel-də qalırıq, amma kod gələcəkdə öz serverə keçidi asanlaşdıracaq şəkildə yazılır — keçid kodu yenidən yazmaq yox, mühit dəyişənlərini dəyişmək olmalıdır:
+
+| Hissə | İndi (Vercel) | Öz serverdə |
+|---|---|---|
+| Fayl saxlama | Vercel Blob | Serverin diski və ya S3 uyğun saxlama (MinIO, Cloudflare R2) |
+| Kadr çıxarma | Video Blob-a yüklənir → GitHub Actions `ffmpeg` işlədir | Serverdə birbaşa `ffmpeg` (GitHub Actions lazım deyil) |
+| Verilənlər bazası | MongoDB Atlas | Atlas-da qala bilər və ya serverə köçər |
+
+Bunun üçün iki adapter: **saxlama** (`src/lib/storage.ts` — Blob / lokal disk, sonra S3) və **kadr çıxarma** (admin panel yalnız "bu videodan kadr çıxar" deyir; işi Vercel-də GitHub Actions, öz serverdə `ffmpeg` görür).
+
+GitHub Actions: public repoda pulsuz, private repoda aylıq pulsuz dəqiqə limiti var (bir video ~2–5 dəq). Ödəniş limitini 0 qoymaq kifayətdir ki, heç vaxt pul çıxmasın.
+
+### Mərhələ 1 — Media əsası (hər şey buna bağlıdır)
+
+İndiki problem: layihə formu bütün qalereya şəkillərini bir server action sorğusunda göndərir, Vercel isə 4.5 MB-dan böyük sorğunu qəbul etmir — 2–3 şəkil birlikdə yükləmək də sına bilər. Formda "8 MB" yazılıb, `storage.ts` isə 4 MB-dan böyük faylı rədd edir.
+
+- [ ] Birbaşa brauzerdən Blob-a yükləmə (`@vercel/blob/client`): fayl Blob-a gedir, server action-a yalnız URL çatır; ölçü limiti aradan qalxır, videolar da yüklənə bilir
+- [ ] Yükləmə interfeysi: sürüklə-burax, hər fayl üçün irəliləyiş, brauzerdə sıxma (WebP, maks. 2560px)
+- [ ] Formdakı "8 MB" yazısını real limitlə uyğunlaşdırmaq
+- [ ] Media kitabxanası (`/admin/media`, `Media` modeli): bütün şəkillər bir yerdə, axtarış, harada istifadə olunduğu, istifadəsizləri silmək; hər yerdə "kitabxanadan seç"
+- [ ] Hər şəkil üçün alt mətn (SEO + əlçatanlıq)
+
+### Mərhələ 2 — Layihə redaktoru
+
+- [ ] Qalereyada sürükləyərək sıralama
+- [ ] "Seçilmiş 6 şəkil"i ulduzla işarələmək → `ShowcaseGallery` (hazırda ilk 6 şəkil göstərilir)
+- [ ] Layihələr siyahısında sürükləyərək sıralama ("Order" rəqəm sahəsinin yerinə)
+- [ ] Qaralama, gizli önizləmə linki, dərc tarixini planlaşdırmaq
+- [ ] Rich text redaktoru (Tiptap) — təsvir üçün
+- [ ] Avtomatik saxlama və "yadda saxlanmamış dəyişikliklər" xəbərdarlığı
+
+### Mərhələ 3 — Sorğular (mesajlar)
+
+- [ ] Status: yeni / cavablandı / təklif göndərildi / qazanıldı / itirildi; qeydlər, teqlər, axtarış, filtr
+- [ ] Yeni sorğuda e-poçt bildirişi (Resend) və müştəriyə avtomatik "sorğunuz alındı" cavabı
+- [ ] Spam qoruması: honeypot + rate limit (istəyə görə Turnstile)
+- [ ] CSV ixracı
+
+### Mərhələ 4 — Animasiya redaktoru
+
+- [ ] `project-story.ts`-i MongoDB-yə köçürmək (`Story` modeli); kod faylı `withDb()` kimi ehtiyat olaraq qalır
+- [ ] Layihəyə video yükləmək (Mərhələ 1-dəki birbaşa Blob yükləmə ilə)
+- [ ] Kadr çıxarma adapteri: GitHub Actions workflow videonu Blob-dan götürür, `extract-project-frames.mjs` məntiqi ilə kadrları çıxarıb Blob-a yazır, `version`-u avtomatik artırır
+- [ ] Vizual timeline redaktoru: kadrları sürüşdürücü ilə gəzmək, mərhələni istənilən kadrda yerləşdirmək, mətn və faktları yazmaq, canlı önizləmə
+- [ ] Mövcud kadrları `public/frames`-dən Blob-a köçürmək (repo ~206 MB-dan kiçilir)
+
+### Mərhələ 5 — Dashboard və əlavələr
+
+- [ ] Son 30 günün sorğu qrafiki, ən çox baxılan layihələr
+- [ ] "Diqqət tələb edir": boş SEO sahələri, alt mətni olmayan şəkillər, oxunmamış sorğular
+- [ ] Dəyişiklik tarixçəsi və layihəni əvvəlki versiyaya qaytarmaq
+- [ ] Yeni bölmələr (saytda istifadə olunacaqsa): rəylər, mətbuat / mükafatlar, FAQ
 
 ## 3. Yerləşdirmə (hazırda Vercel; öz server — müştəri qərarından sonra)
 
