@@ -13,6 +13,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Layihə animasiyaları
 
+- **[Mobildə scroll animasiyalarının qısaldılması](mobil-scroll-qisaltma.md)** _(2026-09-25)_ — Telefonda sürüşdürmə məsafəsi 45%-ə endirildi (ana səhifə 10 → 5 ekran).
 - **[Animasiya: Chelsea Apartment](animasiya-chelsea.md)** — `chelsea` — ch1 + ch2, 15 fps, v1.
 - **[Animasiya: Belgravia](animasiya-belgravia.md)** — `belgravia` — `belg.mp4`, 24 fps, v1.
 - **[Animasiya: Villa La Fadarello](animasiya-villa-la-fadarello.md)** — `cap-ferrat` — `capferat1.mp4` + `capferat2.mp4`, 15 fps.
