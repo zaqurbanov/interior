@@ -11,8 +11,7 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qruplaşdırılıb. Siyahı dəyişəndə bu icmal da yenilənsin.
 
 **Claude edə bilər (heç nə lazım deyil):**
-1. [Kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md) — `public/frames` (~250 MB) repodan çıxar, deploy və repo kiçilər. **Növbəti iş (tövsiyə).**
-2. [Mobil animasiya](tasks/mobil-autoplay-tekmillesdirme.md) — video bitəndə səhifə kilidini avtomatik açmaq.
+— (hamısı görüldü, 2026-09-26). Kadrların Blob-a köçməsi üçün kod hazırdır, [yükləmə istifadəçidədir](tasks/kadrlari-blob-a-kocurmek.md).
 
 **İstifadəçi edir — Vercel / GitHub / Resend / admin (Claude addım-addım göstərir):**
 
@@ -23,7 +22,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 7. [Admin panelin real yoxlanması](tasks/admin-real-yoxlama.md) — 13 bəndlik sınaq siyahısı.
 8. [Admin-də kiçik işlər](tasks/mezmun-duzelisleri.md) — "360 & VR" xidmətinə şəkil, "Villa At Cap D'Ail" başlığı.
 9. [Videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md) — `windsor`, `ail1`, `ail2`, `belg.mp4` yalnız lokaldadır → Drive.
-10. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md), [qənaət rejimi](tasks/test-qenaet-rejimi.md).
+10. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md).
 
 **Sifarişçidən gözlənilir:**
 
@@ -46,7 +45,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 ## Admin panel
 
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
-- **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — `public/frames` (~210 MB) repodadır; yeni animasiyalar artıq Blob-a yazılır, köhnələri də köçürülsə repo və deploy kiçilir.
+- **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — Kod və yükləmə skripti hazırdır; qalan: skripti işlətmək, `NEXT_PUBLIC_FRAMES_BASE`-i Vercel-ə yazmaq, sonra `public/frames`-i git-dən silmək.
 
 ## Layihə animasiyaları
 
@@ -64,7 +63,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 ## Test
 
-- **[Qənaət rejimi testi](tasks/test-qenaet-rejimi.md)** — `prefers-reduced-motion` və Data Saver ilə animasiyanın şəkil + mətnə çevrilməsi.
 - **[Real cihazda və müxtəlif ekranlarda test](tasks/test-real-cihaz.md)** — iOS Safari / Android Chrome, portret ekranda kəsilmə, lightbox.
 
 ## Sifarişçi ilə

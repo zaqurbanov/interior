@@ -17,6 +17,7 @@ Daimi qaydalar və qərarlar (tapşırıq deyil). Açıq işlər: [../TASKS.md](
 - **localhost:3000-də başqa layihədən qalmış service worker** saytı sındırırdı (`yolai-cache-v1`), təmizləndi. Eyni xəta ("client-side exception") yenə çıxsa, brauzerdə `localhost:3000` üçün service worker-i ləğv et.
 - **Server kodu `public/frames` / `public/images`-ə `fs` ilə baxmamalıdır.** Belə baxanda Next bütün kadrları (~220 MB) hər server funksiyasına qoşurdu və Vercel-in 10 GB-lıq "Functions Storage" limiti doldu (2026-09-25). `next.config.ts`-də `outputFileTracingExcludes` bunun qarşısını alır.
 - **Deploy-dan əvvəl `npm run build`** — dev server dayandırılmış halda.
+- **Kadrlar Blob-dadırsa** (`NEXT_PUBLIC_FRAMES_BASE` doludur): lokal skriptlərlə (`extract-project-frames.mjs`, `build-mobile-videos.mjs`) yeni kadr çıxaranda `scripts/frames-to-blob.mjs`-i yenidən işlət, yoxsa sayt yeni faylları tapmır. Admin paneldən yaradılan animasiyalar buna ehtiyac duymur.
 - **Öz serverə keçilsə**, `/frames/*` üçün bir illik `immutable` keş başlığı nginx-də də olmalıdır (Vercel-də `next.config.ts`-də var).
 - **Öz serverə keçilsə**, nginx `X-Forwarded-For`-u özü yazmalıdır (`proxy_set_header X-Forwarded-For $remote_addr;`), yoxsa əlaqə forması və login-in IP limiti saxta başlıqla aldadıla bilər. Vercel-də problem yoxdur.
 - **`npm audit` postcss xəbərdarlığı** Next-in içindəki postcss-dəndir, yalnız build zamanı öz CSS-imizi emal edir — saytda istismar olunmur. Next 16-ya keçəndə gedəcək; `npm audit fix --force` işlətmə (Next 16-nı zorla qoyur).

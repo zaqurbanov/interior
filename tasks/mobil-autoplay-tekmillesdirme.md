@@ -22,5 +22,5 @@ Mobildə scroll animasiyaları avtomatik oynayır ([arxiv](../tasks-archive/mobi
 Mobildə animasiya oynayarkən səhifə bölmədə saxlanılır, yalnız ox ("Continue") ilə keçilir ([arxiv](../tasks-archive/mobil-scroll-kilidi.md)).
 
 - [ ] Risk: ziyarətçi oxu görməsə "ilişib qaldığını" düşünə bilər — real telefonda yoxlamaq
-- [ ] Video bitəndə kilidi avtomatik açmaq (asan dəyişiklik, `useScrollGate`-də `release()` çağırmaq)
+- [x] Video bitəndə kilid avtomatik açılır (2026-09-26; iPhone emulyasiyasında: oynayarkən aşağı sürüşmə geri qaytarılır, bitəndən sonra sərbəst)
 - [ ] Lazım olsa oxu daha görünən etmək (ölçü, yüngül animasiya)

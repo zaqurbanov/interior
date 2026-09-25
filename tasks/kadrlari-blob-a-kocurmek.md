@@ -1,13 +1,24 @@
 # Mövcud kadrları Blob-a köçürmək
 
-**Bölmə:** Admin panel · **Status:** açıq
+**Bölmə:** Admin panel · **Status:** açıq (kod hazırdır, yükləmə istifadəçidə)
 
-> `public/frames` (~210 MB) repodadır; yeni animasiyalar artıq Blob-a yazılır, köhnələri də köçürülsə repo və deploy kiçilir.
+> `public/frames` (~265 MB, 6294 fayl) repodadır. Kod artıq onları Blob-dan göstərə bilir; qalan: yükləmək, dəyişəni qoymaq, sonra git-dən silmək.
 
-## Addımlar
+## Hazırdır (2026-09-26)
 
-- [ ] Köçürmə skripti: hər layihə üçün `public/frames/<slug>/v<n>/` → Blob `frames/<slug>/v<n>/`, bazadakı `Story.base`-i Blob URL-inə dəyişmək (story bazada yoxdursa əvvəlcə kod story-dən yaratmaq)
-- [ ] Ana səhifə kadrları (`scene1`, `scene2`, `home/`) üçün də eyni (`sequence.ts`-də əsas URL)
-- [ ] Yoxlandıqdan sonra `public/frames`-i git-dən silmək
+- [x] Bütün kadr ünvanları bir yerdən keçir: `src/lib/frames-base.ts` (`NEXT_PUBLIC_FRAMES_BASE`). Boşdursa `/frames` (repo), doludursa Blob. Ana səhifə, bütün layihə animasiyaları, posterlər, telefon MP4-ləri, "before/after" şəkilləri, VideoObject.
+- [x] Bazada `base: "/frames"` olan story-lər (admində "Edit" edilmiş daxili animasiyalar) də avtomatik Blob-a keçir — bazaya toxunmaq lazım deyil.
+- [x] Yükləmə skripti: `scripts/frames-to-blob.mjs` — eyni yollarla `frames/…`-a yükləyir, artıq olanı ötürür (yarımçıq qalsa yenidən işlət), 1 illik keş, sonda dəyişənin dəyərini çap edir.
+- [x] Sınaq: `NEXT_PUBLIC_FRAMES_BASE` ilə build — HTML-də bütün kadr ünvanları Blob-dadır; dəyişənsiz — əvvəlki kimi `/frames`.
 
-Öncədən lazımdır: [kadr-isi-qurulmasi](kadr-isi-qurulmasi.md) (Blob açarı) və baza.
+## İstifadəçi edir
+
+- [ ] `.env.local`-da `BLOB_READ_WRITE_TOKEN` olsun (Vercel → Storage → Blob store → `.env.local` tab)
+- [ ] `node --env-file=.env.local scripts/frames-to-blob.mjs` (əvvəl `--dry-run` ilə baxmaq olar). ~265 MB yüklənir; Blob pulsuz planı 1 GB-dır
+- [ ] Skriptin çap etdiyi `NEXT_PUBLIC_FRAMES_BASE=https://….public.blob.vercel-storage.com/frames` → Vercel → Settings → Environment Variables (hamısı) və `.env.local` → Redeploy
+- [ ] Saytda animasiyaları yoxlamaq (brauzerdə Network: kadrlar `blob.vercel-storage.com`-dan gəlir)
+
+## Sonra (Claude)
+
+- [ ] Yoxlandıqdan sonra `public/frames`-i git-dən silmək və `.gitignore`-a əlavə etmək (skriptlər lokal olaraq ora yazmağa davam edir). Git tarixçəsində qalır — repo ölçüsü yalnız tarixçə təmizlənsə kiçilər (ayrıca qərar)
+- [ ] `extract-project-frames.mjs` / `build-mobile-videos.mjs`-dən sonra yeni fayllar üçün skripti yenidən işlətmək qaydasını `docs/vacib-qeydler.md`-yə yazmaq

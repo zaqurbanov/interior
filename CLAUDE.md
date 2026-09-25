@@ -16,6 +16,7 @@ node scripts/extract-frames.mjs          # home-page frames from video.mp4 + vid
 node scripts/extract-project-frames.mjs [slug …]  # walkthrough frames + phone MP4 from videos/*.mp4 (wipes that slug's folder)
 node scripts/import-source.mjs           # re-import text + images from vladimir-fasij.com
 node scripts/build-mobile-videos.mjs     # phone MP4s from the mobile frames (rerun after any frame change)
+node --env-file=.env.local scripts/frames-to-blob.mjs  # copy public/frames to Blob (resumable; prints NEXT_PUBLIC_FRAMES_BASE)
 ```
 
 There are no tests and no lint config beyond `next lint`. The frame and video scripts need `ffmpeg` on PATH (or `FFMPEG=/path`) and are run manually, not during build.
@@ -61,7 +62,7 @@ Both map scroll progress → timeline "unit" → global frame index, preload fra
 
 Stage positions are frame numbers, so they must be re-tuned whenever a video, its frame `step`, or the scene list changes.
 
-Walkthroughs can also be edited in the admin (`/admin/projects/<id>/story`, `Story` model). `getStory()` in `data.ts` prefers an enabled, framed `Story` document and otherwise falls back to the built-in `projectStories` entry (whose frames must exist in `public/frames`). Stories carry a `base`: `/frames` for built-in frames, or the Blob URL prefix for generated ones — all frame, poster and MP4 URLs go through the helpers in `project-story.ts`, never hand-built paths. "Edit" on a built-in walkthrough copies it into the database (same frames, same version). Uploading source videos and pressing "Make frames" starts a job (`src/lib/frame-jobs.ts`): on Vercel it dispatches `.github/workflows/story-frames.yml`, off Vercel (or with `FRAME_JOB_DRIVER=local`) it spawns `scripts/process-story.mjs` directly. The script extracts desktop/mobile frames, the poster and the phone MP4 into `frames/<slug>/v<n>/` (Blob, or `public/frames` without a token), deletes older versions in Blob, and posts the result to `/api/story-job`, signed with `STORY_WEBHOOK_SECRET`; only the job's current version is accepted. Each job bumps the version, so cached frame URLs never go stale.
+Walkthroughs can also be edited in the admin (`/admin/projects/<id>/story`, `Story` model). `getStory()` in `data.ts` prefers an enabled, framed `Story` document and otherwise falls back to the built-in `projectStories` entry (whose frames must exist in `public/frames`). Stories carry a `base`: `/frames` for built-in frames, or the Blob URL prefix for generated ones — all frame, poster and MP4 URLs go through the helpers in `project-story.ts` (home: `framesUrl()` in `src/lib/frames-base.ts`), never hand-built paths. `/frames` means "the repo's frames wherever `FRAMES_BASE` serves them": `NEXT_PUBLIC_FRAMES_BASE` (set after `scripts/frames-to-blob.mjs`) moves them all to Blob without touching the database. "Edit" on a built-in walkthrough copies it into the database (same frames, same version). Uploading source videos and pressing "Make frames" starts a job (`src/lib/frame-jobs.ts`): on Vercel it dispatches `.github/workflows/story-frames.yml`, off Vercel (or with `FRAME_JOB_DRIVER=local`) it spawns `scripts/process-story.mjs` directly. The script extracts desktop/mobile frames, the poster and the phone MP4 into `frames/<slug>/v<n>/` (Blob, or `public/frames` without a token), deletes older versions in Blob, and posts the result to `/api/story-job`, signed with `STORY_WEBHOOK_SECRET`; only the job's current version is accepted. Each job bumps the version, so cached frame URLs never go stale.
 
 Loading and fallbacks (`src/lib/frame-loader.ts`), shared by both components:
 
@@ -115,4 +116,4 @@ Tailwind v4 with semantic tokens in `src/app/globals.css`: `ivory` = page ground
 
 ## Known gaps
 
-- `public/frames` and `public/images` are ~175 MB of committed assets; adding more project walkthroughs will grow the repo fast. Hosting stays on Vercel for the foreseeable future (a later move is the client's call), so the frames should eventually move to Vercel Blob as well (admin uploads already use it). See `TASKS.md`.
+- `public/frames` (~265 MB) and `public/images` are committed assets; adding more project walkthroughs will grow the repo fast. The code can already serve them from Blob (`NEXT_PUBLIC_FRAMES_BASE`); what remains is running the upload and then removing them from git — see `tasks/kadrlari-blob-a-kocurmek.md`.

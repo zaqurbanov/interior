@@ -2,6 +2,7 @@
 // the built-in set (frames in public/frames, from scripts/extract-project-frames.mjs);
 // stories edited in the admin live in MongoDB (Story model) and take
 // precedence — see getStory() in lib/data.ts.
+import { FRAMES_BASE } from "./frames-base";
 
 export type StoryStage = {
   /** Timeline unit where this stage starts. */
@@ -47,7 +48,9 @@ export type ProjectStory = {
 /** When the built-in walkthrough MP4s were published (scripts/build-mobile-videos.mjs). */
 export const BUILTIN_VIDEO_DATE = "2026-09-25T00:00:00Z";
 
-const root = (story: ProjectStory) => `${story.base ?? "/frames"}/${story.slug}/v${story.version}`;
+// "/frames" means the repo's own frames, wherever FRAMES_BASE serves them from.
+const root = (story: ProjectStory) =>
+  `${!story.base || story.base === "/frames" ? FRAMES_BASE : story.base}/${story.slug}/v${story.version}`;
 
 export const projectStories: Record<string, ProjectStory> = {
   "cap-d-ail": {

@@ -1,5 +1,6 @@
 import { BUILTIN_VIDEO_DATE, storyMobileVideoUrl, storyPosterUrl, storyTimeline, type ProjectStory } from "./project-story";
 import { HOME_FPS, HOME_VIDEO, TOTAL_FRAMES } from "./sequence";
+import { framesUrl } from "./frames-base";
 
 // schema.org VideoObject for Google's video results. Google needs name,
 // description, thumbnailUrl and uploadDate; contentUrl (a file) or embedUrl
@@ -36,7 +37,7 @@ export function homeVideo(info: { name: string; description: string }, ctx: Ctx)
     "@type": "VideoObject",
     name: info.name,
     description: info.description,
-    thumbnailUrl: [abs("/frames/poster.webp", ctx)],
+    thumbnailUrl: [abs(framesUrl("poster.webp"), ctx)],
     contentUrl: abs(HOME_VIDEO, ctx),
     uploadDate: BUILTIN_VIDEO_DATE,
     duration: isoDuration(TOTAL_FRAMES / HOME_FPS),

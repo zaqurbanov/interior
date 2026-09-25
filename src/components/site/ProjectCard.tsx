@@ -24,7 +24,7 @@ export default function ProjectCard({ project, index, large, alt }: { project: P
             {[project.category, project.location].filter(Boolean).join(" · ")}
           </p>
         </div>
-        <span className="eyebrow shrink-0 text-[0.62rem] text-ink/40">{String(index + 1).padStart(2, "0")}</span>
+        <span className="eyebrow shrink-0 text-[0.62rem] text-ink/55">{String(index + 1).padStart(2, "0")}</span>
       </div>
     </Link>
   );

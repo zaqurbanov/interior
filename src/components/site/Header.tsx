@@ -57,7 +57,7 @@ export default function Header({ brandName }: { brandName: string }) {
       }`}
     >
       <div className="container-x flex h-16 items-center justify-between md:h-20">
-        <Link href="/" aria-label={`${brandName} — home`} className="text-ink" onClick={() => setOpen(false)}>
+        <Link href="/" className="text-ink" onClick={() => setOpen(false)}>
           <Logo brandName={brandName} className="text-base md:text-lg" />
         </Link>
         <nav aria-label="Main" className="hidden lg:block">
