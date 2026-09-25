@@ -23,7 +23,13 @@ Never run `next build` while a dev server is running on the same checkout — bo
 
 ## Task tracking
 
-`TASKS.md` (Azerbaijani) holds only open work and standing notes. When an item is finished, remove it from `TASKS.md` and add it, ticked, to `TASKS-ARCHIVE.md` under the matching section (newest first, with the date and PR when known).
+Tasks are written in Azerbaijani, one Markdown file per task:
+
+- `tasks/<slug>.md` — open tasks; `TASKS.md` is their index (per section: title, one-line summary, link) and holds the file template.
+- `tasks-archive/<slug>.md` — finished tasks; `tasks-archive/README.md` is their index, newest first within each section.
+- `docs/vacib-qeydler.md` — standing notes and decisions, not tasks.
+
+When a task is finished: `git mv` its file to `tasks-archive/`, set `Status: bitib` with the date and PR, and move its index line from `TASKS.md` to `tasks-archive/README.md`. A new task gets a file in `tasks/` and a line in `TASKS.md`.
 
 ## Environment
 
