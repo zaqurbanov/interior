@@ -57,6 +57,8 @@ export type ProjectData = {
   seo: Seo;
   /** ISO date; empty = publish immediately. */
   publishAt: string;
+  /** ISO; empty for the built-in fallback content. */
+  createdAt: string;
   previewToken: string;
 };
 
@@ -106,5 +108,7 @@ export type StoryAdminData = {
   pauses: { at: number; units: number }[];
   stages: { at: number; eyebrow: string; title: string; text: string; label: string; facts: string[] }[];
   enabled: boolean;
+  /** ISO, empty for frames copied from a built-in walkthrough. */
+  framesAt: string;
   job: { status: "idle" | "processing" | "failed"; version: number; error: string; startedAt: string };
 };

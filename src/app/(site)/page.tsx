@@ -5,6 +5,7 @@ import ProjectCard from "@/components/site/ProjectCard";
 import ServiceIcon from "@/components/site/ServiceIcon";
 import ContactForm from "@/components/site/ContactForm";
 import JsonLd from "@/components/site/JsonLd";
+import { embedVideo, homeVideo } from "@/lib/video-schema";
 import VideoEmbed from "@/components/site/VideoEmbed";
 import { getImageAlts, getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
 
@@ -22,26 +23,41 @@ export default async function HomePage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "ProfessionalService",
-          name: site.brandName.replace(/\s*-\s*/, " "),
-          legalName: "A&V Interiors Ltd",
-          description: site.seo.description,
-          url,
-          image: `${url}${site.seo.ogImage}`,
-          email: site.contact.email,
-          telephone: site.contact.phone,
-          foundingDate: "2014",
-          address: { "@type": "PostalAddress", addressLocality: "London", addressCountry: "GB" },
-          areaServed: ["United Kingdom", "France", "Monaco", "Switzerland", "United Arab Emirates"],
-          sameAs: Object.values(site.socials).filter(Boolean),
-          hasOfferCatalog: {
-            "@type": "OfferCatalog",
-            name: "Services",
-            itemListElement: services.map((s) => ({
-              "@type": "Offer",
-              itemOffered: { "@type": "Service", name: s.title, description: s.summary, url: `${url}/services/${s.slug}` },
-            })),
-          },
+          "@graph": [
+            {
+              "@type": "ProfessionalService",
+              name: site.brandName.replace(/\s*-\s*/, " "),
+              legalName: "A&V Interiors Ltd",
+              description: site.seo.description,
+              url,
+              // Uploaded images are absolute Blob URLs; bundled ones are paths.
+              image: site.seo.ogImage.startsWith("http") ? site.seo.ogImage : `${url}${site.seo.ogImage}`,
+              email: site.contact.email,
+              telephone: site.contact.phone,
+              foundingDate: "2014",
+              address: { "@type": "PostalAddress", addressLocality: "London", addressCountry: "GB" },
+              areaServed: ["United Kingdom", "France", "Monaco", "Switzerland", "United Arab Emirates"],
+              sameAs: Object.values(site.socials).filter(Boolean),
+              hasOfferCatalog: {
+                "@type": "OfferCatalog",
+                name: "Services",
+                itemListElement: services.map((s) => ({
+                  "@type": "Offer",
+                  itemOffered: { "@type": "Service", name: s.title, description: s.summary, url: `${url}/services/${s.slug}` },
+                })),
+              },
+            },
+            homeVideo(
+              {
+                name: `${site.heroStages[0]?.title ?? "From an empty room to a finished interior"} — ${site.brandName}`,
+                description: site.heroStages.map((s) => s.title).join(". ") + ".",
+              },
+              { siteUrl: url },
+            ),
+            ...(site.showreel
+              ? [embedVideo(site.showreel, { name: `${site.brandName} — 3D animation showreel`, description: site.seo.description, pageUrl: url }, { siteUrl: url })]
+              : []),
+          ].filter(Boolean),
         }}
       />
 

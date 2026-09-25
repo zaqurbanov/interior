@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     story.version = r.version;
     story.base = base;
     story.scenes = r.scenes ?? [];
+    story.framesAt = new Date();
     story.fps = r.fps ?? story.extractFps;
     // New footage: hand-tuned pauses and height belonged to the old frames.
     story.pauses = [];

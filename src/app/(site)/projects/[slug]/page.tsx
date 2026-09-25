@@ -8,6 +8,7 @@ import JsonLd from "@/components/site/JsonLd";
 import ShowcaseGallery from "@/components/site/ShowcaseGallery";
 import VideoEmbed from "@/components/site/VideoEmbed";
 import { toHtml } from "@/lib/rich-text";
+import { embedVideo, storyVideo } from "@/lib/video-schema";
 import { getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, getStory, siteUrl } from "@/lib/data";
 import { PREVIEW_COOKIE } from "@/lib/preview";
 
@@ -78,6 +79,28 @@ export default async function ProjectPage({ params }: Props) {
               creator: { "@type": "Organization", name: site.brandName, url },
               url: `${url}/projects/${project.slug}`,
             },
+            ...(story
+              ? [
+                  storyVideo(
+                    story,
+                    { name: `${project.title} — 3D walkthrough`, description: project.summary || project.subtitle || project.title, pageUrl: `${url}/projects/${project.slug}` },
+                    { siteUrl: url },
+                  ),
+                ]
+              : []),
+            ...project.videos.map((v, i) =>
+              embedVideo(
+                v,
+                {
+                  name: `${project.title} — 3D animation${project.videos.length > 1 ? ` ${i + 1}` : ""}`,
+                  description: project.summary || project.subtitle || project.title,
+                  uploadDate: project.createdAt,
+                  thumbnail: project.coverImage,
+                  pageUrl: `${url}/projects/${project.slug}`,
+                },
+                { siteUrl: url },
+              ),
+            ),
             {
               "@type": "BreadcrumbList",
               itemListElement: [
@@ -86,7 +109,7 @@ export default async function ProjectPage({ params }: Props) {
                 { "@type": "ListItem", position: 3, name: project.title, item: `${url}/projects/${project.slug}` },
               ],
             },
-          ],
+          ].filter(Boolean),
         }}
       />
 

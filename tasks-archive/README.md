@@ -30,6 +30,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## SEO
 
+- **[`VideoObject` strukturlaşdırılmış məlumatı](seo-videoobject.md)** _(2026-09-25)_ — Layihə və ana səhifə videoları Google üçün təsvir olundu (MP4, YouTube, Vimeo).
 - **[Ana səhifənin SEO mətnləri](seo-ana-sehife-metnleri.md)** — Başlıq 66 → 59, təsvir 245 → 160 simvol.
 
 ## Test

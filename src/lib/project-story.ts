@@ -40,7 +40,12 @@ export type ProjectStory = {
    * default) or a Vercel Blob URL for walkthroughs generated from the admin.
    */
   base?: string;
+  /** ISO date the current frames/MP4 were made (VideoObject uploadDate). */
+  uploadDate?: string;
 };
+
+/** When the built-in walkthrough MP4s were published (scripts/build-mobile-videos.mjs). */
+export const BUILTIN_VIDEO_DATE = "2026-09-25T00:00:00Z";
 
 const root = (story: ProjectStory) => `${story.base ?? "/frames"}/${story.slug}/v${story.version}`;
 

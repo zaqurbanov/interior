@@ -14,7 +14,7 @@ import { formatDraftTime, useFormDraft, type DraftEntries } from "./use-form-dra
 const slugify = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-type Initial = Omit<ProjectData, "id" | "order" | "previewToken">;
+type Initial = Omit<ProjectData, "id" | "order" | "previewToken" | "createdAt">;
 
 const EMPTY: Initial = {
   title: "", slug: "", subtitle: "", location: "", category: "", year: "", summary: "", content: "",
