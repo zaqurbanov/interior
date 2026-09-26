@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { telHref, whatsappHref } from "@/lib/contact-links";
+import { telHref, whatsappHref, whatsappNumber } from "@/lib/contact-links";
 import type { SiteContentData } from "@/lib/types";
 
 /** End of a project page: the moment a visitor is most taken with the work, so offer the next step. */
@@ -24,9 +24,9 @@ export default function ProjectEnquiry({ title, contact }: { title: string; cont
             Start your project
           </Link>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-graphite md:justify-end">
-            {contact.whatsapp && (
+            {whatsappNumber(contact) && (
               <a
-                href={whatsappHref(contact.whatsapp, `Hello, I saw ${title} on your website and would like to talk about my project.`)}
+                href={whatsappHref(whatsappNumber(contact), `Hello, I saw ${title} on your website and would like to talk about my project.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="link-underline"

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { telHref, whatsappHref } from "@/lib/contact-links";
+import { telHref, whatsappHref, whatsappNumber } from "@/lib/contact-links";
 import type { SiteContentData } from "@/lib/types";
 
 // Phones only: the header has no room for "Enquire", so the way to get in touch
@@ -62,15 +62,15 @@ export default function MobileContactBar({ contact }: { contact: SiteContentData
           show ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <div className={`grid h-14 text-sm ${contact.whatsapp ? "grid-cols-3" : "grid-cols-2"}`}>
+        <div className={`grid h-14 text-sm ${whatsappNumber(contact) ? "grid-cols-3" : "grid-cols-2"}`}>
           <Link
             href={project ? `/contact?project=${encodeURIComponent(project)}` : "/contact"}
             className="grid place-items-center bg-ink font-medium text-ivory"
           >
             Enquire
           </Link>
-          {contact.whatsapp && (
-            <a href={whatsappHref(contact.whatsapp, message)} target="_blank" rel="noopener noreferrer" className="grid place-items-center text-ink">
+          {whatsappNumber(contact) && (
+            <a href={whatsappHref(whatsappNumber(contact), message)} target="_blank" rel="noopener noreferrer" className="grid place-items-center text-ink">
               WhatsApp
             </a>
           )}

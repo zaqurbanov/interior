@@ -226,7 +226,7 @@ export default function SiteContentForm({ content }: { content: SiteContentData 
             type="tel"
             defaultValue={content.contact.whatsapp}
             error={err("contact.whatsapp")}
-            hint="International format, e.g. +44 7931 486888. Shown as a WhatsApp button on phones and project pages; leave empty to hide it."
+            hint="International format, e.g. +44 7931 486888. Used by the WhatsApp buttons; leave empty to use the phone number above."
           />
         </Card>
         <Card title="Social links">
