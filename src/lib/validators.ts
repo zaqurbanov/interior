@@ -62,6 +62,25 @@ export const serviceSchema = z.object({
   ...seo,
 });
 
+export const articleSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(160),
+  slug,
+  excerpt: z.string().trim().max(400).default(""),
+  content: z.string().trim().max(200000).default(""),
+  coverImage: imageUrl.default(""),
+  category: z.string().trim().max(60).default(""),
+  tags: z.array(z.string().trim().min(1).max(40)).max(12, "Use at most 12 tags").default([]),
+  author: z.string().trim().max(80).default(""),
+  projects: z.array(slug).max(12).default([]),
+  publishAt: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || !Number.isNaN(Date.parse(v)), "Enter a valid date")
+    .transform((v) => (v ? new Date(v) : null)),
+  published: z.boolean(),
+  ...seo,
+});
+
 const optionalUrl = z.union([z.literal(""), z.url("Enter a full URL, starting with https://")]);
 
 /** Site content & SEO (admin → Site content). Field paths match the form names. */

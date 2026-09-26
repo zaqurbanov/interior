@@ -6,13 +6,15 @@ import { useEffect, useState } from "react";
 import Logo from "./Logo";
 
 // Same structure as the original site: Home, Portfolio, About, Services, Contact.
-const nav = [
+const baseNav = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Portfolio" },
   { href: "/about", label: "About" },
   { href: "/#services", label: "Services" },
   { href: "/contact", label: "Contact" },
 ];
+// "Journal" sits before Contact once there are articles.
+const withJournal = [...baseNav.slice(0, 4), { href: "/journal", label: "Journal" }, baseNav[4]];
 
 function isActive(href: string, pathname: string) {
   if (href.includes("#")) return false;
@@ -20,7 +22,8 @@ function isActive(href: string, pathname: string) {
   return pathname.startsWith(href);
 }
 
-export default function Header({ brandName }: { brandName: string }) {
+export default function Header({ brandName, journal = false }: { brandName: string; journal?: boolean }) {
+  const nav = journal ? withJournal : baseNav;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();

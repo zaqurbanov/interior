@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
-import { getProjects, getServices, siteUrl } from "@/lib/data";
+import { articleDate, getArticles, getProjects, getServices, siteUrl } from "@/lib/data";
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const url = siteUrl();
-  const [projects, services] = await Promise.all([getProjects(), getServices()]);
+  const [projects, services, articles] = await Promise.all([getProjects(), getServices(), getArticles()]);
+  const abs = (u: string) => (/^https?:\/\//.test(u) ? u : `${url}${u}`);
   const now = new Date();
   return [
     { url, lastModified: now, changeFrequency: "weekly", priority: 1 },
@@ -19,7 +20,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.7,
       // Image sitemap entries, so the renders can surface in image search.
-      images: [p.coverImage, ...p.gallery].filter(Boolean).map((src) => `${url}${src}`),
+      images: [p.coverImage, ...p.gallery].filter(Boolean).map(abs),
+    })),
+    ...(articles.length ? [{ url: `${url}/journal`, lastModified: new Date(articleDate(articles[0])), changeFrequency: "weekly" as const, priority: 0.8 }] : []),
+    ...articles.map((a) => ({
+      url: `${url}/journal/${a.slug}`,
+      lastModified: new Date(a.updatedAt || articleDate(a)),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      images: a.coverImage ? [abs(a.coverImage)] : [],
     })),
   ];
 }

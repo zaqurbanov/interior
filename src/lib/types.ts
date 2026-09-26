@@ -62,6 +62,28 @@ export type ProjectData = {
   previewToken: string;
 };
 
+export type ArticleData = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  /** Sanitised HTML (may contain images). */
+  content: string;
+  coverImage: string;
+  category: string;
+  tags: string[];
+  author: string;
+  /** Project slugs. */
+  projects: string[];
+  published: boolean;
+  /** ISO; empty = publish on save. */
+  publishAt: string;
+  seo: Seo;
+  /** ISO. The public date is publishAt, else createdAt. */
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type MessageData = {
   id: string;
   name: string;

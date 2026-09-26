@@ -16,6 +16,14 @@ export interface ProjectDoc extends Timestamps {
   /** Secret for the /api/preview link that shows the page before it is public. */
   previewToken: string;
 }
+/** A journal article (admin → Journal), for SEO and for sharing the studio's thinking. */
+export interface ArticleDoc extends Timestamps {
+  title: string; slug: string; excerpt: string; content: string; coverImage: string;
+  category: string; tags: string[]; author: string;
+  /** Slugs of projects the article is about; linked both ways. */
+  projects: string[];
+  published: boolean; publishAt: Date | null; seo: Seo;
+}
 export interface ServiceDoc extends Timestamps {
   title: string; slug: string; icon: string; image: string; summary: string; content: string;
   features: string[]; order: number; published: boolean; seo: Seo;
@@ -132,6 +140,25 @@ const serviceSchema = new Schema<ServiceDoc>(
   },
   { timestamps: true },
 );
+
+const articleSchema = new Schema<ArticleDoc>(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    excerpt: { type: String, default: "" },
+    content: { type: String, default: "" },
+    coverImage: { type: String, default: "" },
+    category: { type: String, default: "" },
+    tags: { type: [String], default: [] },
+    author: { type: String, default: "" },
+    projects: { type: [String], default: [] },
+    published: { type: Boolean, default: false },
+    publishAt: { type: Date, default: null },
+    seo: { type: seoSchema, default: () => ({}) },
+  },
+  { timestamps: true },
+);
+articleSchema.index({ published: 1, publishAt: -1, createdAt: -1 });
 
 const messageSchema = new Schema<MessageDoc>(
   {
@@ -277,6 +304,7 @@ const userSchema = new Schema<UserDoc>(
 const models = mongoose.models as unknown as Record<string, unknown>;
 
 export const Project = (models.Project as unknown as Model<ProjectDoc> | undefined) ?? mongoose.model<ProjectDoc>("Project", projectSchema);
+export const Article = (models.Article as unknown as Model<ArticleDoc> | undefined) ?? mongoose.model<ArticleDoc>("Article", articleSchema);
 export const Service = (models.Service as unknown as Model<ServiceDoc> | undefined) ?? mongoose.model<ServiceDoc>("Service", serviceSchema);
 export const Message = (models.Message as unknown as Model<MessageDoc> | undefined) ?? mongoose.model<MessageDoc>("Message", messageSchema);
 export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDoc> | undefined) ?? mongoose.model<SiteContentDoc>("SiteContent", siteContentSchema);

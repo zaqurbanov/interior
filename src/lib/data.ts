@@ -2,9 +2,9 @@ import "server-only";
 import { connectDB, isDbConfigured } from "./db";
 import { isEnquiryStatus } from "./enquiries";
 import { getProjectStory, type ProjectStory } from "./project-story";
-import { Media, Project, Service, SiteContent, Story } from "@/models";
+import { Article, Media, Project, Service, SiteContent, Story } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
-import type { MessageData, ProjectData, ServiceData, SiteContentData, StoryAdminData } from "./types";
+import type { ArticleData, MessageData, ProjectData, ServiceData, SiteContentData, StoryAdminData } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const str = (v: any) => (v == null ? "" : String(v));
@@ -61,6 +61,29 @@ export function toService(d: any): ServiceData {
     seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
   };
 }
+
+export function toArticle(d: any): ArticleData {
+  return {
+    id: str(d._id),
+    title: str(d.title),
+    slug: str(d.slug),
+    excerpt: str(d.excerpt),
+    content: str(d.content),
+    coverImage: str(d.coverImage),
+    category: str(d.category),
+    tags: (d.tags ?? []).map(str).filter(Boolean),
+    author: str(d.author),
+    projects: (d.projects ?? []).map(str).filter(Boolean),
+    published: Boolean(d.published),
+    publishAt: d.publishAt ? new Date(d.publishAt).toISOString() : "",
+    seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
+    createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : "",
+    updatedAt: d.updatedAt ? new Date(d.updatedAt).toISOString() : "",
+  };
+}
+
+/** The date shown on an article: when it went (or goes) live. */
+export const articleDate = (a: Pick<ArticleData, "publishAt" | "createdAt">) => a.publishAt || a.createdAt;
 
 export function toMessage(d: any): MessageData {
   return {
@@ -137,6 +160,26 @@ export function getServices(includeUnpublished = false): Promise<ServiceData[]> 
     const docs = await Service.find(includeUnpublished ? {} : { published: true }).sort({ order: 1 }).lean();
     return docs.length || includeUnpublished ? docs.map(toService) : defaultServices;
   }, defaultServices);
+}
+
+/* Journal articles. There is no built-in content: without a database the journal is empty. */
+
+const newestFirst = { publishAt: -1, createdAt: -1 } as const;
+
+export function getArticles(opts: { limit?: number; project?: string } = {}): Promise<ArticleData[]> {
+  return withDb(async () => {
+    const q: Record<string, unknown> = liveProjectQuery();
+    if (opts.project) q.projects = opts.project;
+    const docs = await Article.find(q, { content: 0 }).sort(newestFirst).limit(opts.limit ?? 0).lean();
+    return docs.map(toArticle);
+  }, []);
+}
+
+export function getArticle(slug: string): Promise<ArticleData | null> {
+  return withDb(async () => {
+    const d = await Article.findOne({ slug, ...liveProjectQuery() }).lean();
+    return d ? toArticle(d) : null;
+  }, null);
 }
 
 export function getService(slug: string): Promise<ServiceData | null> {

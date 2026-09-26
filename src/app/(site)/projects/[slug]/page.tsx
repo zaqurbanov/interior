@@ -9,7 +9,8 @@ import ShowcaseGallery from "@/components/site/ShowcaseGallery";
 import VideoEmbed from "@/components/site/VideoEmbed";
 import { toHtml } from "@/lib/rich-text";
 import { embedVideo, storyVideo } from "@/lib/video-schema";
-import { getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, getStory, siteUrl } from "@/lib/data";
+import { articleDate, getArticles, getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, getStory, siteUrl } from "@/lib/data";
+import { formatDate } from "@/lib/dates";
 import { PREVIEW_COOKIE } from "@/lib/preview";
 import { metaDescription } from "@/lib/meta";
 
@@ -52,7 +53,7 @@ export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
   const [{ project, preview }, all, site, alts] = await Promise.all([loadProject(slug), getProjects(), getSiteContent(), getImageAlts()]);
   if (!project) notFound();
-  const story = await getStory(project.slug);
+  const [story, articles] = await Promise.all([getStory(project.slug), getArticles({ project: project.slug, limit: 3 })]);
 
   const idx = all.findIndex((p) => p.slug === project.slug);
   const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
@@ -159,6 +160,22 @@ export default async function ProjectPage({ params }: Props) {
               <VideoEmbed key={v} video={v} title={`${project.title} — 3D animation`} />
             ))}
           </div>
+        </section>
+      )}
+
+      {articles.length > 0 && (
+        <section aria-labelledby="project-articles" className="container-x pb-24">
+          <h2 id="project-articles" className="eyebrow mb-8 text-bronze">From the journal</h2>
+          <ul className="divide-y divide-ink/10 border-y border-ink/10">
+            {articles.map((a) => (
+              <li key={a.slug}>
+                <Link href={`/journal/${a.slug}`} className="group flex items-baseline justify-between gap-6 py-6">
+                  <span className="font-serif text-2xl text-ink md:text-3xl">{a.title}</span>
+                  <span className="shrink-0 text-sm text-graphite">{formatDate(articleDate(a))} <span className="transition group-hover:translate-x-1">→</span></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

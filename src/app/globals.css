@@ -214,3 +214,7 @@ html.lenis, html.lenis body { height: auto; }
 .rich-text li + li { margin-top: 0.35em; }
 .rich-text li::marker { color: var(--color-bronze); }
 .rich-text blockquote { border-left: 2px solid var(--color-bronze); padding-left: 1em; font-style: italic; color: var(--color-ink); }
+/* Articles: inline images and anchored section headings (table of contents). */
+.rich-text img { display: block; width: 100%; height: auto; margin-top: 2em; margin-bottom: 2em; background: var(--color-sand); }
+.rich-text img.ProseMirror-selectednode { outline: 3px solid var(--color-bronze); }
+.rich-text h2[id] { scroll-margin-top: 7rem; }

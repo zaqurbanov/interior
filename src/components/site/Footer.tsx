@@ -2,7 +2,7 @@ import Link from "next/link";
 import Logo, { LEGAL_NAME } from "./Logo";
 import type { SiteContentData } from "@/lib/types";
 
-export default function Footer({ site }: { site: SiteContentData }) {
+export default function Footer({ site, journal = false }: { site: SiteContentData; journal?: boolean }) {
   const socials = [
     { href: site.socials.instagram, label: "Instagram" },
     { href: site.socials.linkedin, label: "LinkedIn" },
@@ -31,6 +31,7 @@ export default function Footer({ site }: { site: SiteContentData }) {
             <li><Link className="link-underline" href="/projects">Portfolio</Link></li>
             <li><Link className="link-underline" href="/about">About</Link></li>
             <li><Link className="link-underline" href="/#services">Services</Link></li>
+            {journal && <li><Link className="link-underline" href="/journal">Journal</Link></li>}
             <li><Link className="link-underline" href="/contact">Contact</Link></li>
           </ul>
         </div>

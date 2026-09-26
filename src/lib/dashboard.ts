@@ -3,7 +3,7 @@ import { siteUrl } from "./data";
 import { frameJobDriver } from "./frame-jobs";
 import { listLibrary } from "./media";
 import { mailConfigured } from "./mail";
-import { Message, PageView, Project, Service, Story } from "@/models";
+import { Article, Message, PageView, Project, Service, Story } from "@/models";
 
 // Numbers for the admin dashboard. Days are UTC calendar days.
 
@@ -62,13 +62,14 @@ export type Attention = { tone: "warning" | "info"; text: string; href: string; 
 /** Things worth doing next, most urgent first. */
 export async function needsAttention(): Promise<Attention[]> {
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-  const [unread, waiting, projects, servicesNoImage, stories, library] = await Promise.all([
+  const [unread, waiting, projects, servicesNoImage, stories, library, articles] = await Promise.all([
     Message.countDocuments({ read: false, status: { $ne: "spam" } }),
     Message.countDocuments({ status: "new", createdAt: { $lt: twoDaysAgo } }),
     Project.find({}, { title: 1, coverImage: 1, summary: 1, gallery: 1, published: 1, publishAt: 1, seo: 1 }).lean(),
     Service.find({ published: true, $or: [{ image: "" }, { image: { $exists: false } }] }, { title: 1 }).lean(),
     Story.find({ $or: [{ "job.status": "failed" }, { "job.status": "processing" }] }, { slug: 1, job: 1 }).lean(),
     listLibrary(),
+    Article.find({}, { title: 1, excerpt: 1, coverImage: 1, published: 1, publishAt: 1, createdAt: 1, seo: 1 }).lean(),
   ]);
   const out: Attention[] = [];
   const names = (list: { title: string }[]) => list.map((p) => p.title);
@@ -89,6 +90,18 @@ export async function needsAttention(): Promise<Attention[]> {
   const thin = live.filter((p) => (p.gallery?.length ?? 0) < 3);
   if (thin.length) out.push({ tone: "info", text: "Published projects with fewer than three gallery images", href: "/admin/projects", items: names(thin) });
   if (servicesNoImage.length) out.push({ tone: "info", text: "Published services without an image", href: "/admin/services", items: names(servicesNoImage) });
+
+  const liveArticles = articles.filter((a) => a.published);
+  if (!articles.length) {
+    out.push({ tone: "info", text: "No journal articles yet — regular articles are one of the best ways to be found on Google", href: "/admin/articles/new" });
+  } else {
+    const thinArticles = liveArticles.filter((a) => !a.coverImage || (!a.excerpt && !a.seo?.description));
+    if (thinArticles.length) out.push({ tone: "info", text: "Published articles without a cover image or excerpt", href: "/admin/articles", items: names(thinArticles) });
+    const newest = Math.max(0, ...liveArticles.map((a) => new Date(a.publishAt ?? a.createdAt ?? 0).getTime()));
+    if (liveArticles.length && Date.now() - newest > 45 * 24 * 60 * 60 * 1000) {
+      out.push({ tone: "info", text: "No new journal article for over six weeks — Google favours sites that keep publishing", href: "/admin/articles/new" });
+    }
+  }
 
   const noAlt = library.filter((m) => !m.alt && m.usedBy.length).length;
   if (noAlt) out.push({ tone: "info", text: `${noAlt} images in use have no alt text (search engines and screen readers)`, href: "/admin/media?filter=no-alt" });

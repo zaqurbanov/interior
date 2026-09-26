@@ -1,5 +1,6 @@
 import "server-only";
 import sanitizeHtml from "sanitize-html";
+import { isAllowedImageUrl } from "./upload-config";
 
 // Project and service descriptions. The admin editor (Tiptap) saves HTML; older
 // records and the imported defaults are plain text with blank lines between
@@ -41,3 +42,54 @@ export function sanitizeRichText(input: string): string {
 /** Safe HTML for any stored description, old or new. */
 export const toHtml = (content: string) => (isHtml(content) ? sanitizeHtml(content, OPTIONS) : textToHtml(content));
 
+
+/* ---------------- Articles ---------------- */
+
+// Articles may also hold images (uploaded or from the media library only) and
+// get anchor ids on their section headings for the table of contents.
+
+const ARTICLE_OPTIONS: sanitizeHtml.IOptions = {
+  ...OPTIONS,
+  allowedTags: [...(OPTIONS.allowedTags as string[]), "img"],
+  allowedAttributes: { ...OPTIONS.allowedAttributes, img: ["src", "alt"] },
+  exclusiveFilter: (frame) => frame.tag === "img" && !isAllowedImageUrl(frame.attribs.src ?? ""),
+};
+
+/** Clean article HTML before it is stored. */
+export function sanitizeArticle(input: string): string {
+  return sanitizeHtml(input, ARTICLE_OPTIONS).replace(/<p>(\s|<br\s*\/?>)*<\/p>/g, "").trim();
+}
+
+const plain = (html: string) => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&[a-z#0-9]+;/gi, " ").trim();
+const anchor = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "section";
+
+/** Safe article HTML for the page, with h2 anchors, plus the h2 list for a table of contents. */
+export function articleHtml(content: string): { html: string; headings: { id: string; text: string }[] } {
+  const clean = sanitizeHtml(content, ARTICLE_OPTIONS);
+  const headings: { id: string; text: string }[] = [];
+  const used = new Set<string>();
+  const html = clean
+    .replace(/<h2>([\s\S]*?)<\/h2>/g, (_m, inner: string) => {
+      const text = plain(inner);
+      let id = anchor(text);
+      for (let n = 2; used.has(id); n++) id = `${anchor(text)}-${n}`;
+      used.add(id);
+      headings.push({ id, text });
+      return `<h2 id="${id}">${inner}</h2>`;
+    })
+    .replace(/<img /g, '<img loading="lazy" decoding="async" ');
+  return { html, headings };
+}
+
+/** Image URLs inside article HTML (for the media library's "used by"). */
+export const articleImages = (content: string) => [...content.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1]);
+
+/** About 200 words a minute, at least one. */
+export const readingMinutes = (content: string) => Math.max(1, Math.round(plain(content).split(/\s+/).filter(Boolean).length / 200));

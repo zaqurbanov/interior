@@ -7,15 +7,17 @@ import ContactForm from "@/components/site/ContactForm";
 import JsonLd from "@/components/site/JsonLd";
 import { embedVideo, homeVideo } from "@/lib/video-schema";
 import VideoEmbed from "@/components/site/VideoEmbed";
-import { getImageAlts, getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import { articleDate, getArticles, getImageAlts, getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import ArticleCard from "@/components/site/ArticleCard";
 import { framesUrl } from "@/lib/frames-base";
 
 export default async function HomePage() {
-  const [site, services, projects, alts] = await Promise.all([
+  const [site, services, projects, alts, articles] = await Promise.all([
     getSiteContent(),
     getServices(),
     getProjects({ featured: true }),
     getImageAlts(),
+    getArticles({ limit: 3 }),
   ]);
   const url = siteUrl();
 
@@ -166,6 +168,24 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Journal (once there are articles) */}
+      {articles.length > 0 && (
+        <section aria-labelledby="journal-title" className="container-x pb-28 md:pb-40">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="eyebrow reveal text-bronze">Journal</p>
+              <h2 id="journal-title" className="reveal mt-5 font-serif text-[clamp(2.4rem,5vw,4.6rem)] font-light leading-none">Notes from the studio</h2>
+            </div>
+            <Link href="/journal" className="reveal link-underline w-fit pb-1 text-sm">All articles →</Link>
+          </div>
+          <div className="mt-16 grid gap-x-10 gap-y-16 md:grid-cols-3">
+            {articles.map((a) => (
+              <ArticleCard key={a.id} article={a} date={articleDate(a)} alt={alts[a.coverImage]} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Process */}
       <section id="process" className="bg-sand py-28 md:py-40">
