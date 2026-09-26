@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState, type Ref } from "react";
 import { sendMessage } from "@/app/actions/contact";
 import type { FormState } from "@/lib/validators";
 
@@ -13,6 +13,7 @@ function Input({
   error,
   required,
   textarea,
+  inputRef,
 }: {
   name: string;
   label: string;
@@ -20,6 +21,7 @@ function Input({
   error?: string[];
   required?: boolean;
   textarea?: boolean;
+  inputRef?: Ref<HTMLTextAreaElement>;
 }) {
   const cls =
     "w-full border-0 border-b border-ink/25 bg-transparent px-0 py-3 text-base text-ink placeholder:text-ink/40 focus:border-ink focus:outline-none focus:ring-0";
@@ -30,7 +32,7 @@ function Input({
         {required && " *"}
       </span>
       {textarea ? (
-        <textarea name={name} rows={4} required={required} className={`${cls} resize-none`} aria-invalid={!!error} />
+        <textarea ref={inputRef} name={name} rows={4} required={required} className={`${cls} resize-none`} aria-invalid={!!error} />
       ) : (
         <input name={name} type={type} required={required} className={cls} aria-invalid={!!error} />
       )}
@@ -44,6 +46,14 @@ export default function ContactForm() {
   // When the form appeared; the server drops submissions made implausibly fast (bots).
   const [startedAt, setStartedAt] = useState("");
   useEffect(() => setStartedAt(String(Date.now())), []);
+
+  // Arriving from a project page ("/contact?project=Chelsea Apartment"): start the message for them.
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const project = new URLSearchParams(window.location.search).get("project")?.slice(0, 120).trim();
+    const body = bodyRef.current;
+    if (project && body && !body.value) body.value = `I would like a project similar to ${project}. `;
+  }, []);
 
   if (state.ok) {
     return (
@@ -70,7 +80,7 @@ export default function ContactForm() {
       <Input name="phone" label="Phone" type="tel" error={state.errors?.phone} />
       <Input name="subject" label="Project type" error={state.errors?.subject} />
       <div className="md:col-span-2">
-        <Input name="body" label="Tell us about your space" required textarea error={state.errors?.body} />
+        <Input name="body" label="Tell us about your space" required textarea inputRef={bodyRef} error={state.errors?.body} />
       </div>
       <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
       <input type="hidden" name="startedAt" value={startedAt} />

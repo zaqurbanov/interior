@@ -220,6 +220,14 @@ export default function SiteContentForm({ content }: { content: SiteContentData 
           <Field label="Email" name="contact.email" type="email" required defaultValue={content.contact.email} error={err("contact.email")} />
           <Field label="Phone" name="contact.phone" defaultValue={content.contact.phone} error={err("contact.phone")} />
           <Field label="Address" name="contact.address" defaultValue={content.contact.address} error={err("contact.address")} />
+          <Field
+            label="WhatsApp"
+            name="contact.whatsapp"
+            type="tel"
+            defaultValue={content.contact.whatsapp}
+            error={err("contact.whatsapp")}
+            hint="International format, e.g. +44 7931 486888. Shown as a WhatsApp button on phones and project pages; leave empty to hide it."
+          />
         </Card>
         <Card title="Social links">
           <Field label="Instagram" name="socials.instagram" type="url" defaultValue={content.socials.instagram} error={err("socials.instagram")} />

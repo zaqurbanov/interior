@@ -5,16 +5,18 @@ import { deleteUpload, isStoredUrl } from "./storage";
 import type { MediaItem, MediaUsage } from "./types";
 import { revisionImageUrls } from "./revisions";
 import { isVideoUrl } from "./upload-config";
-import { Media, Project, Service, SiteContent, Story } from "@/models";
+import { Article, Media, Project, Service, SiteContent, Story } from "@/models";
+import { articleImages } from "./rich-text";
 
 /** Every image URL the database refers to, with where it is used. */
 export async function collectUsage(): Promise<Map<string, MediaUsage[]>> {
   await connectDB();
-  const [projects, services, site, stories] = await Promise.all([
+  const [projects, services, site, stories, articles] = await Promise.all([
     Project.find({}, { title: 1, slug: 1, coverImage: 1, gallery: 1 }).lean(),
     Service.find({}, { title: 1, image: 1 }).lean(),
     SiteContent.findOne({ key: "main" }, { seo: 1, team: 1 }).lean(),
     Story.find({}, { slug: 1, sources: 1 }).lean(),
+    Article.find({}, { title: 1, coverImage: 1, content: 1 }).lean(),
   ]);
 
   const usage = new Map<string, MediaUsage[]>();
@@ -29,6 +31,11 @@ export async function collectUsage(): Promise<Map<string, MediaUsage[]>> {
     const href = `/admin/projects/${p._id}`;
     add(p.coverImage, `${p.title} — cover`, href);
     for (const g of p.gallery ?? []) add(g, `${p.title} — gallery`, href);
+  }
+  for (const a of articles) {
+    const href = `/admin/articles/${a._id}`;
+    add(a.coverImage, `${a.title} — article cover`, href);
+    for (const u of articleImages(a.content ?? "")) add(u, `${a.title} — article image`, href);
   }
   for (const s of services) add(s.image, `${s.title} — service image`, `/admin/services/${s._id}`);
   add(site?.seo?.ogImage, "Social sharing image", "/admin/content#brand");

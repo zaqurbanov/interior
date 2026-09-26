@@ -6,7 +6,7 @@ import { requireAdmin } from "@/auth";
 import { connectDB } from "@/lib/db";
 import { snapshot } from "@/lib/revisions";
 import type { FormState } from "@/lib/validators";
-import { Project, Revision, Service, SiteContent } from "@/models";
+import { Article, Project, Revision, Service, SiteContent } from "@/models";
 
 /** Put an earlier version back. The current one is kept first, so a restore can itself be undone. */
 export async function restoreRevision(revisionId: string): Promise<FormState> {
@@ -30,6 +30,12 @@ export async function restoreRevision(revisionId: string): Promise<FormState> {
       const doc = await Service.findById(rev.refId);
       if (!doc) return { ok: false, message: "The service no longer exists." };
       await snapshot("service", rev.refId, doc.title, doc.toObject());
+      doc.set(data);
+      await doc.save();
+    } else if (rev.kind === "article") {
+      const doc = await Article.findById(rev.refId);
+      if (!doc) return { ok: false, message: "The article no longer exists." };
+      await snapshot("article", rev.refId, doc.title, doc.toObject());
       doc.set(data);
       await doc.save();
     } else {

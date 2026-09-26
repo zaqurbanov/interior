@@ -30,6 +30,7 @@ export function Field({
   type = "text",
   required,
   onChange,
+  list,
 }: {
   label: string;
   name: string;
@@ -41,6 +42,8 @@ export function Field({
   type?: string;
   required?: boolean;
   onChange?: (v: string) => void;
+  /** id of a <datalist> with suggestions. */
+  list?: string;
 }) {
   return (
     <div>
@@ -55,6 +58,7 @@ export function Field({
           defaultValue={defaultValue}
           className="field"
           required={required}
+          list={list}
           onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         />
       )}

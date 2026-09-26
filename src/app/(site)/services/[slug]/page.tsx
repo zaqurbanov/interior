@@ -6,7 +6,8 @@ import JsonLd from "@/components/site/JsonLd";
 import PageHero from "@/components/site/PageHero";
 import ServiceIcon from "@/components/site/ServiceIcon";
 import { toHtml } from "@/lib/rich-text";
-import { getImageAlts, getService, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import { getImageAlts, getProjectsForService, getService, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import ProjectCard from "@/components/site/ProjectCard";
 import { metaDescription } from "@/lib/meta";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -27,7 +28,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ServicePage({ params }: Props) {
   const { slug } = await params;
-  const [service, services, site, alts] = await Promise.all([getService(slug), getServices(), getSiteContent(), getImageAlts()]);
+  const [service, services, site, alts, work] = await Promise.all([
+    getService(slug),
+    getServices(),
+    getSiteContent(),
+    getImageAlts(),
+    getProjectsForService(slug),
+  ]);
   if (!service) notFound();
   const url = siteUrl();
 
@@ -72,6 +79,26 @@ export default async function ServicePage({ params }: Props) {
           </Link>
         </div>
       </section>
+      {work.length > 0 && (
+        <section aria-labelledby="service-work" className="border-t border-ink/10">
+          <div className="container-x py-20 md:py-28">
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div>
+                <p className="eyebrow reveal text-bronze">Selected work</p>
+                <h2 id="service-work" className="reveal mt-5 font-serif text-[clamp(2.2rem,4.5vw,4rem)] font-light leading-none">
+                  {service.title} in our projects
+                </h2>
+              </div>
+              <Link href="/projects" className="reveal link-underline w-fit pb-1 text-sm">All projects →</Link>
+            </div>
+            <div className="mt-14 grid gap-x-8 gap-y-16 md:grid-cols-3">
+              {work.map((p, i) => (
+                <ProjectCard key={p.slug} project={p} index={i} alt={alts[p.coverImage]} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       <section className="border-t border-ink/10">
         <div className="container-x py-16">
           <p className="eyebrow text-[0.62rem] text-graphite">Other services</p>

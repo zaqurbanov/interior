@@ -10,11 +10,21 @@ export interface ProjectDoc extends Timestamps {
   summary: string; content: string; coverImage: string; gallery: string[]; videos: string[];
   /** Up to six gallery images shown on the page; the rest sit behind "View all". */
   highlights: string[];
+  /** Slugs of the services this project shows (listed on those service pages). */
+  services: string[];
   featured: boolean; published: boolean; order: number; seo: Seo;
   /** Published projects stay hidden until this moment (null = immediately). */
   publishAt: Date | null;
   /** Secret for the /api/preview link that shows the page before it is public. */
   previewToken: string;
+}
+/** A journal article (admin → Journal), for SEO and for sharing the studio's thinking. */
+export interface ArticleDoc extends Timestamps {
+  title: string; slug: string; excerpt: string; content: string; coverImage: string;
+  category: string; tags: string[]; author: string;
+  /** Slugs of projects the article is about; linked both ways. */
+  projects: string[];
+  published: boolean; publishAt: Date | null; seo: Seo;
 }
 export interface ServiceDoc extends Timestamps {
   title: string; slug: string; icon: string; image: string; summary: string; content: string;
@@ -36,7 +46,7 @@ export interface SiteContentDoc extends Timestamps {
   team: { name?: string; role?: string; bio?: string; photo?: string }[];
   stats: { value?: string; label?: string }[];
   process: { title?: string; text?: string }[];
-  contact?: { email?: string; phone?: string; address?: string };
+  contact?: { email?: string; phone?: string; address?: string; whatsapp?: string };
   socials?: { instagram?: string; linkedin?: string; youtube?: string };
   seo?: { title?: string; description?: string; keywords?: string; ogImage?: string };
 }
@@ -107,6 +117,7 @@ const projectSchema = new Schema<ProjectDoc>(
     gallery: { type: [String], default: [] },
     videos: { type: [String], default: [] },
     highlights: { type: [String], default: [] },
+    services: { type: [String], default: [] },
     featured: { type: Boolean, default: false },
     published: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
@@ -132,6 +143,25 @@ const serviceSchema = new Schema<ServiceDoc>(
   },
   { timestamps: true },
 );
+
+const articleSchema = new Schema<ArticleDoc>(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    excerpt: { type: String, default: "" },
+    content: { type: String, default: "" },
+    coverImage: { type: String, default: "" },
+    category: { type: String, default: "" },
+    tags: { type: [String], default: [] },
+    author: { type: String, default: "" },
+    projects: { type: [String], default: [] },
+    published: { type: Boolean, default: false },
+    publishAt: { type: Date, default: null },
+    seo: { type: seoSchema, default: () => ({}) },
+  },
+  { timestamps: true },
+);
+articleSchema.index({ published: 1, publishAt: -1, createdAt: -1 });
 
 const messageSchema = new Schema<MessageDoc>(
   {
@@ -171,6 +201,7 @@ const siteContentSchema = new Schema<SiteContentDoc>(
       email: String,
       phone: String,
       address: String,
+      whatsapp: String,
       _id: false,
     },
     socials: {
@@ -277,6 +308,7 @@ const userSchema = new Schema<UserDoc>(
 const models = mongoose.models as unknown as Record<string, unknown>;
 
 export const Project = (models.Project as unknown as Model<ProjectDoc> | undefined) ?? mongoose.model<ProjectDoc>("Project", projectSchema);
+export const Article = (models.Article as unknown as Model<ArticleDoc> | undefined) ?? mongoose.model<ArticleDoc>("Article", articleSchema);
 export const Service = (models.Service as unknown as Model<ServiceDoc> | undefined) ?? mongoose.model<ServiceDoc>("Service", serviceSchema);
 export const Message = (models.Message as unknown as Model<MessageDoc> | undefined) ?? mongoose.model<MessageDoc>("Message", messageSchema);
 export const SiteContent = (models.SiteContent as unknown as Model<SiteContentDoc> | undefined) ?? mongoose.model<SiteContentDoc>("SiteContent", siteContentSchema);

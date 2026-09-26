@@ -2,21 +2,23 @@ import { NextResponse } from "next/server";
 import { cookies, draftMode } from "next/headers";
 import { connectDB, isDbConfigured } from "@/lib/db";
 import { PREVIEW_COOKIE } from "@/lib/preview";
-import { PageView, Project, Service } from "@/models";
+import { Article, PageView, Project, Service } from "@/models";
 
 // Page-view counter for the admin dashboard. Stores only "path, day, count":
 // no cookies, no IP, nothing about the visitor. Called by PageViewTracker.
 
 const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|lighthouse|headless|curl|wget/i;
-const PAGES = new Set(["/", "/about", "/contact", "/projects"]);
-const DETAIL = /^\/(projects|services)\/([a-z0-9-]{1,120})$/;
+const PAGES = new Set(["/", "/about", "/contact", "/projects", "/journal"]);
+const DETAIL = /^\/(projects|services|journal)\/([a-z0-9-]{1,120})$/;
 
 /** Only the site's real pages are counted, so the table cannot be filled with made-up paths. */
 async function isSitePage(path: string) {
   if (PAGES.has(path)) return true;
   const m = DETAIL.exec(path);
   if (!m) return false;
-  const found = m[1] === "projects" ? await Project.exists({ slug: m[2] }) : await Service.exists({ slug: m[2] });
+  const slug = m[2];
+  const found =
+    m[1] === "projects" ? await Project.exists({ slug }) : m[1] === "services" ? await Service.exists({ slug }) : await Article.exists({ slug });
   return Boolean(found);
 }
 

@@ -1,14 +1,16 @@
 import "server-only";
 import { auth } from "@/auth";
 import { Revision } from "@/models";
+import { articleImages } from "./rich-text";
 
 // Version history: before a project, service or the site content is saved, the
 // stored copy is kept here (newest KEEP per item), so an edit can be undone.
 // Images in kept copies count as "in use" (lib/media.ts), so restoring never
 // brings back a deleted file.
 
-export type RevisionKind = "project" | "service" | "site";
+export type RevisionKind = "project" | "service" | "site" | "article";
 const KEEP = 20;
+const ADMIN_PATHS: Record<string, string> = { project: "projects", service: "services", article: "articles" };
 
 /** Store the pre-save state of a document. */
 export async function snapshot(kind: RevisionKind, refId: string, label: string, doc: object | null | undefined) {
@@ -39,8 +41,10 @@ export async function revisionImageUrls(): Promise<{ url: string; label: string;
         ? [d.coverImage, ...(d.gallery ?? [])]
         : r.kind === "service"
           ? [d.image]
-          : [d.seo?.ogImage, ...((d.team ?? []) as { photo?: string }[]).map((m) => m.photo)];
-    const href = r.kind === "project" ? `/admin/projects/${r.refId}` : r.kind === "service" ? `/admin/services/${r.refId}` : "/admin/content";
+          : r.kind === "article"
+            ? [d.coverImage, ...articleImages(String(d.content ?? ""))]
+            : [d.seo?.ogImage, ...((d.team ?? []) as { photo?: string }[]).map((m) => m.photo)];
+    const href = r.kind === "site" ? "/admin/content" : `/admin/${ADMIN_PATHS[r.kind] ?? "projects"}/${r.refId}`;
     for (const u of urls) if (typeof u === "string" && u) out.push({ url: u, label: r.label, href });
   }
   return out;

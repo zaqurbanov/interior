@@ -2,9 +2,9 @@ import "server-only";
 import { connectDB, isDbConfigured } from "./db";
 import { isEnquiryStatus } from "./enquiries";
 import { getProjectStory, type ProjectStory } from "./project-story";
-import { Media, Project, Service, SiteContent, Story } from "@/models";
+import { Article, Media, Project, Service, SiteContent, Story } from "@/models";
 import { defaultProjects, defaultServices, defaultSiteContent } from "./defaults";
-import type { MessageData, ProjectData, ServiceData, SiteContentData, StoryAdminData } from "./types";
+import type { ArticleData, MessageData, ProjectData, ServiceData, SiteContentData, StoryAdminData } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const str = (v: any) => (v == null ? "" : String(v));
@@ -24,6 +24,7 @@ export function toProject(d: any): ProjectData {
     gallery: (d.gallery ?? []).map(str),
     videos: (d.videos ?? []).map(str),
     highlights: (d.highlights ?? []).map(str),
+    services: (d.services ?? []).map(str).filter(Boolean),
     featured: Boolean(d.featured),
     published: d.published !== false,
     order: Number(d.order ?? 0),
@@ -61,6 +62,29 @@ export function toService(d: any): ServiceData {
     seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
   };
 }
+
+export function toArticle(d: any): ArticleData {
+  return {
+    id: str(d._id),
+    title: str(d.title),
+    slug: str(d.slug),
+    excerpt: str(d.excerpt),
+    content: str(d.content),
+    coverImage: str(d.coverImage),
+    category: str(d.category),
+    tags: (d.tags ?? []).map(str).filter(Boolean),
+    author: str(d.author),
+    projects: (d.projects ?? []).map(str).filter(Boolean),
+    published: Boolean(d.published),
+    publishAt: d.publishAt ? new Date(d.publishAt).toISOString() : "",
+    seo: { title: str(d.seo?.title), description: str(d.seo?.description) },
+    createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : "",
+    updatedAt: d.updatedAt ? new Date(d.updatedAt).toISOString() : "",
+  };
+}
+
+/** The date shown on an article: when it went (or goes) live. */
+export const articleDate = (a: Pick<ArticleData, "publishAt" | "createdAt">) => a.publishAt || a.createdAt;
 
 export function toMessage(d: any): MessageData {
   return {
@@ -102,6 +126,7 @@ export function toSiteContent(d: any): SiteContentData {
       email: pick(d?.contact?.email, def.contact.email),
       phone: pick(d?.contact?.phone, def.contact.phone),
       address: pick(d?.contact?.address, def.contact.address),
+      whatsapp: str(d?.contact?.whatsapp ?? def.contact.whatsapp),
     },
     socials: {
       instagram: str(d?.socials?.instagram ?? def.socials.instagram),
@@ -139,6 +164,26 @@ export function getServices(includeUnpublished = false): Promise<ServiceData[]> 
   }, defaultServices);
 }
 
+/* Journal articles. There is no built-in content: without a database the journal is empty. */
+
+const newestFirst = { publishAt: -1, createdAt: -1 } as const;
+
+export function getArticles(opts: { limit?: number; project?: string } = {}): Promise<ArticleData[]> {
+  return withDb(async () => {
+    const q: Record<string, unknown> = liveProjectQuery();
+    if (opts.project) q.projects = opts.project;
+    const docs = await Article.find(q, { content: 0 }).sort(newestFirst).limit(opts.limit ?? 0).lean();
+    return docs.map(toArticle);
+  }, []);
+}
+
+export function getArticle(slug: string): Promise<ArticleData | null> {
+  return withDb(async () => {
+    const d = await Article.findOne({ slug, ...liveProjectQuery() }).lean();
+    return d ? toArticle(d) : null;
+  }, null);
+}
+
 export function getService(slug: string): Promise<ServiceData | null> {
   return withDb(
     async () => {
@@ -161,6 +206,27 @@ export function getProjects(opts: { featured?: boolean; includeUnpublished?: boo
     }
     return docs.map(toProject);
   }, fallback);
+}
+
+/**
+ * Scope/category → services, used for projects that have no services ticked in
+ * the admin (and for the built-in content). Every project is a 3D render.
+ */
+const SERVICES_BY_CATEGORY: Record<string, string[]> = {
+  Interior: ["interior-design", "furniture-ffe"],
+  Exterior: ["architecture-landscaping"],
+  "3D Animation": ["3d-animation"],
+};
+export const projectServices = (p: Pick<ProjectData, "services" | "category">) =>
+  p.services.length ? p.services : ["3d-visualisation", ...(SERVICES_BY_CATEGORY[p.category] ?? [])];
+
+/** Live projects shown as examples on a service page, featured ones first. */
+export async function getProjectsForService(service: string, limit = 3): Promise<ProjectData[]> {
+  const all = await getProjects();
+  return all
+    .filter((p) => projectServices(p).includes(service))
+    .sort((a, b) => Number(b.featured) - Number(a.featured))
+    .slice(0, limit);
 }
 
 export function getProject(slug: string): Promise<ProjectData | null> {

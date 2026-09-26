@@ -6,6 +6,8 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 - Yeni iş → `tasks/<qisa-ad>.md` faylı (aşağıdakı şablonla) + bu indeksdə uyğun bölməyə bir sətir: başlıq, qısa təsvir, link.
 - İş bitəndə → faylı `tasks-archive/`-ə köçür (`git mv`), `Status: bitib` və tarixi/PR-ı yaz, sətri buradan silib [`tasks-archive/README.md`](tasks-archive/README.md)-yə (bölməsinin ən üstünə) əlavə et.
 
+**İdeyalar:** [docs/ideyalar/2026-09-26.md](docs/ideyalar/2026-09-26.md) — ideya agentinin 36 təklifi (ilk 5 tövsiyə yuxarıda). Seçilənlər task olur.
+
 ## Kim edir — icmal (2026-09-26)
 
 Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qruplaşdırılıb. Siyahı dəyişəndə bu icmal da yenilənsin.
@@ -23,6 +25,12 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 8. [Admin-də kiçik işlər](tasks/mezmun-duzelisleri.md) — "360 & VR" xidmətinə şəkil, "Villa At Cap D'Ail" başlığı.
 9. [Videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md) — `windsor`, `ail1`, `ail2`, `belg.mp4` yalnız lokaldadır → Drive.
 10. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md).
+
+**İstifadəçi / studiya yazır:**
+
+- [WhatsApp nömrəsi və layihə xidmətləri](tasks/whatsapp-ve-xidmetler.md) — admində iki xana.
+
+- [Jurnal məqalələri](tasks/jurnal-ilk-meqaleler.md) — ilk 3–5 məqalə, mövzu nümunələri taskda.
 
 **Sifarişçidən gözlənilir:**
 
@@ -47,6 +55,10 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
 - **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — Kod və yükləmə skripti hazırdır; qalan: skripti işlətmək, `NEXT_PUBLIC_FRAMES_BASE`-i Vercel-ə yazmaq, sonra `public/frames`-i git-dən silmək.
 
+## Admin — doldurmaq
+
+- **[WhatsApp nömrəsi və layihələrin xidmətləri](tasks/whatsapp-ve-xidmetler.md)** — Site content-də WhatsApp nömrəsi; layihələrdə xidmət seçimi (xidmət səhifələrində göstərilir).
+
 ## Layihə animasiyaları
 
 - **[Animasiya: Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md)** — `persian-gulf-coast-villa` üçün scroll video — video lazımdır.
@@ -58,6 +70,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 ## SEO
 
+- **[Jurnal: ilk məqalələr](tasks/jurnal-ilk-meqaleler.md)** — Bölmə hazırdır; ilk 3–5 məqaləni yazmaq, ayda 1–2 ritm, mövzu nümunələri.
 - **[PageSpeed / Lighthouse və Search Console](tasks/seo-lighthouse-search-console.md)** — Deploy-dan sonra performans yoxlaması və sitemap-in Google-a göndərilməsi.
 - **[Layihə mətnlərinin düzəlişi](tasks/mezmun-duzelisleri.md)** — Mənbə saytdan gələn yazı səhvləri, Villa Luna-nın səhv təsviri, şəkilsiz xidmət və alt mətnləri.
 

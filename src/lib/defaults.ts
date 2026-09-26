@@ -71,6 +71,7 @@ export const defaultSiteContent: SiteContentData = {
     email: "design@vladimir-fasij.com",
     phone: "+44 (0) 79 3148 6888",
     address: "London, United Kingdom",
+    whatsapp: "",
   },
   socials: {
     instagram: "https://www.instagram.com/vladimir_fasij/",
@@ -178,6 +179,7 @@ export const defaultProjects: ProjectData[] = source.projects
       order: featuredIdx !== -1 ? featuredIdx + 1 : 10 + p.order,
       seo: {},
       highlights: [],
+      services: [],
       publishAt: "",
       previewToken: "",
       createdAt: "",

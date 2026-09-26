@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import { IMAGE_ACCEPT } from "@/lib/upload-config";
+import { uploadImage } from "@/lib/upload-client";
 import { useNotifyChange } from "./fields";
+import MediaPicker from "./MediaPicker";
 
 // Description editor. Saves HTML into a hidden input; the server sanitises it
 // (lib/rich-text.ts) and the public pages render it with the same allow-list:
 // paragraphs, two heading levels, bold/italic/underline, lists, quotes, links.
+// With `images` (articles) it can also place images: uploaded here or picked
+// from the media library, each with alt text.
 
 function ToolButton({ on, label, title, onClick, disabled }: { on?: boolean; label: React.ReactNode; title: string; onClick: () => void; disabled?: boolean }) {
   return (
@@ -28,7 +34,57 @@ function ToolButton({ on, label, title, onClick, disabled }: { on?: boolean; lab
   );
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+/** Insert-image control: upload a new file or reuse one from the library. */
+function ImageButton({ editor }: { editor: Editor }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [picking, setPicking] = useState(false);
+  const [busy, setBusy] = useState<number | null>(null);
+
+  const insert = (src: string) => {
+    const alt = window.prompt("Describe the image for Google and screen readers (alt text)", "") ?? "";
+    editor.chain().focus().setImage({ src, alt: alt.trim() }).run();
+  };
+
+  return (
+    <>
+      <span data-uploading={busy !== null ? "true" : undefined} className="contents">
+        <ToolButton title={busy !== null ? `Uploading ${Math.round(busy)}%` : "Upload an image"} label={busy !== null ? `${Math.round(busy)}%` : "Image"} disabled={busy !== null} onClick={() => input.current?.click()} />
+      </span>
+      <ToolButton title="Image from the media library" label="Library" onClick={() => setPicking(true)} />
+      <input
+        ref={input}
+        type="file"
+        accept={IMAGE_ACCEPT}
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file) return;
+          setBusy(0);
+          try {
+            const done = await uploadImage(file, { onProgress: setBusy });
+            insert(done.url);
+          } catch (err) {
+            window.alert((err as Error).message);
+          } finally {
+            setBusy(null);
+          }
+        }}
+      />
+      {picking && (
+        <MediaPicker
+          onClose={() => setPicking(false)}
+          onSelect={([url]) => {
+            setPicking(false);
+            if (url) insert(url);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+function Toolbar({ editor, images }: { editor: Editor; images?: boolean }) {
   const s = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -68,6 +124,12 @@ function Toolbar({ editor }: { editor: Editor }) {
       <ToolButton title="Numbered list" label="1. List" on={s.ordered} onClick={() => chain().toggleOrderedList().run()} />
       <ToolButton title="Quote" label="“ ”" on={s.quote} onClick={() => chain().toggleBlockquote().run()} />
       <ToolButton title="Link" label="Link" on={s.link} onClick={setLink} />
+      {images && (
+        <>
+          <span className="mx-1 h-5 w-px bg-black/10" />
+          <ImageButton editor={editor} />
+        </>
+      )}
       <span className="ml-auto" />
       <ToolButton title="Undo" label="↶" disabled={!s.undo} onClick={() => chain().undo().run()} />
       <ToolButton title="Redo" label="↷" disabled={!s.redo} onClick={() => chain().redo().run()} />
@@ -81,6 +143,7 @@ export default function RichTextEditor({
   defaultValue = "",
   error,
   hint,
+  images,
 }: {
   name: string;
   label: string;
@@ -88,6 +151,8 @@ export default function RichTextEditor({
   defaultValue?: string;
   error?: string[];
   hint?: string;
+  /** Allow images in the text (articles). */
+  images?: boolean;
 }) {
   const [html, setHtml] = useState(defaultValue);
   const notify = useNotifyChange(html);
@@ -101,6 +166,7 @@ export default function RichTextEditor({
         strike: false,
         link: { openOnClick: false, autolink: true, defaultProtocol: "https" },
       }),
+      ...(images ? [Image.configure({ inline: false, allowBase64: false })] : []),
     ],
     content: defaultValue,
     immediatelyRender: false,
@@ -113,7 +179,7 @@ export default function RichTextEditor({
       <p className="label">{label}</p>
       <input ref={notify} type="hidden" name={name} value={html} />
       <div className="overflow-hidden rounded-md border border-[#d8d2c8] bg-white focus-within:border-bronze focus-within:shadow-[0_0_0_3px_rgb(143_113_85/0.15)]">
-        {editor ? <Toolbar editor={editor} /> : <div className="h-10 border-b border-black/10" />}
+        {editor ? <Toolbar editor={editor} images={images} /> : <div className="h-10 border-b border-black/10" />}
         <EditorContent editor={editor} />
       </div>
       {hint && !error && <p className="mt-1 text-xs text-graphite">{hint}</p>}

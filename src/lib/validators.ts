@@ -38,6 +38,7 @@ export const projectSchema = z.object({
   coverImage: imageUrl.default(""),
   gallery: z.array(imageUrl.refine(Boolean)).max(300).default([]),
   highlights: z.array(z.string()).max(6, "Pick at most six highlights").default([]),
+  services: z.array(slug).max(12).default([]),
   // ISO string from the form ("" = publish immediately).
   publishAt: z
     .string()
@@ -58,6 +59,25 @@ export const serviceSchema = z.object({
   summary: z.string().trim().max(600).default(""),
   content: z.string().trim().max(50000).default(""),
   order: z.coerce.number().int().default(0),
+  published: z.boolean(),
+  ...seo,
+});
+
+export const articleSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(160),
+  slug,
+  excerpt: z.string().trim().max(400).default(""),
+  content: z.string().trim().max(200000).default(""),
+  coverImage: imageUrl.default(""),
+  category: z.string().trim().max(60).default(""),
+  tags: z.array(z.string().trim().min(1).max(40)).max(12, "Use at most 12 tags").default([]),
+  author: z.string().trim().max(80).default(""),
+  projects: z.array(slug).max(12).default([]),
+  publishAt: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || !Number.isNaN(Date.parse(v)), "Enter a valid date")
+    .transform((v) => (v ? new Date(v) : null)),
   published: z.boolean(),
   ...seo,
 });
@@ -100,6 +120,11 @@ export const siteContentSchema = z.object({
     email: z.email("Enter a valid email"),
     phone: z.string().trim().max(40),
     address: z.string().trim().max(200),
+    whatsapp: z
+      .string()
+      .trim()
+      .max(30)
+      .refine((v) => v === "" || /^\+?[\d\s()-]{7,}$/.test(v), "Use the international format, e.g. +44 7931 486888"),
   }),
   socials: z.object({ instagram: optionalUrl, linkedin: optionalUrl, youtube: optionalUrl }),
   seo: z.object({
