@@ -10,6 +10,8 @@ export interface ProjectDoc extends Timestamps {
   summary: string; content: string; coverImage: string; gallery: string[]; videos: string[];
   /** Up to six gallery images shown on the page; the rest sit behind "View all". */
   highlights: string[];
+  /** Slugs of the services this project shows (listed on those service pages). */
+  services: string[];
   featured: boolean; published: boolean; order: number; seo: Seo;
   /** Published projects stay hidden until this moment (null = immediately). */
   publishAt: Date | null;
@@ -44,7 +46,7 @@ export interface SiteContentDoc extends Timestamps {
   team: { name?: string; role?: string; bio?: string; photo?: string }[];
   stats: { value?: string; label?: string }[];
   process: { title?: string; text?: string }[];
-  contact?: { email?: string; phone?: string; address?: string };
+  contact?: { email?: string; phone?: string; address?: string; whatsapp?: string };
   socials?: { instagram?: string; linkedin?: string; youtube?: string };
   seo?: { title?: string; description?: string; keywords?: string; ogImage?: string };
 }
@@ -115,6 +117,7 @@ const projectSchema = new Schema<ProjectDoc>(
     gallery: { type: [String], default: [] },
     videos: { type: [String], default: [] },
     highlights: { type: [String], default: [] },
+    services: { type: [String], default: [] },
     featured: { type: Boolean, default: false },
     published: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
@@ -198,6 +201,7 @@ const siteContentSchema = new Schema<SiteContentDoc>(
       email: String,
       phone: String,
       address: String,
+      whatsapp: String,
       _id: false,
     },
     socials: {

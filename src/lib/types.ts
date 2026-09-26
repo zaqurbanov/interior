@@ -16,7 +16,8 @@ export type SiteContentData = {
   team: TeamMember[];
   stats: { value: string; label: string }[];
   process: { title: string; text: string }[];
-  contact: { email: string; phone: string; address: string };
+  /** whatsapp: number in international format, "" = no WhatsApp button. */
+  contact: { email: string; phone: string; address: string; whatsapp: string };
   socials: { instagram: string; linkedin: string; youtube: string };
   seo: { title: string; description: string; keywords: string; ogImage: string };
 };
@@ -51,6 +52,8 @@ export type ProjectData = {
   videos: string[];
   /** Gallery images chosen for the page (max 6); empty = the first six. */
   highlights: string[];
+  /** Service slugs; empty = matched to services by category. */
+  services: string[];
   featured: boolean;
   published: boolean;
   order: number;

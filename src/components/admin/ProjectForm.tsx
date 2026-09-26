@@ -18,7 +18,7 @@ type Initial = Omit<ProjectData, "id" | "order" | "previewToken" | "createdAt">;
 
 const EMPTY: Initial = {
   title: "", slug: "", subtitle: "", location: "", category: "", year: "", summary: "", content: "",
-  coverImage: "", gallery: [], videos: [], highlights: [], featured: false, published: true, publishAt: "",
+  coverImage: "", gallery: [], videos: [], highlights: [], services: [], featured: false, published: true, publishAt: "",
   seo: { title: "", description: "" },
 };
 
@@ -29,7 +29,7 @@ function fromEntries(entries: DraftEntries): Initial {
   return {
     title: get("title"), slug: get("slug"), subtitle: get("subtitle"), location: get("location"), category: get("category"),
     year: get("year"), summary: get("summary"), content: get("content"), coverImage: get("coverImage"),
-    gallery: all("gallery"), highlights: all("highlights"), videos: get("videos").split(/\r?\n/).filter(Boolean),
+    gallery: all("gallery"), highlights: all("highlights"), services: all("services"), videos: get("videos").split(/\r?\n/).filter(Boolean),
     featured: get("featured") === "on", published: get("published") === "on", publishAt: get("publishAt"),
     seo: { title: get("seoTitle"), description: get("seoDescription") },
   };
@@ -71,7 +71,14 @@ function PreviewLink({ id, token: initialToken }: { id: string; token: string })
   );
 }
 
-export default function ProjectForm({ project }: { project?: ProjectData }) {
+export default function ProjectForm({
+  project,
+  services,
+}: {
+  project?: ProjectData;
+  /** Services the project can be listed under. */
+  services: { slug: string; title: string }[];
+}) {
   const [state, action, pending] = useActionState(saveProject.bind(null, project?.id ?? null), { ok: false, message: "" } as FormState);
   const draft = useFormDraft(`project:${project?.id ?? "new"}`);
   const [initial, setInitial] = useState<Initial>(project ?? EMPTY);
@@ -185,6 +192,18 @@ export default function ProjectForm({ project }: { project?: ProjectData }) {
             <Link href="/admin/projects" className="btn btn-ghost">Cancel</Link>
             {draft.dirty && !pending && <span className="text-xs text-amber-700">Unsaved changes</span>}
           </div>
+        </Card>
+        <Card title="Services">
+          <p className="text-xs text-graphite">The project appears as an example on these service pages. Leave all unticked to match by its scope / category.</p>
+          <div className="space-y-1.5">
+            {services.map((s) => (
+              <label key={s.slug} className="flex cursor-pointer items-center gap-2 text-sm">
+                <input type="checkbox" name="services" value={s.slug} defaultChecked={initial.services.includes(s.slug)} />
+                {s.title}
+              </label>
+            ))}
+          </div>
+          {e.services && <p className="text-xs text-red-700">{e.services[0]}</p>}
         </Card>
         <Card title="Cover image">
           <ImageField name="coverImage" defaultValue={initial.coverImage} removable hint="Shown on project cards and at the top of the page." />

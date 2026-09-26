@@ -1,5 +1,6 @@
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
+import MobileContactBar from "@/components/site/MobileContactBar";
 import SmoothScroll from "@/components/SmoothScroll";
 import PageViewTracker from "@/components/site/PageViewTracker";
 import Reveal from "@/components/site/Reveal";
@@ -24,6 +25,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Header brandName={site.brandName} journal={journal} />
       <main id="main">{children}</main>
       <Footer site={site} journal={journal} />
+      <MobileContactBar contact={site.contact} />
     </>
   );
 }

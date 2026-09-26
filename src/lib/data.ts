@@ -24,6 +24,7 @@ export function toProject(d: any): ProjectData {
     gallery: (d.gallery ?? []).map(str),
     videos: (d.videos ?? []).map(str),
     highlights: (d.highlights ?? []).map(str),
+    services: (d.services ?? []).map(str).filter(Boolean),
     featured: Boolean(d.featured),
     published: d.published !== false,
     order: Number(d.order ?? 0),
@@ -125,6 +126,7 @@ export function toSiteContent(d: any): SiteContentData {
       email: pick(d?.contact?.email, def.contact.email),
       phone: pick(d?.contact?.phone, def.contact.phone),
       address: pick(d?.contact?.address, def.contact.address),
+      whatsapp: str(d?.contact?.whatsapp ?? def.contact.whatsapp),
     },
     socials: {
       instagram: str(d?.socials?.instagram ?? def.socials.instagram),
@@ -204,6 +206,27 @@ export function getProjects(opts: { featured?: boolean; includeUnpublished?: boo
     }
     return docs.map(toProject);
   }, fallback);
+}
+
+/**
+ * Scope/category → services, used for projects that have no services ticked in
+ * the admin (and for the built-in content). Every project is a 3D render.
+ */
+const SERVICES_BY_CATEGORY: Record<string, string[]> = {
+  Interior: ["interior-design", "furniture-ffe"],
+  Exterior: ["architecture-landscaping"],
+  "3D Animation": ["3d-animation"],
+};
+export const projectServices = (p: Pick<ProjectData, "services" | "category">) =>
+  p.services.length ? p.services : ["3d-visualisation", ...(SERVICES_BY_CATEGORY[p.category] ?? [])];
+
+/** Live projects shown as examples on a service page, featured ones first. */
+export async function getProjectsForService(service: string, limit = 3): Promise<ProjectData[]> {
+  const all = await getProjects();
+  return all
+    .filter((p) => projectServices(p).includes(service))
+    .sort((a, b) => Number(b.featured) - Number(a.featured))
+    .slice(0, limit);
 }
 
 export function getProject(slug: string): Promise<ProjectData | null> {

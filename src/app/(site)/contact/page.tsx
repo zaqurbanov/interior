@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ContactForm from "@/components/site/ContactForm";
 import PageHero from "@/components/site/PageHero";
 import { getSiteContent } from "@/lib/data";
+import { telHref } from "@/lib/contact-links";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -22,7 +23,7 @@ export default async function ContactPage() {
           </div>
           <div>
             <p className="eyebrow text-[0.62rem] text-graphite">Phone</p>
-            <a href={`tel:${site.contact.phone.replace(/[^\d+]/g, "")}`} className="link-underline mt-2 inline-block text-lg">{site.contact.phone}</a>
+            <a href={telHref(site.contact.phone)} className="link-underline mt-2 inline-block text-lg">{site.contact.phone}</a>
           </div>
           <div>
             <p className="eyebrow text-[0.62rem] text-graphite">Studio</p>

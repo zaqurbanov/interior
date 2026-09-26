@@ -329,6 +329,8 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   return (
     <section
       ref={sectionRef}
+      // The phone contact bar stays out of the way while this is on screen.
+      data-walkthrough
       aria-label="From empty room to finished interior and a walk inside"
       className={`relative ${SCROLL_SECTION_CLASS}`}
       style={scrollSectionStyle(SCROLL_VH)}

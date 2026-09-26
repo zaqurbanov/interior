@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo, { LEGAL_NAME } from "./Logo";
 import type { SiteContentData } from "@/lib/types";
+import { telHref, whatsappHref } from "@/lib/contact-links";
 
 export default function Footer({ site, journal = false }: { site: SiteContentData; journal?: boolean }) {
   const socials = [
@@ -21,7 +22,10 @@ export default function Footer({ site, journal = false }: { site: SiteContentDat
           <p className="eyebrow mb-4 text-ink/55">Contact</p>
           <address className="space-y-2 text-sm not-italic text-ink/80">
             <a className="link-underline block w-fit" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-            <a className="link-underline block w-fit" href={`tel:${site.contact.phone.replace(/[^\d+]/g, "")}`}>{site.contact.phone}</a>
+            <a className="link-underline block w-fit" href={telHref(site.contact.phone)}>{site.contact.phone}</a>
+            {site.contact.whatsapp && (
+              <a className="link-underline block w-fit" href={whatsappHref(site.contact.whatsapp)} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            )}
             <p>{site.contact.address}</p>
           </address>
         </div>

@@ -295,6 +295,8 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   return (
     <section
       ref={sectionRef}
+      // The phone contact bar stays out of the way while this is on screen.
+      data-walkthrough
       aria-label={`${title} — walkthrough`}
       className={`relative ${SCROLL_SECTION_CLASS}`}
       style={scrollSectionStyle(storyScrollVh(story))}

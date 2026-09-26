@@ -28,6 +28,8 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 **İstifadəçi / studiya yazır:**
 
+- [WhatsApp nömrəsi və layihə xidmətləri](tasks/whatsapp-ve-xidmetler.md) — admində iki xana.
+
 - [Jurnal məqalələri](tasks/jurnal-ilk-meqaleler.md) — ilk 3–5 məqalə, mövzu nümunələri taskda.
 
 **Sifarişçidən gözlənilir:**
@@ -52,6 +54,10 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
 - **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — Kod və yükləmə skripti hazırdır; qalan: skripti işlətmək, `NEXT_PUBLIC_FRAMES_BASE`-i Vercel-ə yazmaq, sonra `public/frames`-i git-dən silmək.
+
+## Admin — doldurmaq
+
+- **[WhatsApp nömrəsi və layihələrin xidmətləri](tasks/whatsapp-ve-xidmetler.md)** — Site content-də WhatsApp nömrəsi; layihələrdə xidmət seçimi (xidmət səhifələrində göstərilir).
 
 ## Layihə animasiyaları
 

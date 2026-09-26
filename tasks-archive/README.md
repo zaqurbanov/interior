@@ -13,6 +13,10 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 - **["Site content & SEO" səhifəsi](admin-site-content-sehifesi.md)** — `/admin/content`: brend, SEO, ana səhifə mərhələləri, haqqında, komanda, əlaqə.
 - **[Baza, seed və admin hesabı](admin-baza-ve-hesab.md)** — MongoDB Atlas seçildi və qoşuldu, seed yazıldı, real admin hesabı yaradıldı, yükləmələr Blob-a keçdi.
 
+## Sayt
+
+- **[İdeyalar 1, 2, 5: sorğuya aparan yollar](ideyalar-sorgu-yollari.md)** _(2026-09-26)_ — Layihə sonunda sorğu bloku, telefonda Enquire · WhatsApp · Call paneli, xidmət səhifələrində layihələr.
+
 ## Performans
 
 - **[Sayt trafikinin (MB) azaldılması](trafik-azaltma.md)** _(2026-09-25)_ — Telefonda MP4-ə keçildi; kompüter olduğu kimi qalır (sifarişçinin qərarı).

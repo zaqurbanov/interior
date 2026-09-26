@@ -10,6 +10,7 @@ import VideoEmbed from "@/components/site/VideoEmbed";
 import { articleDate, getArticles, getImageAlts, getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
 import ArticleCard from "@/components/site/ArticleCard";
 import { framesUrl } from "@/lib/frames-base";
+import { telHref } from "@/lib/contact-links";
 
 export default async function HomePage() {
   const [site, services, projects, alts, articles] = await Promise.all([
@@ -213,7 +214,7 @@ export default async function HomePage() {
           </h2>
           <div className="reveal mt-10 space-y-3 text-graphite">
             <a href={`mailto:${site.contact.email}`} className="link-underline block w-fit text-lg text-ink">{site.contact.email}</a>
-            <a href={`tel:${site.contact.phone.replace(/[^\d+]/g, "")}`} className="link-underline block w-fit">{site.contact.phone}</a>
+            <a href={telHref(site.contact.phone)} className="link-underline block w-fit">{site.contact.phone}</a>
             <p>{site.contact.address}</p>
           </div>
         </div>

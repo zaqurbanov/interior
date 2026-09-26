@@ -40,6 +40,7 @@ export async function saveProject(id: string | null, _prev: FormState, fd: FormD
     coverImage: text(fd, "coverImage"),
     gallery: fd.getAll("gallery").map(String),
     highlights: fd.getAll("highlights").map(String),
+    services: fd.getAll("services").map(String),
     publishAt: text(fd, "publishAt"),
     featured: bool(fd, "featured"),
     published: bool(fd, "published"),
@@ -217,7 +218,12 @@ export async function saveSiteContent(_prev: FormState, fd: FormData): Promise<F
     stats: nonEmpty(rows("stat", ["value", "label"])),
     process: nonEmpty(rows("process", ["title", "text"])),
     team: rows("team", ["name", "role", "bio", "photo"]).filter((r) => r.name || r.role || r.bio),
-    contact: { email: text(fd, "contact.email").trim(), phone: text(fd, "contact.phone"), address: text(fd, "contact.address") },
+    contact: {
+      email: text(fd, "contact.email").trim(),
+      phone: text(fd, "contact.phone"),
+      address: text(fd, "contact.address"),
+      whatsapp: text(fd, "contact.whatsapp"),
+    },
     socials: {
       instagram: text(fd, "socials.instagram").trim(),
       linkedin: text(fd, "socials.linkedin").trim(),

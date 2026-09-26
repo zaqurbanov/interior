@@ -38,6 +38,7 @@ export const projectSchema = z.object({
   coverImage: imageUrl.default(""),
   gallery: z.array(imageUrl.refine(Boolean)).max(300).default([]),
   highlights: z.array(z.string()).max(6, "Pick at most six highlights").default([]),
+  services: z.array(slug).max(12).default([]),
   // ISO string from the form ("" = publish immediately).
   publishAt: z
     .string()
@@ -119,6 +120,11 @@ export const siteContentSchema = z.object({
     email: z.email("Enter a valid email"),
     phone: z.string().trim().max(40),
     address: z.string().trim().max(200),
+    whatsapp: z
+      .string()
+      .trim()
+      .max(30)
+      .refine((v) => v === "" || /^\+?[\d\s()-]{7,}$/.test(v), "Use the international format, e.g. +44 7931 486888"),
   }),
   socials: z.object({ instagram: optionalUrl, linkedin: optionalUrl, youtube: optionalUrl }),
   seo: z.object({

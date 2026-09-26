@@ -13,6 +13,7 @@ import { articleDate, getArticles, getImageAlts, getProject, getProjectPreview, 
 import { formatDate } from "@/lib/dates";
 import { PREVIEW_COOKIE } from "@/lib/preview";
 import { metaDescription } from "@/lib/meta";
+import ProjectEnquiry from "@/components/site/ProjectEnquiry";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -178,6 +179,8 @@ export default async function ProjectPage({ params }: Props) {
           </ul>
         </section>
       )}
+
+      <ProjectEnquiry title={project.title} contact={site.contact} />
 
       {next && next.slug !== project.slug && (
         <Link href={`/projects/${next.slug}`} className="group block border-t border-ink/10">
