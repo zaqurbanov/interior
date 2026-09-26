@@ -24,6 +24,10 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 9. [Videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md) — `windsor`, `ail1`, `ail2`, `belg.mp4` yalnız lokaldadır → Drive.
 10. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md).
 
+**İstifadəçi / studiya yazır:**
+
+- [Jurnal məqalələri](tasks/jurnal-ilk-meqaleler.md) — ilk 3–5 məqalə, mövzu nümunələri taskda.
+
 **Sifarişçidən gözlənilir:**
 
 11. [Domen](tasks/animasiya-linkleri-404.md) — `vladimir-fasij.com` yeni sayta bağlansın; sonra `NEXT_PUBLIC_SITE_URL`, [Search Console və PageSpeed](tasks/seo-lighthouse-search-console.md).
@@ -58,6 +62,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 ## SEO
 
+- **[Jurnal: ilk məqalələr](tasks/jurnal-ilk-meqaleler.md)** — Bölmə hazırdır; ilk 3–5 məqaləni yazmaq, ayda 1–2 ritm, mövzu nümunələri.
 - **[PageSpeed / Lighthouse və Search Console](tasks/seo-lighthouse-search-console.md)** — Deploy-dan sonra performans yoxlaması və sitemap-in Google-a göndərilməsi.
 - **[Layihə mətnlərinin düzəlişi](tasks/mezmun-duzelisleri.md)** — Mənbə saytdan gələn yazı səhvləri, Villa Luna-nın səhv təsviri, şəkilsiz xidmət və alt mətnləri.
 
