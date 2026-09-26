@@ -1,6 +1,6 @@
 # Animasiya redaktoru üçün kadr işinin qurulması
 
-**Bölmə:** Yerləşdirmə (Vercel) · **Status:** açıq
+**Bölmə:** Yerləşdirmə (Vercel) · **Status:** ləğv edildi · **Tarix:** 2026-09-26
 
 > Admin paneldə "Make frames" işləsin deyə GitHub token-i, repo secret-ləri və Vercel dəyişənləri.
 
@@ -16,3 +16,8 @@
 - [ ] Sınaq: admin → layihə → Walkthrough → video yüklə → "Make frames" → GitHub → Actions-da "Story frames" işləyir → bir neçə dəqiqəyə redaktor özü yenilənir → mərhələləri yerləşdir → "Show on the project page" → Save → saytda yoxla (kompüter + telefon)
 
 Öz serverə keçəndə: serverdə `ffmpeg` qur, `FRAME_JOB_DRIVER=local` — GitHub Actions lazım olmur.
+
+
+## Ləğv edildi
+
+Studiyanın qərarı (2026-09-26): admində animasiya yaratma ("Make frames") çıxarıldı — animasiyaları studiya özü kompüterdə skriptlə hazırlayır ([docs/animasiya-yaratmaq.md](../docs/animasiya-yaratmaq.md)). GitHub token-i, repo secret-ləri və bu dəyişənlər lazım deyil. Blob Hobby limiti də (ayda 2 000 yükləmə) bunu çətinləşdirirdi.

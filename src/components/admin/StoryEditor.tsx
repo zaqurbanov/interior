@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { createStory, deleteStory, generateFrames, saveStoryContent } from "@/app/actions/stories";
+import { createStory, deleteStory, saveStoryContent } from "@/app/actions/stories";
 import { storyFrameUrl, storyTimeline, storyUnitToFrame, type ProjectStory } from "@/lib/project-story";
 import type { StoryAdminData } from "@/lib/types";
-import { VIDEO_ACCEPT } from "@/lib/upload-config";
-import { uploadVideo } from "@/lib/upload-client";
 import type { FormState } from "@/lib/validators";
 import { Card } from "./fields";
 
@@ -22,126 +20,9 @@ function Status({ state }: { state: FormState | null }) {
   return <p className={`text-sm ${state.ok ? "text-green-700" : "text-red-700"}`} role="status">{state.message}</p>;
 }
 
-/* ---------------- Source videos → frames ---------------- */
-
-type Source = { key: string; url: string; start: number; duration: number; progress?: number; error?: string; name?: string };
-let uid = 0;
-
-function SourcesCard({ projectId, story }: { projectId: string; story: StoryAdminData }) {
-  const router = useRouter();
-  const [sources, setSources] = useState<Source[]>(() => story.sources.map((s) => ({ ...s, key: `s${uid++}` })));
-  const [fps, setFps] = useState(story.extractFps || 24);
-  const [state, setState] = useState<FormState | null>(null);
-  const [pending, start] = useTransition();
-  const processing = story.job.status === "processing";
-  const uploading = sources.some((s) => s.progress !== undefined && !s.url);
-
-  // While frames are being made, check back every few seconds.
-  useEffect(() => {
-    if (!processing) return;
-    const t = window.setInterval(() => router.refresh(), 5000);
-    return () => window.clearInterval(t);
-  }, [processing, router]);
-
-  const patch = (key: string, p: Partial<Source>) => setSources((l) => l.map((s) => (s.key === key ? { ...s, ...p } : s)));
-
-  async function pick(key: string, file: File) {
-    patch(key, { url: "", progress: 0, error: undefined, name: file.name });
-    try {
-      const url = await uploadVideo(file, (p) => patch(key, { progress: p }));
-      patch(key, { url, progress: undefined });
-    } catch (e) {
-      patch(key, { progress: undefined, error: (e as Error).message });
-    }
-  }
-
-  return (
-    <Card title="1 · Source videos">
-      <p className="text-sm text-graphite">
-        One video per scene (up to three). Frames for desktop scrolling and the phone video are made from them automatically — this takes a few minutes.
-      </p>
-      <ol className="space-y-3">
-        {sources.map((s, i) => (
-          <li key={s.key} className="grid gap-3 rounded-md border border-black/5 p-3 md:grid-cols-[12rem_1fr]">
-            <div className="aspect-video overflow-hidden rounded bg-sand">
-              {s.url ? (
-                <video src={s.url} controls muted playsInline preload="metadata" className="h-full w-full object-cover" />
-              ) : (
-                <div className="grid h-full place-items-center p-2 text-center text-xs text-graphite">
-                  {s.progress !== undefined ? `Uploading ${Math.round(s.progress)}%` : "No video yet"}
-                </div>
-              )}
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="font-medium">Scene {i + 1}</span>
-                <label className="btn btn-ghost cursor-pointer px-3 py-1 text-xs">
-                  {s.url ? "Replace video" : "Choose video"}
-                  <input type="file" accept={VIDEO_ACCEPT} className="hidden" onChange={(e) => e.target.files?.[0] && pick(s.key, e.target.files[0])} />
-                </label>
-                <button type="button" onClick={() => setSources((l) => l.filter((x) => x.key !== s.key))} className="cursor-pointer text-xs text-red-700 hover:underline">
-                  Remove
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <label className="text-xs text-graphite">
-                  Start at (s)
-                  <input type="number" min={0} step={0.5} value={s.start} onChange={(e) => patch(s.key, { start: Number(e.target.value) })} className="field mt-1 w-24 py-1" />
-                </label>
-                <label className="text-xs text-graphite">
-                  Length (s, 0 = to the end)
-                  <input type="number" min={0} step={0.5} value={s.duration} onChange={(e) => patch(s.key, { duration: Number(e.target.value) })} className="field mt-1 w-24 py-1" />
-                </label>
-              </div>
-              {s.error && <p className="text-xs text-red-700">{s.error}</p>}
-            </div>
-          </li>
-        ))}
-      </ol>
-      <div className="flex flex-wrap items-center gap-4">
-        {sources.length < 3 && (
-          <button type="button" onClick={() => setSources((l) => [...l, { key: `s${uid++}`, url: "", start: 0, duration: 0 }])} className="btn btn-ghost">
-            + Add a scene
-          </button>
-        )}
-        <label className="flex items-center gap-2 text-sm">
-          Frame rate
-          <select value={fps} onChange={(e) => setFps(Number(e.target.value))} className="field w-auto py-1.5">
-            <option value={15}>15 fps — lighter; sea, foliage, glare</option>
-            <option value={24}>24 fps — smoother</option>
-          </select>
-        </label>
-      </div>
-      <div className="flex flex-wrap items-center gap-4 border-t border-black/5 pt-4">
-        <button
-          type="button"
-          disabled={pending || processing || uploading || !sources.length}
-          onClick={() =>
-            start(async () => {
-              setState(null);
-              const res = await call(generateFrames(projectId, { sources: sources.map(({ url, start, duration }) => ({ url, start, duration })), fps: fps as 15 | 24 }));
-              setState(res);
-              if (res.ok) router.refresh();
-            })
-          }
-          className="btn"
-        >
-          {story.version ? "Make new frames" : "Make frames"}
-        </button>
-        {processing && <span className="text-sm text-graphite">Making frames… this page updates by itself.</span>}
-        {story.job.status === "failed" && <span className="text-sm text-red-700">Last run failed: {story.job.error}</span>}
-        <Status state={state} />
-      </div>
-      {story.version > 0 && (
-        <p className="text-xs text-graphite">
-          New frames replace the current ones when they are ready; stage positions are kept (and clamped if the new footage is shorter).
-        </p>
-      )}
-    </Card>
-  );
-}
-
 /* ---------------- Timeline ---------------- */
+
+let uid = 0;
 
 /** Shows a frame without flashing blank while the next one loads. */
 function FrameImage({ src }: { src: string }) {
@@ -240,7 +121,7 @@ function TimelineCard({ projectId, story, slug }: { projectId: string; story: St
     });
 
   return (
-    <Card title="2 · Timeline and copy">
+    <Card title="Timeline and copy">
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-3">
           {/* Preview, roughly as on the site */}
@@ -395,26 +276,33 @@ export default function StoryEditor({
   slug,
   story,
   hasBuiltIn,
-  runner,
 }: {
   projectId: string;
   projectTitle: string;
   slug: string;
   story: StoryAdminData | null;
   hasBuiltIn: boolean;
-  runner: "github" | "local" | null;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [state, setState] = useState<FormState | null>(null);
 
+  if (!story && !hasBuiltIn) {
+    return (
+      <Card title="Walkthrough">
+        <p className="text-sm text-graphite">
+          {projectTitle} has no walkthrough yet. Walkthroughs are made on a computer from the project video (frames and the phone video,
+          then an entry in the code) — see <code>docs/animasiya-yaratmaq.md</code>. Once it is on the site, its text and timing can be edited here.
+        </p>
+      </Card>
+    );
+  }
+
   if (!story) {
     return (
       <Card title="Walkthrough">
         <p className="text-sm text-graphite">
-          {hasBuiltIn
-            ? `${projectTitle} has a built-in walkthrough. Start editing to change its copy and timing here, or to replace its video.`
-            : `${projectTitle} has no walkthrough yet. Upload one video per scene and the frames are made for you.`}
+          {projectTitle} has a walkthrough. Start editing to change its copy, stage positions and timing here.
         </p>
         <div className="flex items-center gap-4">
           <button
@@ -429,7 +317,7 @@ export default function StoryEditor({
             }
             className="btn"
           >
-            {hasBuiltIn ? "Edit the walkthrough" : "Create a walkthrough"}
+            Edit the walkthrough
           </button>
           <Status state={state} />
         </div>
@@ -446,18 +334,11 @@ export default function StoryEditor({
         <Link href={`/projects/${slug}`} target="_blank" className="text-bronze hover:underline">View page ↗</Link>
       </div>
 
-      {!runner && (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
-          Making frames needs a runner: set <code>GITHUB_ACTIONS_TOKEN</code>, <code>GITHUB_REPO</code> and <code>STORY_WEBHOOK_SECRET</code> (see <code>.env.example</code>).
-        </p>
-      )}
-
-      <SourcesCard key={`src-${story.job.version}-${story.job.status}`} projectId={projectId} story={story} />
       {story.version > 0 ? (
         <TimelineCard key={`tl-${story.version}`} projectId={projectId} story={story} slug={slug} />
       ) : (
-        <Card title="2 · Timeline and copy">
-          <p className="text-sm text-graphite">Available once the frames are ready.</p>
+        <Card title="Timeline and copy">
+          <p className="text-sm text-graphite">This walkthrough has no frames. Remove it below; walkthroughs are made on a computer (docs/animasiya-yaratmaq.md).</p>
         </Card>
       )}
 

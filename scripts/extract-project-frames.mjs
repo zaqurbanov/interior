@@ -1,7 +1,6 @@
 // Extracts the per-project walkthrough videos (videos/*.mp4) into WebP sequences
 // used by the project scroll story. Usage: node scripts/extract-project-frames.mjs
-// Output goes to public/frames (not in git): upload it afterwards with
-//   node --env-file=.env.local scripts/frames-to-blob.mjs
+// Output goes to public/frames (committed). Step by step: docs/animasiya-yaratmaq.md
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { encodeMobileVideo } from "./lib/media.mjs";

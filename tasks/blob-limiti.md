@@ -10,4 +10,3 @@
 - [ ] Vercel → Settings → Environment Variables → `NEXT_PUBLIC_FRAMES_BASE`-i silmək (kod artıq onu oxumur, sadəcə səliqə üçün)
 - [ ] Blob-dakı `frames/` qovluğunu silmək (Browser → frames → Delete) — yer tutmasın; admin şəkil yükləmələri üçün store lazımdır
 - [ ] Qərar: kadrlar repoda qalır (pulsuz, işləyir) və ya pullu plan (Pro) + Blob. Pro-da: `node --env-file=.env.local scripts/frames-to-blob.mjs`, sonra Vercel-ə `NEXT_PUBLIC_FRAMES_URL=https://….public.blob.vercel-storage.com/frames`
-- [ ] Diqqət: admin "Make frames" hər dəfə yüzlərlə fayl yükləyir — Hobby-də ayda 1–3 animasiyadan çox olmaz

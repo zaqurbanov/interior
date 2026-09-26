@@ -18,7 +18,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 **İstifadəçi edir — Vercel / GitHub / Resend / admin (Claude addım-addım göstərir):**
 
 3. [Resend (e-poçt)](tasks/resend-qurulmasi.md) — hesab, domen təsdiqi, API açarı.
-4. [GitHub token](tasks/kadr-isi-qurulmasi.md) — admindən animasiya yaratmaq üçün.
 5. Vercel — [Deployment Retention Policy və Usage yoxlaması](tasks/vercel-yaddas-limiti.md) (1–2 gün sonra); [dəyişənlərin Preview üçün də seçilməsi](tasks/vercel-env-ve-login.md).
 6. [`.env.local` təmizliyi](tasks/env-local-temizlik.md) — istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS`, Atlas şifrəsinin gücü.
 7. [Admin panelin real yoxlanması](tasks/admin-real-yoxlama.md) — 13 bəndlik sınaq siyahısı.
@@ -27,6 +26,8 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 10. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md).
 
 **İstifadəçi / studiya yazır:**
+
+- [Animasiyalar](docs/animasiya-yaratmaq.md) — yeni layihə animasiyasını kompüterdə skriptlə yaratmaq (ilki: [Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md)).
 
 - [WhatsApp nömrəsi və layihə xidmətləri](tasks/whatsapp-ve-xidmetler.md) — admində iki xana.
 
@@ -49,7 +50,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 - **[Animasiyalı layihələrin linkləri "Page not found" verir](tasks/animasiya-linkleri-404.md)** — `https://vladimir-fasij.com/projects/...` linkləri "Page not found" verir — ehtimal: domen hələ köhnə sayta baxır, yeni sayt yalnız Vercel ünvanındadır.
 - **[`.env.local` və Atlas təhlükəsizliyi](tasks/env-local-temizlik.md)** — Lokal Blob token-i, istifadə olunmayan DB dəyişənlərinin silinməsi, Atlas şifrəsinin gücü.
 - **[Resend (e-poçt) qurulması](tasks/resend-qurulmasi.md)** — Sorğu bildirişləri və müştəriyə avtomatik cavab üçün Resend hesabı, domen təsdiqi və Vercel dəyişənləri.
-- **[Animasiya redaktoru üçün kadr işinin qurulması](tasks/kadr-isi-qurulmasi.md)** — Admin paneldə "Make frames" işləsin deyə GitHub token-i, repo secret-ləri və Vercel dəyişənləri.
 
 ## Admin panel
 
