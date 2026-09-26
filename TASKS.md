@@ -35,7 +35,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 **Sifarişçidən gözlənilir:**
 
-11. [Domen](tasks/animasiya-linkleri-404.md) — `vladimir-fasij.com` yeni sayta bağlansın; sonra `NEXT_PUBLIC_SITE_URL`, [Search Console və PageSpeed](tasks/seo-lighthouse-search-console.md).
+11. Domen bağlandı (2026-09-26) — qalır: `NEXT_PUBLIC_SITE_URL`, [Search Console, PageSpeed, Google Business Profile](tasks/seo-lighthouse-search-console.md).
 12. [Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md) — animasiya üçün video.
 13. [Mətnlər](tasks/mezmun-duzelisleri.md) — Villa Luna-nın düzgün mətni, rəqəmlərin yoxlanması.
 14. [Qalereya variantının təsdiqi](tasks/qalereya-tesdiq.md).
@@ -47,7 +47,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 - **[Vercel Blob limiti və kadrlar](tasks/blob-limiti.md)** — Blob-a köçürəndən sonra animasiyalar itdi (Hobby limiti); kadrlar repoya qaytarıldı. Usage-i yoxlamaq, köhnə dəyişəni və Blob-dakı kadrları silmək.
 - **[Vercel yaddaş limiti](tasks/vercel-yaddas-limiti.md)** — Pulsuz planın 10 GB "Functions Storage" limiti doldu; kod düzəldildi, köhnə deploy-lar silinməlidir.
 - **[Vercel mühit dəyişənləri və admin login](tasks/vercel-env-ve-login.md)** — Deploy-da login `MissingSecret` xətası verir; `AUTH_SECRET`, `MONGODB_URI` və s. Vercel-ə əlavə olunmalı, Blob qoşulmalı.
-- **[Animasiyalı layihələrin linkləri "Page not found" verir](tasks/animasiya-linkleri-404.md)** — `https://vladimir-fasij.com/projects/...` linkləri "Page not found" verir — ehtimal: domen hələ köhnə sayta baxır, yeni sayt yalnız Vercel ünvanındadır.
 - **[`.env.local` və Atlas təhlükəsizliyi](tasks/env-local-temizlik.md)** — Lokal Blob token-i, istifadə olunmayan DB dəyişənlərinin silinməsi, Atlas şifrəsinin gücü.
 - **[Resend (e-poçt) qurulması](tasks/resend-qurulmasi.md)** — Sorğu bildirişləri və müştəriyə avtomatik cavab üçün Resend hesabı, domen təsdiqi və Vercel dəyişənləri.
 

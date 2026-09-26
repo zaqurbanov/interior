@@ -11,6 +11,19 @@ const nextConfig: NextConfig = {
     // Admin uploads are served from Vercel Blob.
     remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
   },
+  // The old Webflow site (same domain until 2026-09-26) used /portfolio and
+  // /portfoliocard/<slug>, and three slugs changed. Permanent redirects keep
+  // Google rankings and old links working.
+  async redirects() {
+    return [
+      { source: "/portfolio", destination: "/projects", permanent: true },
+      { source: "/portfoliocard/villa-at-saadyat-island", destination: "/projects/villa-at-saadiyat-island", permanent: true },
+      { source: "/portfoliocard/cap-martin", destination: "/projects/villa-luna-cap-martin", permanent: true },
+      { source: "/portfoliocard/nudra-uae", destination: "/projects/villa-nudra", permanent: true },
+      { source: "/portfoliocard/:slug", destination: "/projects/:slug", permanent: true },
+      { source: "/portfoliocard", destination: "/projects", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

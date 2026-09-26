@@ -1,6 +1,6 @@
 # Animasiyalı layihələrin linkləri "Page not found" verir
 
-**Bölmə:** Yerləşdirmə (Vercel) · **Status:** açıq
+**Bölmə:** Yerləşdirmə (Vercel) · **Status:** bitib · **Tarix:** 2026-09-26
 
 > `https://vladimir-fasij.com/projects/...` linkləri "Page not found" verir — ehtimal: domen hələ köhnə sayta baxır, yeni sayt yalnız Vercel ünvanındadır.
 
@@ -32,3 +32,8 @@ Bu linklər `https://vladimir-fasij.com` ilə açılanda "Page not found" çıx�
   - orada da 404-dürsə → Vercel → Deployments → Logs; bazadakı layihələrin slug-larını yoxlamaq (admin → Projects → hər layihənin "Slug")
 - [ ] Domeni yeni sayta bağlamaq: Vercel → Settings → Domains → `vladimir-fasij.com` (+ `www`), domen panelində göstərilən DNS qeydləri. Köhnə saytın vacib ünvanları üçün yönləndirmələr (redirect) düşünülsün — köhnə linklər Google-da və sosial şəbəkələrdə var
 - [ ] `NEXT_PUBLIC_SITE_URL`-i real domenə dəyişmək və redeploy
+
+## Həll olundu (2026-09-26)
+
+- `vladimir-fasij.com` GoDaddy DNS-də Vercel-ə yönəldildi (Webflow yazıları silindi), SSL Vercel tərəfindən verildi — sayt domendə açılır.
+- Köhnə Webflow ünvanları üçün daimi yönləndirmələr (`next.config.ts` → `redirects()`): `/portfolio` → `/projects`, `/portfoliocard/<slug>` → `/projects/<slug>` (dəyişən üç slug ayrıca: `villa-at-saadyat-island`, `cap-martin`, `nudra-uae`).
