@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { after } from "next/server";
+import { clientIp } from "@/lib/client-ip";
 import { getSiteContent, siteUrl, toMessage } from "@/lib/data";
 import { connectDB } from "@/lib/db";
 import { sendEnquiryAlert, sendEnquiryReceipt } from "@/lib/mail";
@@ -22,7 +23,7 @@ const MAX_LINKS = 3;
 
 async function clientIpHash() {
   const h = await headers();
-  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "";
+  const ip = clientIp(h);
   if (!ip) return "";
   // Salted so the stored value cannot be turned back into an address.
   return createHash("sha256").update(`${process.env.AUTH_SECRET ?? ""}:${ip}`).digest("hex").slice(0, 32);

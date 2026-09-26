@@ -89,8 +89,35 @@ export default function Lightbox({
     fallback.current = window.setTimeout(done, 700);
   }, [onClose, origin]);
 
+  // Keyboard focus lives in the dialog while it is open and returns to the
+  // tile that opened it afterwards.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Tab" && dialogRef.current) {
+        const items = [...dialogRef.current.querySelectorAll<HTMLElement>("button, [href], [tabindex]:not([tabindex='-1'])")].filter(
+          (el) => !el.hasAttribute("disabled") && el.offsetParent !== null,
+        );
+        const first = items[0];
+        const last = items[items.length - 1];
+        const inside = dialogRef.current.contains(document.activeElement);
+        if (e.shiftKey && (document.activeElement === first || !inside)) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
       if (e.key === "Escape") close();
       if (e.key === "ArrowRight") onStep(1);
       if (e.key === "ArrowLeft") onStep(-1);
@@ -211,6 +238,7 @@ export default function Lightbox({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`${title} gallery`}
@@ -245,7 +273,7 @@ export default function Lightbox({
         {String(index + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
       </p>
       <p className="eyebrow absolute left-1/2 top-5 hidden -translate-x-1/2 text-[0.62rem] text-white/50 md:block">{title}</p>
-      <button type="button" onClick={close} className="absolute right-4 top-3 cursor-pointer p-2 text-3xl leading-none text-white md:right-8" aria-label="Close">×</button>
+      <button ref={closeRef} type="button" onClick={close} className="absolute right-4 top-3 cursor-pointer p-2 text-3xl leading-none text-white md:right-8" aria-label="Close">×</button>
 
       <button type="button" onClick={(e) => { e.stopPropagation(); onStep(-1); }} className="absolute left-1 top-1/2 -translate-y-1/2 cursor-pointer p-4 text-3xl text-white/70 transition hover:text-white md:left-4" aria-label="Previous image">‹</button>
       <button type="button" onClick={(e) => { e.stopPropagation(); onStep(1); }} className="absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer p-4 text-3xl text-white/70 transition hover:text-white md:right-4" aria-label="Next image">›</button>

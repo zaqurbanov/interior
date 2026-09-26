@@ -45,6 +45,12 @@ export function useScrollGate(sectionRef: React.RefObject<HTMLElement | null>, e
   useEffect(() => {
     const section = sectionRef.current;
     if (!enabled || open || !section) return;
+    // Arrived for a section further down (/#services from the menu, footer or
+    // another site): that is where the visitor wants to be, so never hold them.
+    if (window.location.hash) {
+      release();
+      return;
+    }
     // Furthest the page may scroll: the section's top at the top of the screen.
     const limit = () => section.getBoundingClientRect().top + window.scrollY;
     let lastY = 0;
@@ -62,6 +68,7 @@ export function useScrollGate(sectionRef: React.RefObject<HTMLElement | null>, e
     // Wheel scrolling runs through Lenis, which keeps its own target, so tell it too.
     const onScroll = () => {
       if (released.current) return;
+      if (window.location.hash) return release();
       const max = limit();
       if (window.scrollY <= max + 1) return;
       const lenis = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: object) => void } }).__lenis;
@@ -69,7 +76,8 @@ export function useScrollGate(sectionRef: React.RefObject<HTMLElement | null>, e
       else window.scrollTo(0, max);
     };
     const onClick = (e: MouseEvent) => {
-      if ((e.target as Element | null)?.closest?.('a[href^="#"]')) release();
+      // Any in-page link ("#contact", "/#services") means "take me there".
+      if ((e.target as Element | null)?.closest?.('a[href*="#"]')) release();
     };
 
     window.addEventListener("touchstart", onTouchStart, { passive: true });

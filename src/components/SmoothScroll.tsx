@@ -42,6 +42,9 @@ export default function SmoothScroll() {
         e.preventDefault();
         lenis.scrollTo(el as HTMLElement, { offset: HEADER_OFFSET });
         history.replaceState(null, "", url.hash);
+        // Move keyboard focus too, as a native anchor jump would ("Skip to content").
+        if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+        (el as HTMLElement).focus({ preventScroll: true });
       } else {
         e.preventDefault();
         lenis.scrollTo(0);

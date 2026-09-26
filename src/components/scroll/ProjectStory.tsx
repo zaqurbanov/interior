@@ -41,6 +41,7 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
   const autoplay = useAutoplayMode();
   // Phones: the page waits on this section until the arrow is tapped.
   const gate = useScrollGate(sectionRef, autoplay === true && !lite);
+  const releaseGate = gate.release;
   const [ended, setEnded] = useState(false);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -172,7 +173,11 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
           update(u / last);
           setEnded(false);
         },
-        onEnd: () => setEnded(true),
+        onEnd: () => {
+          setEnded(true);
+          // Watched to the end: the page scrolls freely again.
+          releaseGate();
+        },
       });
       playerRef.current = player;
       stopWatching = watchVisibility(section, (visible) => (visible ? player.play() : player.pause()));
@@ -240,7 +245,11 @@ export default function ProjectStory({ story, title }: { story: Story; title: st
           update(u / last);
           setEnded(false);
         },
-        onEnd: () => setEnded(true),
+        onEnd: () => {
+          setEnded(true);
+          // Watched to the end: the page scrolls freely again.
+          releaseGate();
+        },
         onFail: () => setVideoFailed(true),
       });
       player = p;

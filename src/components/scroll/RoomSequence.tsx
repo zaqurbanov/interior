@@ -10,6 +10,7 @@ import { SCROLL_SECTION_CLASS, linearOrder, prefersLiteMedia, progressiveOrder, 
 import { createPlayer, createVideoPlayer, type Player } from "@/lib/autoplay";
 import { useAutoplayMode, useScrollGate, watchVisibility } from "./use-autoplay";
 import ReplayButton from "./ReplayButton";
+import { framesUrl } from "@/lib/frames-base";
 import {
   HOME_FPS,
   HOME_SEGMENTS,
@@ -53,6 +54,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
   const autoplay = useAutoplayMode();
   // Phones: the page waits on this section until the arrow is tapped.
   const gate = useScrollGate(sectionRef, autoplay === true && !lite);
+  const releaseGate = gate.release;
   const [ended, setEnded] = useState(false);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -199,7 +201,11 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
           updateOverlays(u / last);
           setEnded(false);
         },
-        onEnd: () => setEnded(true),
+        onEnd: () => {
+          setEnded(true);
+          // Watched to the end: the page scrolls freely again.
+          releaseGate();
+        },
       });
       playerRef.current = player;
       const stopWatching = watchVisibility(section, (visible) => (visible ? player.play() : player.pause()));
@@ -267,7 +273,11 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
           overlays(u / last);
           setEnded(false);
         },
-        onEnd: () => setEnded(true),
+        onEnd: () => {
+          setEnded(true);
+          // Watched to the end: the page scrolls freely again.
+          releaseGate();
+        },
         onFail: () => setVideoFailed(true),
       });
       player = p;
@@ -293,7 +303,7 @@ export default function RoomSequence({ stages }: { stages: Stage[] }) {
     return (
       <section aria-label="From empty room to finished interior" className="relative pt-16 md:pt-20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/frames/final.webp" alt="Finished living room interior" fetchPriority="high" className="aspect-video w-full object-cover" />
+        <img src={framesUrl("final.webp")} alt="Finished living room interior" fetchPriority="high" className="aspect-video w-full object-cover" />
         <div className="container-x py-16">
           {stages[0] && (
             <>

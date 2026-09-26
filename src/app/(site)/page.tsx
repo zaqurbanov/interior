@@ -8,6 +8,7 @@ import JsonLd from "@/components/site/JsonLd";
 import { embedVideo, homeVideo } from "@/lib/video-schema";
 import VideoEmbed from "@/components/site/VideoEmbed";
 import { getImageAlts, getProjects, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import { framesUrl } from "@/lib/frames-base";
 
 export default async function HomePage() {
   const [site, services, projects, alts] = await Promise.all([
@@ -90,9 +91,9 @@ export default async function HomePage() {
       {/* Before / after */}
       <section aria-label="Before and after" className="container-x grid gap-4 pb-28 md:grid-cols-3 md:pb-40">
         {[
-          { src: "/frames/poster.webp", label: "Before — the empty shell" },
-          { src: "/frames/final.webp", label: "After — the finished interior" },
-          { src: "/frames/detail.webp", label: "Detail — bespoke media wall & fireplace" },
+          { src: framesUrl("poster.webp"), label: "Before — the empty shell" },
+          { src: framesUrl("final.webp"), label: "After — the finished interior" },
+          { src: framesUrl("detail.webp"), label: "Detail — bespoke media wall & fireplace" },
         ].map((img) => (
           <figure key={img.src} className="reveal">
             <div className="relative aspect-[16/10] overflow-hidden bg-sand">

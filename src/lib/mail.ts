@@ -66,17 +66,20 @@ export async function sendEnquiryAlert(m: MessageData, opts: { to: string[]; bra
   await send({ to: opts.to, subject: `New enquiry — ${m.name}${m.subject ? ` (${m.subject})` : ""}`, html, text, replyTo: m.email });
 }
 
-/** Acknowledgement to the client. Replies reach the studio's contact address. */
+/**
+ * Acknowledgement to the client. Anyone can type any address into the form, so
+ * this must carry nothing the sender wrote — otherwise it is a free way to mail
+ * their text from the studio's domain. Only a plain first name is kept.
+ */
 export async function sendEnquiryReceipt(m: MessageData, opts: { brand: string; replyTo: string; siteUrl: string }) {
-  const first = m.name.split(/\s+/)[0] || m.name;
+  const first = m.name.trim().split(/\s+/)[0] ?? "";
+  const greeting = /^[\p{L}'-]{1,30}$/u.test(first) ? `Thank you, ${first}` : "Thank you";
   const html = layout(
-    `<h1 style="margin:0 0 16px;font-size:20px">Thank you, ${esc(first)}</h1>
-<p style="font-size:15px;line-height:1.6;margin:0 0 16px">We have received your enquiry and will reply within one or two working days.</p>
-<p style="font-size:13px;color:#6b665f;margin:0 0 6px">Your message:</p>
-<blockquote style="margin:0 0 24px;padding:12px 16px;border-left:2px solid #8f7155;background:#faf8f5;font-size:14px;line-height:1.6">${para(m.body)}</blockquote>
+    `<h1 style="margin:0 0 16px;font-size:20px">${esc(greeting)}</h1>
+<p style="font-size:15px;line-height:1.6;margin:0 0 24px">We have received your enquiry and will reply within one or two working days.</p>
 <p style="font-size:14px;margin:0">${esc(opts.brand)}<br><a href="${esc(opts.siteUrl)}" style="color:#8f7155">${esc(opts.siteUrl.replace(/^https?:\/\//, ""))}</a></p>`,
     opts.brand,
   );
-  const text = `Thank you, ${first}.\n\nWe have received your enquiry and will reply within one or two working days.\n\nYour message:\n${m.body}\n\n${opts.brand}\n${opts.siteUrl}`;
+  const text = `${greeting}.\n\nWe have received your enquiry and will reply within one or two working days.\n\n${opts.brand}\n${opts.siteUrl}`;
   await send({ to: [m.email], subject: `We received your enquiry — ${opts.brand}`, html, text, replyTo: opts.replyTo || undefined });
 }

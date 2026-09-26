@@ -11,6 +11,7 @@ import { toHtml } from "@/lib/rich-text";
 import { embedVideo, storyVideo } from "@/lib/video-schema";
 import { getImageAlts, getProject, getProjectPreview, getProjects, getSiteContent, getStory, siteUrl } from "@/lib/data";
 import { PREVIEW_COOKIE } from "@/lib/preview";
+import { metaDescription } from "@/lib/meta";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { project, preview } = await loadProject(slug);
   if (!project) return {};
   const title = project.seo.title || `${project.title} — ${project.category || "Design"} in ${project.location}`;
-  const description = project.seo.description || project.summary;
+  const description = project.seo.description || metaDescription(project.summary);
   return {
     title,
     description,

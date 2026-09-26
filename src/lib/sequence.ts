@@ -1,5 +1,6 @@
 // Scroll timeline for the hero sequence: scene1 frames, a pause on the
 // finished room, then scene2 frames. Positions are in "units" (1 unit = 1 frame).
+import { framesUrl } from "./frames-base";
 
 export const SCENES = [
   { dir: "scene1", frames: 192 },
@@ -16,7 +17,7 @@ export const TOTAL_UNITS = TOTAL_FRAMES + HOLD_UNITS;
 export const SCENE2_START = SCENE1_FRAMES + HOLD_UNITS;
 
 /** Phones play this instead of the frames; bump with HOME_VERSION in scripts/build-mobile-videos.mjs. */
-export const HOME_VIDEO = "/frames/home/v1/mobile.mp4";
+export const HOME_VIDEO = framesUrl("home/v1/mobile.mp4");
 /** Frame rate of the home footage and of HOME_VIDEO. */
 export const HOME_FPS = 24;
 
@@ -59,5 +60,5 @@ export function unitToFrame(unit: number) {
 export function frameUrl(globalIndex: number, set: FrameSet) {
   const scene = globalIndex < SCENE1_FRAMES ? SCENES[0] : SCENES[1];
   const local = globalIndex < SCENE1_FRAMES ? globalIndex : globalIndex - SCENE1_FRAMES;
-  return `/frames/${scene.dir}/${set}/${String(local + 1).padStart(4, "0")}.webp`;
+  return framesUrl(`${scene.dir}/${set}/${String(local + 1).padStart(4, "0")}.webp`);
 }

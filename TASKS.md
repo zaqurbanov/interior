@@ -11,29 +11,27 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qruplaşdırılıb. Siyahı dəyişəndə bu icmal da yenilənsin.
 
 **Claude edə bilər (heç nə lazım deyil):**
-1. [Təhlükəsizlik](tasks/tehlukesizlik-yoxlamasi.md) — başlıqlar, login cəhd limiti, təsdiq e-poçtu, ziyarət sayğacı, Next.js patch yeniləməsi. **Növbəti iş (tövsiyə).**
-2. [Kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md) — `public/frames` (~250 MB) repodan çıxar, deploy və repo kiçilər.
-3. [Mobil animasiya](tasks/mobil-autoplay-tekmillesdirme.md) — video bitəndə səhifə kilidini avtomatik açmaq.
+— (hamısı görüldü, 2026-09-26). Kadrların Blob-a köçməsi üçün kod hazırdır, [yükləmə istifadəçidədir](tasks/kadrlari-blob-a-kocurmek.md).
 
 **İstifadəçi edir — Vercel / GitHub / Resend / admin (Claude addım-addım göstərir):**
 
-4. [Resend (e-poçt)](tasks/resend-qurulmasi.md) — hesab, domen təsdiqi, API açarı.
-5. [GitHub token](tasks/kadr-isi-qurulmasi.md) — admindən animasiya yaratmaq üçün.
-6. Vercel — [Deployment Retention Policy və Usage yoxlaması](tasks/vercel-yaddas-limiti.md) (1–2 gün sonra); [dəyişənlərin Preview üçün də seçilməsi](tasks/vercel-env-ve-login.md).
-7. [`.env.local` təmizliyi](tasks/env-local-temizlik.md) — istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS`, Atlas şifrəsinin gücü.
-8. [Admin panelin real yoxlanması](tasks/admin-real-yoxlama.md) — 13 bəndlik sınaq siyahısı.
-9. [Admin-də kiçik işlər](tasks/mezmun-duzelisleri.md) — "360 & VR" xidmətinə şəkil, "Villa At Cap D'Ail" başlığı.
-10. [Videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md) — `windsor`, `ail1`, `ail2`, `belg.mp4` yalnız lokaldadır → Drive.
-11. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md), [qənaət rejimi](tasks/test-qenaet-rejimi.md).
+3. [Resend (e-poçt)](tasks/resend-qurulmasi.md) — hesab, domen təsdiqi, API açarı.
+4. [GitHub token](tasks/kadr-isi-qurulmasi.md) — admindən animasiya yaratmaq üçün.
+5. Vercel — [Deployment Retention Policy və Usage yoxlaması](tasks/vercel-yaddas-limiti.md) (1–2 gün sonra); [dəyişənlərin Preview üçün də seçilməsi](tasks/vercel-env-ve-login.md).
+6. [`.env.local` təmizliyi](tasks/env-local-temizlik.md) — istifadə olunmayan `MONGODB_USER` / `MONGODB_PASS`, Atlas şifrəsinin gücü.
+7. [Admin panelin real yoxlanması](tasks/admin-real-yoxlama.md) — 13 bəndlik sınaq siyahısı.
+8. [Admin-də kiçik işlər](tasks/mezmun-duzelisleri.md) — "360 & VR" xidmətinə şəkil, "Villa At Cap D'Ail" başlığı.
+9. [Videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md) — `windsor`, `ail1`, `ail2`, `belg.mp4` yalnız lokaldadır → Drive.
+10. Test — [real telefonda (iPhone / Android)](tasks/test-real-cihaz.md).
 
 **Sifarişçidən gözlənilir:**
 
-12. [Domen](tasks/animasiya-linkleri-404.md) — `vladimir-fasij.com` yeni sayta bağlansın; sonra `NEXT_PUBLIC_SITE_URL`, [Search Console və PageSpeed](tasks/seo-lighthouse-search-console.md).
-13. [Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md) — animasiya üçün video.
-14. [Mətnlər](tasks/mezmun-duzelisleri.md) — Villa Luna-nın düzgün mətni, rəqəmlərin yoxlanması.
-15. [Qalereya variantının təsdiqi](tasks/qalereya-tesdiq.md).
-16. [Mobil animasiya haqqında qeydlər](tasks/mobil-autoplay-tekmillesdirme.md).
-17. [Yeni bölmələr](tasks/yeni-bolmeler.md) — rəylər, mətbuat, FAQ olacaqmı.
+11. [Domen](tasks/animasiya-linkleri-404.md) — `vladimir-fasij.com` yeni sayta bağlansın; sonra `NEXT_PUBLIC_SITE_URL`, [Search Console və PageSpeed](tasks/seo-lighthouse-search-console.md).
+12. [Persian Gulf Coast Villa](tasks/animasiya-persian-gulf.md) — animasiya üçün video.
+13. [Mətnlər](tasks/mezmun-duzelisleri.md) — Villa Luna-nın düzgün mətni, rəqəmlərin yoxlanması.
+14. [Qalereya variantının təsdiqi](tasks/qalereya-tesdiq.md).
+15. [Mobil animasiya haqqında qeydlər](tasks/mobil-autoplay-tekmillesdirme.md).
+16. [Yeni bölmələr](tasks/yeni-bolmeler.md) — rəylər, mətbuat, FAQ olacaqmı.
 
 ## Yerləşdirmə (Vercel)
 
@@ -47,7 +45,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 ## Admin panel
 
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
-- **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — `public/frames` (~210 MB) repodadır; yeni animasiyalar artıq Blob-a yazılır, köhnələri də köçürülsə repo və deploy kiçilir.
+- **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — Kod və yükləmə skripti hazırdır; qalan: skripti işlətmək, `NEXT_PUBLIC_FRAMES_BASE`-i Vercel-ə yazmaq, sonra `public/frames`-i git-dən silmək.
 
 ## Layihə animasiyaları
 
@@ -58,10 +56,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 - **[Mənbə videoların ehtiyat nüsxəsi](tasks/video-ehtiyat-nusxe.md)** — Kadrları yenidən çıxarmaq üçün orijinal MP4-lər lazımdır; çoxu artıq `videos/`-da yoxdur.
 
-## Təhlükəsizlik
-
-- **[Təhlükəsizlik yoxlamasının nəticələri](tasks/tehlukesizlik-yoxlamasi.md)** — Ciddi boşluq yoxdur; təhlükəsizlik başlıqları, login limiti, təsdiq e-poçtu sui-istifadəsi, ziyarət sayğacı, Next yeniləməsi.
-
 ## SEO
 
 - **[PageSpeed / Lighthouse və Search Console](tasks/seo-lighthouse-search-console.md)** — Deploy-dan sonra performans yoxlaması və sitemap-in Google-a göndərilməsi.
@@ -69,7 +63,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 ## Test
 
-- **[Qənaət rejimi testi](tasks/test-qenaet-rejimi.md)** — `prefers-reduced-motion` və Data Saver ilə animasiyanın şəkil + mətnə çevrilməsi.
 - **[Real cihazda və müxtəlif ekranlarda test](tasks/test-real-cihaz.md)** — iOS Safari / Android Chrome, portret ekranda kəsilmə, lightbox.
 
 ## Sifarişçi ilə

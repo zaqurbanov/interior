@@ -14,11 +14,11 @@ export default function Footer({ site }: { site: SiteContentData }) {
       <div className="container-x grid gap-12 py-20 md:grid-cols-12">
         <div className="md:col-span-5">
           <Logo brandName={site.brandName} className="text-2xl md:text-3xl" />
-          <p className="eyebrow mt-4 text-[0.62rem] text-ink/40">{LEGAL_NAME}</p>
+          <p className="eyebrow mt-4 text-[0.62rem] text-ink/55">{LEGAL_NAME}</p>
           <p className="mt-3 max-w-sm text-sm text-graphite">{site.tagline}</p>
         </div>
         <div className="md:col-span-3">
-          <p className="eyebrow mb-4 text-ink/40">Contact</p>
+          <p className="eyebrow mb-4 text-ink/55">Contact</p>
           <address className="space-y-2 text-sm not-italic text-ink/80">
             <a className="link-underline block w-fit" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
             <a className="link-underline block w-fit" href={`tel:${site.contact.phone.replace(/[^\d+]/g, "")}`}>{site.contact.phone}</a>
@@ -26,7 +26,7 @@ export default function Footer({ site }: { site: SiteContentData }) {
           </address>
         </div>
         <div className="md:col-span-2">
-          <p className="eyebrow mb-4 text-ink/40">Explore</p>
+          <p className="eyebrow mb-4 text-ink/55">Explore</p>
           <ul className="space-y-2 text-sm text-ink/80">
             <li><Link className="link-underline" href="/projects">Portfolio</Link></li>
             <li><Link className="link-underline" href="/about">About</Link></li>
@@ -35,7 +35,7 @@ export default function Footer({ site }: { site: SiteContentData }) {
           </ul>
         </div>
         <div className="md:col-span-2">
-          <p className="eyebrow mb-4 text-ink/40">Follow</p>
+          <p className="eyebrow mb-4 text-ink/55">Follow</p>
           <ul className="space-y-2 text-sm text-ink/80">
             {socials.map((s) => (
               <li key={s.label}>
@@ -45,7 +45,7 @@ export default function Footer({ site }: { site: SiteContentData }) {
           </ul>
         </div>
       </div>
-      <div className="container-x flex flex-col justify-between gap-2 border-t border-line py-6 text-xs text-ink/40 md:flex-row">
+      <div className="container-x flex flex-col justify-between gap-2 border-t border-line py-6 text-xs text-ink/55 md:flex-row">
         <p>© {new Date().getFullYear()} {LEGAL_NAME}. All rights reserved.</p>
         <p>Interior Design · 3D Visualisation · London</p>
       </div>

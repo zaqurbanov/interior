@@ -7,6 +7,7 @@ import PageHero from "@/components/site/PageHero";
 import ServiceIcon from "@/components/site/ServiceIcon";
 import { toHtml } from "@/lib/rich-text";
 import { getImageAlts, getService, getServices, getSiteContent, siteUrl } from "@/lib/data";
+import { metaDescription } from "@/lib/meta";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = await getService(slug);
   if (!service) return {};
   const title = service.seo.title || `${service.title} in London`;
-  const description = service.seo.description || service.summary;
+  const description = service.seo.description || metaDescription(service.summary);
   return { title, description, alternates: { canonical: `/services/${service.slug}` }, openGraph: { title, description } };
 }
 

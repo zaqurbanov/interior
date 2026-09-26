@@ -1,6 +1,6 @@
 "use server";
 
-import { AuthError } from "next-auth";
+import { AuthError, type CredentialsSignin } from "next-auth";
 import { signIn, signOut } from "@/auth";
 
 export async function login(_prev: string | undefined, formData: FormData) {
@@ -12,7 +12,10 @@ export async function login(_prev: string | undefined, formData: FormData) {
     });
   } catch (err) {
     if (err instanceof AuthError) {
-      return err.type === "CredentialsSignin" ? "Invalid email or password." : "Sign-in failed. Check the database connection.";
+      if (err.type !== "CredentialsSignin") return "Sign-in failed. Check the database connection.";
+      return (err as CredentialsSignin).code === "rate_limited"
+        ? "Too many failed attempts. Please wait 15 minutes and try again."
+        : "Invalid email or password.";
     }
     throw err; // re-throw redirects
   }

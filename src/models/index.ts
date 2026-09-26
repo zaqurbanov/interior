@@ -80,6 +80,10 @@ export interface PageViewDoc {
 export interface RevisionDoc extends Timestamps {
   kind: string; refId: string; label: string; author: string; data: Record<string, unknown>;
 }
+/** A failed admin sign-in, keyed by a hash of the IP or the email; expires after a day. */
+export interface LoginAttemptDoc {
+  key: string; at: Date;
+}
 export interface UserDoc extends Timestamps {
   email: string; name: string; passwordHash: string; role: string;
 }
@@ -238,6 +242,13 @@ const pageViewSchema = new Schema<PageViewDoc>({
 });
 pageViewSchema.index({ day: 1, path: 1 }, { unique: true });
 
+const loginAttemptSchema = new Schema<LoginAttemptDoc>({
+  key: { type: String, required: true },
+  at: { type: Date, default: Date.now },
+});
+loginAttemptSchema.index({ key: 1, at: -1 });
+loginAttemptSchema.index({ at: 1 }, { expireAfterSeconds: 24 * 60 * 60 });
+
 const revisionSchema = new Schema<RevisionDoc>(
   {
     kind: { type: String, required: true },
@@ -273,4 +284,6 @@ export const User = (models.User as unknown as Model<UserDoc> | undefined) ?? mo
 export const Media = (models.Media as unknown as Model<MediaDoc> | undefined) ?? mongoose.model<MediaDoc>("Media", mediaSchema);
 export const Story = (models.Story as unknown as Model<StoryDoc> | undefined) ?? mongoose.model<StoryDoc>("Story", storySchema);
 export const PageView = (models.PageView as unknown as Model<PageViewDoc> | undefined) ?? mongoose.model<PageViewDoc>("PageView", pageViewSchema);
+export const LoginAttempt =
+  (models.LoginAttempt as unknown as Model<LoginAttemptDoc> | undefined) ?? mongoose.model<LoginAttemptDoc>("LoginAttempt", loginAttemptSchema);
 export const Revision = (models.Revision as unknown as Model<RevisionDoc> | undefined) ?? mongoose.model<RevisionDoc>("Revision", revisionSchema);
