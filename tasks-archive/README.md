@@ -4,6 +4,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## Admin panel
 
+- **[Animasiya redaktoru üçün kadr işi — ləğv edildi](kadr-isi-qurulmasi.md)** _(2026-09-26)_ — Admində "Make frames" çıxarıldı; animasiyaları studiya özü kompüterdə yaradır ([bələdçi](../docs/animasiya-yaratmaq.md)).
 - **[Media: kateqoriyalar və qısa səhifə](media-kateqoriyalar.md)** _(2026-09-26)_ — Tablar, layihə üzrə qovluqlar, kiçik şəkillər, alt mətn üçün yan panel; səhifə ~22 000 → ~1 150 px.
 - **[Mövcud kadrları Blob-a köçürmək](kadrlari-blob-a-kocurmek.md)** _(2026-09-26)_ — 6294 kadr (~265 MB) Blob-dadır, repodan çıxarıldı; admin kadr işi daxili kadrları silmir.
 - **[Mərhələ 5 — Dashboard və əlavələr](admin-m5-dashboard.md)** _(2026-09-25)_ — "Diqqət tələb edir", sorğu/ziyarət qrafikləri, ən çox baxılan layihələr, dəyişiklik tarixçəsi və bərpa.

@@ -218,3 +218,24 @@ html.lenis, html.lenis body { height: auto; }
 .rich-text img { display: block; width: 100%; height: auto; margin-top: 2em; margin-bottom: 2em; background: var(--color-sand); }
 .rich-text img.ProseMirror-selectednode { outline: 3px solid var(--color-bronze); }
 .rich-text h2[id] { scroll-margin-top: 7rem; }
+
+/* Floating WhatsApp button (WhatsAppButton.tsx): two soft rings pulsing out. */
+.whatsapp-float::before,
+.whatsapp-float::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: #25d366;
+  z-index: -1;
+  animation: whatsapp-pulse 2.4s ease-out infinite;
+}
+.whatsapp-float::after { animation-delay: 1.2s; }
+@keyframes whatsapp-pulse {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.75); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-float::before,
+  .whatsapp-float::after { animation: none; opacity: 0; }
+}

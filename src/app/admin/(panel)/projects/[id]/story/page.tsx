@@ -4,7 +4,6 @@ import { isValidObjectId } from "mongoose";
 import StoryEditor from "@/components/admin/StoryEditor";
 import { connectDB } from "@/lib/db";
 import { toStoryAdmin } from "@/lib/data";
-import { frameJobDriver } from "@/lib/frame-jobs";
 import { getProjectStory } from "@/lib/project-story";
 import { Project, Story } from "@/models";
 
@@ -24,7 +23,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
         <Link href={`/admin/projects/${id}`} className="text-sm text-graphite hover:text-ink">← {project.title}</Link>
         <h1 className="mt-2 font-serif text-4xl">Walkthrough</h1>
         <p className="mt-2 max-w-2xl text-sm text-graphite">
-          The scroll video at the top of the project page. Desktop visitors scrub it by scrolling; phones play it like a video.
+          The scroll video at the top of the project page. Desktop visitors scrub it by scrolling; phones play it like a video. Here you edit its text and timing; new walkthroughs are made on a computer (docs/animasiya-yaratmaq.md).
         </p>
       </div>
       <StoryEditor
@@ -33,7 +32,6 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
         slug={project.slug}
         story={story ? toStoryAdmin(story) : null}
         hasBuiltIn={Boolean(getProjectStory(project.slug))}
-        runner={frameJobDriver()}
       />
     </div>
   );
