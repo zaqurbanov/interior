@@ -13,7 +13,7 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qruplaşdırılıb. Siyahı dəyişəndə bu icmal da yenilənsin.
 
 **Claude edə bilər (heç nə lazım deyil):**
-— (hamısı görüldü, 2026-09-26). Kadrlar Blob-a köçdü və repodan çıxarıldı.
+— (hamısı görüldü, 2026-09-26). Kadrlar Blob limiti səbəbindən repoya qaytarıldı.
 
 **İstifadəçi edir — Vercel / GitHub / Resend / admin (Claude addım-addım göstərir):**
 
@@ -43,6 +43,7 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 
 ## Yerləşdirmə (Vercel)
 
+- **[Vercel Blob limiti və kadrlar](tasks/blob-limiti.md)** — Blob-a köçürəndən sonra animasiyalar itdi (Hobby limiti); kadrlar repoya qaytarıldı. Usage-i yoxlamaq, köhnə dəyişəni və Blob-dakı kadrları silmək.
 - **[Vercel yaddaş limiti](tasks/vercel-yaddas-limiti.md)** — Pulsuz planın 10 GB "Functions Storage" limiti doldu; kod düzəldildi, köhnə deploy-lar silinməlidir.
 - **[Vercel mühit dəyişənləri və admin login](tasks/vercel-env-ve-login.md)** — Deploy-da login `MissingSecret` xətası verir; `AUTH_SECRET`, `MONGODB_URI` və s. Vercel-ə əlavə olunmalı, Blob qoşulmalı.
 - **[Animasiyalı layihələrin linkləri "Page not found" verir](tasks/animasiya-linkleri-404.md)** — `https://vladimir-fasij.com/projects/...` linkləri "Page not found" verir — ehtimal: domen hələ köhnə sayta baxır, yeni sayt yalnız Vercel ünvanındadır.

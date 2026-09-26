@@ -18,3 +18,7 @@
 
 - `git pull` edəndə kompüterinizdəki `public/frames` qovluğu silinəcək (git onu artıq izləmir). Lokal nüsxə lazımdırsa, pull-dan əvvəl başqa yerə kopyalayın; lazım olsa Blob-dan və ya git tarixçəsindən bərpa olunur.
 - Kadrlar git tarixçəsində qalır, ona görə repo klonu hələ böyükdür. Tarixçəni təmizləmək (bütün commit hash-ləri dəyişir) ayrıca qərardır.
+
+## Geri qaytarıldı (2026-09-26, eyni gün)
+
+Merge-dən sonra saytda animasiyalar görünmədi. Səbəb (ehtimal, Vercel Usage-də təsdiqlənməli): Hobby planında Blob ayda **2 000 "Advanced Operations"** (yükləmə) və 10 000 "Simple Operations" verir; 6 294 faylın yüklənməsi limiti keçdi və store bloklandı. Kadrlar repoya (`public/frames`) qaytarıldı, sayt yenidən Vercel-in statik fayllarından verir. Davamı: [tasks/blob-limiti.md](../tasks/blob-limiti.md).
