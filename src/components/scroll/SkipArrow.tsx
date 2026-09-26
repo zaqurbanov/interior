@@ -57,18 +57,32 @@ export default function SkipArrow({
         ? el.getBoundingClientRect().top + window.scrollY
         : section.getBoundingClientRect().top + window.scrollY + section.offsetHeight;
     };
+    // Where the scroll animation left the page; null while it is still moving.
+    let landedAt: number | null = null;
     const go = (duration: number) => {
       const top = targetTop();
       if (lenis) {
         lenis.resize();
-        lenis.scrollTo(top, { duration, force: true });
+        lenis.scrollTo(top, { duration, force: true, onComplete: () => (landedAt = window.scrollY) });
       } else {
         window.scrollTo({ top, behavior: "smooth" });
       }
     };
     go(1.2);
-    // Images loading underneath can shift the page mid-flight; re-align once.
+
+    // Images loading underneath can shift the page mid-flight; re-align once —
+    // but never once the visitor has taken over: on phones people start
+    // swiping as soon as they land, and a late re-align yanked them back up.
+    let userMoved = false;
+    const takeOver = () => (userMoved = true);
+    const events = ["touchstart", "wheel", "keydown", "pointerdown"] as const;
+    // Registered after this click has finished, so it does not count itself.
+    window.setTimeout(() => events.forEach((ev) => window.addEventListener(ev, takeOver, { passive: true, once: true })), 0);
     window.setTimeout(() => {
+      events.forEach((ev) => window.removeEventListener(ev, takeOver));
+      if (userMoved) return;
+      // Momentum scrolling on phones fires no touch events: compare with where we landed.
+      if (landedAt !== null && Math.abs(window.scrollY - landedAt) > 4) return;
       const off = targetTop() - window.scrollY;
       if (Math.abs(off) > 24) go(0.4);
     }, 1500);
