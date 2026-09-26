@@ -6,3 +6,9 @@ export const whatsappHref = (number: string, text = "") => {
   const digits = number.replace(/\(0\)/g, "").replace(/\D/g, "");
   return `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 };
+
+/**
+ * The number WhatsApp buttons use: the one set in Site content → Contact →
+ * WhatsApp, otherwise the studio phone (a UK mobile, so it is on WhatsApp).
+ */
+export const whatsappNumber = (contact: { whatsapp?: string; phone?: string }) => (contact.whatsapp || contact.phone || "").trim();
