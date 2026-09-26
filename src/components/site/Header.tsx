@@ -53,15 +53,26 @@ export default function Header({ brandName, journal = false }: { brandName: stri
   // Close it when navigating.
   useEffect(() => setOpen(false), [pathname]);
 
+  // Once the page scrolls the bar slims down (80 → 64px on desktop, 64 → 56px on
+  // phones); the open menu keeps the full height so its panel lines up.
+  const compact = scrolled && !open;
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        open ? "bg-ivory" : scrolled ? "bg-ivory/85 backdrop-blur-md" : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-500 ease-out ${
+        open ? "border-transparent bg-ivory" : scrolled ? "border-line bg-ivory/85 backdrop-blur-md" : "border-transparent bg-transparent"
       }`}
     >
-      <div className="container-x flex h-16 items-center justify-between md:h-20">
+      <div
+        className={`container-x flex items-center justify-between transition-[height] duration-500 ease-out ${
+          compact ? "h-14 md:h-16" : "h-16 md:h-20"
+        }`}
+      >
         <Link href="/" className="text-ink" onClick={() => setOpen(false)}>
-          <Logo brandName={brandName} className="text-base md:text-lg" />
+          <Logo
+            brandName={brandName}
+            className={`origin-left text-base transition-transform duration-500 ease-out md:text-lg ${compact ? "scale-[0.9]" : ""}`}
+          />
         </Link>
         <nav aria-label="Main" className="hidden lg:block">
           <ul className="flex items-center gap-9 font-serif text-[0.95rem] text-ink/80">
@@ -80,7 +91,9 @@ export default function Header({ brandName, journal = false }: { brandName: stri
         </nav>
         <Link
           href="/contact"
-          className="hidden rounded-full border border-ink/30 px-5 py-2 text-sm transition hover:bg-ink hover:text-ivory lg:inline-block"
+          className={`hidden rounded-full border border-ink/30 px-5 text-sm transition-all duration-500 hover:bg-ink hover:text-ivory lg:inline-block ${
+            compact ? "py-1.5" : "py-2"
+          }`}
         >
           Enquire
         </Link>
