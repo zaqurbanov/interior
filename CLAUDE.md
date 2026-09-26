@@ -112,7 +112,7 @@ Structured data: pages emit JSON-LD through `JsonLd`; videos use the builders in
 
 Every save of a project, service or the site content first stores the previous version as a `Revision` (`src/lib/revisions.ts`, last 20 per item); the History panel restores one (after snapshotting the current state). Images referenced by kept versions count as in use in `collectUsage()`, so a restore never points at a deleted file.
 
-The media library (`/admin/media`, `Media` model) keys metadata — alt text, size, dimensions — by URL; content documents keep plain URL strings, so nothing was migrated. `listLibrary()` merges registered uploads with every URL the content refers to, and public pages read alt text through `getImageAlts()`, falling back to a generated description. Because one library image can be used in several places, saves and deletes remove a stored file only through `deleteIfUnused()` (`src/lib/media.ts`).
+The media library (`/admin/media`, `Media` model) keys metadata — alt text, size, dimensions — by URL; content documents keep plain URL strings, so nothing was migrated. `listLibrary()` merges registered uploads with every URL the content refers to (each usage tagged with a `kind` and `owner`, so the page groups images into Projects / Services / Journal / Site folders with compact tiles and a side panel for alt text), and public pages read alt text through `getImageAlts()`, falling back to a generated description. Because one library image can be used in several places, saves and deletes remove a stored file only through `deleteIfUnused()` (`src/lib/media.ts`).
 
 ### Styling
 

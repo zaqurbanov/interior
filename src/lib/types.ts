@@ -103,7 +103,10 @@ export type MessageData = {
 
 export type EnquiryStatus = "new" | "replied" | "proposal" | "won" | "lost" | "spam";
 
-export type MediaUsage = { label: string; href: string };
+/** Where the media library groups an image. */
+export type MediaKind = "project" | "service" | "article" | "site" | "revision" | "story";
+/** One place an image is used; `owner` is the project / service / article it belongs to. */
+export type MediaUsage = { label: string; href: string; kind: MediaKind; owner: string };
 
 export type MediaItem = {
   url: string;

@@ -2,7 +2,7 @@ import "server-only";
 import path from "node:path";
 import { connectDB } from "./db";
 import { deleteUpload, isStoredUrl } from "./storage";
-import type { MediaItem, MediaUsage } from "./types";
+import type { MediaItem, MediaKind, MediaUsage } from "./types";
 import { revisionImageUrls } from "./revisions";
 import { isVideoUrl } from "./upload-config";
 import { Article, Media, Project, Service, SiteContent, Story } from "@/models";
@@ -20,31 +20,32 @@ export async function collectUsage(): Promise<Map<string, MediaUsage[]>> {
   ]);
 
   const usage = new Map<string, MediaUsage[]>();
-  const add = (url: string | undefined, label: string, href: string) => {
+  const add = (url: string | undefined, kind: MediaKind, owner: string, label: string, href: string) => {
     if (!url) return;
     const list = usage.get(url) ?? [];
-    if (!list.some((u) => u.label === label)) list.push({ label, href });
+    if (!list.some((u) => u.label === label)) list.push({ label, href, kind, owner });
     usage.set(url, list);
   };
 
   for (const p of projects) {
     const href = `/admin/projects/${p._id}`;
-    add(p.coverImage, `${p.title} — cover`, href);
-    for (const g of p.gallery ?? []) add(g, `${p.title} — gallery`, href);
+    add(p.coverImage, "project", p.title, `${p.title} — cover`, href);
+    for (const g of p.gallery ?? []) add(g, "project", p.title, `${p.title} — gallery`, href);
   }
   for (const a of articles) {
     const href = `/admin/articles/${a._id}`;
-    add(a.coverImage, `${a.title} — article cover`, href);
-    for (const u of articleImages(a.content ?? "")) add(u, `${a.title} — article image`, href);
+    add(a.coverImage, "article", a.title, `${a.title} — article cover`, href);
+    for (const u of articleImages(a.content ?? "")) add(u, "article", a.title, `${a.title} — article image`, href);
   }
-  for (const s of services) add(s.image, `${s.title} — service image`, `/admin/services/${s._id}`);
-  add(site?.seo?.ogImage, "Social sharing image", "/admin/content#brand");
-  for (const m of site?.team ?? []) add(m.photo, `${m.name || "Team member"} — photo`, "/admin/content#team");
+  for (const s of services) add(s.image, "service", s.title, `${s.title} — service image`, `/admin/services/${s._id}`);
+  add(site?.seo?.ogImage, "site", "Social sharing", "Social sharing image", "/admin/content#brand");
+  for (const m of site?.team ?? []) add(m.photo, "site", "Team", `${m.name || "Team member"} — photo`, "/admin/content#team");
   // Kept for "restore": an older version may still point at these.
-  for (const r of await revisionImageUrls()) if (!usage.has(r.url)) add(r.url, `${r.label} — earlier version`, r.href);
+  for (const r of await revisionImageUrls()) if (!usage.has(r.url)) add(r.url, "revision", r.label, `${r.label} — earlier version`, r.href);
   for (const s of stories) {
     const p = projects.find((x) => x.slug === s.slug);
-    for (const v of s.sources ?? []) add(v.url, `${p?.title ?? s.slug} — walkthrough video`, p ? `/admin/projects/${p._id}/story` : "/admin/projects");
+    const title = p?.title ?? s.slug;
+    for (const v of s.sources ?? []) add(v.url, "story", title, `${title} — walkthrough video`, p ? `/admin/projects/${p._id}/story` : "/admin/projects");
   }
   return usage;
 }
