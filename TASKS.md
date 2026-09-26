@@ -6,6 +6,8 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 - Yeni iş → `tasks/<qisa-ad>.md` faylı (aşağıdakı şablonla) + bu indeksdə uyğun bölməyə bir sətir: başlıq, qısa təsvir, link.
 - İş bitəndə → faylı `tasks-archive/`-ə köçür (`git mv`), `Status: bitib` və tarixi/PR-ı yaz, sətri buradan silib [`tasks-archive/README.md`](tasks-archive/README.md)-yə (bölməsinin ən üstünə) əlavə et.
 
+**İdeyalar:** [docs/ideyalar/2026-09-26.md](docs/ideyalar/2026-09-26.md) — ideya agentinin 36 təklifi (ilk 5 tövsiyə yuxarıda). Seçilənlər task olur.
+
 ## Kim edir — icmal (2026-09-26)
 
 Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qruplaşdırılıb. Siyahı dəyişəndə bu icmal da yenilənsin.
