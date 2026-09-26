@@ -57,40 +57,57 @@ export default function SkipArrow({
         ? el.getBoundingClientRect().top + window.scrollY
         : section.getBoundingClientRect().top + window.scrollY + section.offsetHeight;
     };
+    // Where the scroll animation left the page; null while it is still moving.
+    let landedAt: number | null = null;
     const go = (duration: number) => {
       const top = targetTop();
       if (lenis) {
         lenis.resize();
-        lenis.scrollTo(top, { duration, force: true });
+        lenis.scrollTo(top, { duration, force: true, onComplete: () => (landedAt = window.scrollY) });
       } else {
         window.scrollTo({ top, behavior: "smooth" });
       }
     };
     go(1.2);
-    // Images loading underneath can shift the page mid-flight; re-align once.
+
+    // Images loading underneath can shift the page mid-flight; re-align once —
+    // but never once the visitor has taken over: on phones people start
+    // swiping as soon as they land, and a late re-align yanked them back up.
+    let userMoved = false;
+    const takeOver = () => (userMoved = true);
+    const events = ["touchstart", "wheel", "keydown", "pointerdown"] as const;
+    // Registered after this click has finished, so it does not count itself.
+    window.setTimeout(() => events.forEach((ev) => window.addEventListener(ev, takeOver, { passive: true, once: true })), 0);
     window.setTimeout(() => {
+      events.forEach((ev) => window.removeEventListener(ev, takeOver));
+      if (userMoved) return;
+      // Momentum scrolling on phones fires no touch events: compare with where we landed.
+      if (landedAt !== null && Math.abs(window.scrollY - landedAt) > 4) return;
       const off = targetTop() - window.scrollY;
       if (Math.abs(off) > 24) go(0.4);
     }, 1500);
   };
 
+  // A named group: the home sequence's wrapper is itself a `group` (for its
+  // dark-scene styles), and a plain group-hover would light the arrow up
+  // whenever the pointer was anywhere over the animation.
   return (
     <button
       ref={ref}
       type="button"
       onClick={skip}
       aria-label="Skip the animation and continue"
-      className="group absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2 whitespace-nowrap text-ink drop-shadow-[0_2px_14px_rgba(0,0,0,0.75)] transition-colors md:bottom-6"
+      className="group/skip absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2 whitespace-nowrap text-ink drop-shadow-[0_2px_14px_rgba(0,0,0,0.75)] transition-colors md:bottom-6"
     >
       {/* Phones get the short word so the label never wraps over the copy. */}
-      <span className="eyebrow text-[0.6rem] text-ink/85 transition-opacity duration-300 group-hover:opacity-0">
+      <span className="eyebrow text-[0.6rem] text-ink/85 transition-opacity duration-300 group-hover/skip:opacity-0">
         <span className="md:hidden">{locked ? "Continue" : "Scroll"}</span>
         <span className="hidden md:inline">{label}</span>
       </span>
-      <span className="eyebrow absolute top-0 text-[0.6rem] text-bronze opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+      <span className="eyebrow absolute top-0 text-[0.6rem] text-bronze opacity-0 transition-opacity duration-300 group-hover/skip:opacity-100">
         {skipLabel}
       </span>
-      <span className="skip-arrow grid h-11 w-11 place-items-center rounded-full border border-ink/50 bg-ivory/35 transition-colors duration-300 group-hover:border-ink group-hover:bg-ink group-hover:text-ivory">
+      <span className="skip-arrow grid h-11 w-11 place-items-center rounded-full border border-ink/50 bg-ivory/35 transition-colors duration-300 group-hover/skip:border-ink group-hover/skip:bg-ink group-hover/skip:text-ivory">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="h-5 w-5" aria-hidden="true">
           <path d="M12 4v15M6 13.5 12 20l6-6.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

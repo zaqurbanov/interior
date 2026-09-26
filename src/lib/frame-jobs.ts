@@ -10,7 +10,15 @@ import { siteUrl } from "./data";
 //            with ffmpeg installed); frames go to Blob or public/frames
 // FRAME_JOB_DRIVER picks one; otherwise github when a token is set, local off Vercel.
 
-export type FrameJob = { storyId: string; slug: string; version: number; fps: number; sources: { url: string; start: number; duration: number }[] };
+export type FrameJob = {
+  storyId: string;
+  slug: string;
+  version: number;
+  fps: number;
+  sources: { url: string; start: number; duration: number }[];
+  /** Versions under frames/<slug>/ the job must not delete: the built-in walkthrough's frames, which the site falls back to. */
+  keep?: number[];
+};
 
 export function frameJobDriver(): "github" | "local" | null {
   const forced = process.env.FRAME_JOB_DRIVER;

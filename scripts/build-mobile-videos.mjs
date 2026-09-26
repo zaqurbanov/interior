@@ -1,5 +1,7 @@
 // Builds the H.264 videos phones play instead of the frame sequences (they
 // autoplay there, so a real video is 4–6x lighter than hundreds of WebP files).
+// Needs the frames in public/frames (download them from Blob if this is a fresh
+// clone); upload the new MP4s with scripts/frames-to-blob.mjs afterwards.
 // Made from the existing mobile frames, so the source MP4s are not needed:
 //   public/frames/<slug>/v<version>/mobile.mp4   (project walkthroughs)
 //   public/frames/home/v<HOME_VERSION>/mobile.mp4 (home page, scene1 + scene2)
