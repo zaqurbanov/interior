@@ -3,7 +3,7 @@
 // Run by the frame job (src/lib/frame-jobs.ts) — on GitHub Actions
 // (.github/workflows/story-frames.yml) or, on a server with ffmpeg, locally.
 //
-//   STORY_JOB       JSON { storyId, slug, version, fps, sources: [{ url, start, duration }] }
+//   STORY_JOB       JSON { storyId, slug, version, fps, sources: [{ url, start, duration }], keep?: [version] }
 //   STORY_CALLBACK  URL of /api/story-job on the site, told the result
 //   STORY_WEBHOOK_SECRET  signs that call (HMAC-SHA256 of the body)
 //   BLOB_READ_WRITE_TOKEN  set → frames go to Vercel Blob; unset → public/frames
@@ -100,11 +100,13 @@ async function upload(outDir) {
   await Promise.all(workers);
   console.log(`uploaded ${files.length} files to ${base}`);
 
-  // Older versions of this walkthrough are no longer referenced.
+  // Older versions of this walkthrough are no longer referenced — except the
+  // built-in one (`keep`), which the site falls back to if this story is removed.
+  const kept = [prefix, ...(job.keep ?? []).map((v) => `frames/${job.slug}/v${v}`)];
   let cursor;
   do {
     const page = await list({ prefix: `frames/${job.slug}/`, cursor, limit: 1000 });
-    const stale = page.blobs.filter((b) => !b.pathname.startsWith(`${prefix}/`)).map((b) => b.url);
+    const stale = page.blobs.filter((b) => !kept.some((k) => b.pathname.startsWith(`${k}/`))).map((b) => b.url);
     if (stale.length) await del(stale);
     cursor = page.hasMore ? page.cursor : undefined;
   } while (cursor);

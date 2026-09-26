@@ -13,7 +13,7 @@ Açıq işlərin indeksi. Hər tapşırığın ayrıca faylı `tasks/`-dadır; b
 Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qruplaşdırılıb. Siyahı dəyişəndə bu icmal da yenilənsin.
 
 **Claude edə bilər (heç nə lazım deyil):**
-— (hamısı görüldü, 2026-09-26). Kadrların Blob-a köçməsi üçün kod hazırdır, [yükləmə istifadəçidədir](tasks/kadrlari-blob-a-kocurmek.md).
+— (hamısı görüldü, 2026-09-26). Kadrlar Blob-a köçdü və repodan çıxarıldı.
 
 **İstifadəçi edir — Vercel / GitHub / Resend / admin (Claude addım-addım göstərir):**
 
@@ -53,7 +53,6 @@ Aşağıdakı bölmələrin eyni işləri, kimin etməli olduğuna görə qrupla
 ## Admin panel
 
 - **[Admin panelin real (bazalı) yoxlanması](tasks/admin-real-yoxlama.md)** — Mərhələ 1–3 və sayt məzmunu bazasız sessiyada yazılıb; Vercel preview-da baza və Blob ilə sınanmalıdır.
-- **[Mövcud kadrları Blob-a köçürmək](tasks/kadrlari-blob-a-kocurmek.md)** — Kod və yükləmə skripti hazırdır; qalan: skripti işlətmək, `NEXT_PUBLIC_FRAMES_BASE`-i Vercel-ə yazmaq, sonra `public/frames`-i git-dən silmək.
 
 ## Admin — doldurmaq
 

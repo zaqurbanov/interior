@@ -1,5 +1,6 @@
 // Scroll-driven walkthroughs for individual projects. The stories below are
-// the built-in set (frames in public/frames, from scripts/extract-project-frames.mjs);
+// the built-in set (frames made by scripts/extract-project-frames.mjs and uploaded
+// to Blob with scripts/frames-to-blob.mjs);
 // stories edited in the admin live in MongoDB (Story model) and take
 // precedence — see getStory() in lib/data.ts.
 import { FRAMES_BASE } from "./frames-base";

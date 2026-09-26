@@ -97,7 +97,15 @@ export async function generateFrames(projectId: string, input: z.input<typeof so
     await deleteIfUnused(dropped);
 
     try {
-      await startFrameJob({ storyId: String(story._id), slug, version, fps: parsed.data.fps, sources: parsed.data.sources });
+      const builtin = getProjectStory(slug);
+      await startFrameJob({
+        storyId: String(story._id),
+        slug,
+        version,
+        fps: parsed.data.fps,
+        sources: parsed.data.sources,
+        keep: builtin ? [builtin.version] : [],
+      });
     } catch (e) {
       story.job = { status: "failed", version, error: e instanceof Error ? e.message : "Could not start the job.", startedAt: story.job.startedAt };
       await story.save();

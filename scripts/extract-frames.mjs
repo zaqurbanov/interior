@@ -1,5 +1,7 @@
 // Extracts the scene videos into WebP image sequences used by the scroll animation.
 // Requires ffmpeg on PATH. Usage: npm run frames
+// Output goes to public/frames (not in git): upload it afterwards with
+//   node --env-file=.env.local scripts/frames-to-blob.mjs
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readdirSync, rmSync } from "node:fs";
 

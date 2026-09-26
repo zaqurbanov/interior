@@ -13,3 +13,6 @@ public/uploads/*
 
 # QA crawler output (scripts/qa-crawl.mjs)
 /qa-reports/
+
+# Frames live in Vercel Blob (scripts/frames-to-blob.mjs); this is only the extract scripts' local output.
+/public/frames/
