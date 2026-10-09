@@ -114,7 +114,8 @@ export function toSiteContent(d: any): SiteContentData {
       return s?.title ? { eyebrow: str(s.eyebrow), title: str(s.title), text: str(s.text) } : fallback;
     }),
     aboutTitle: pick(d?.aboutTitle, def.aboutTitle),
-    aboutText: pick(d?.aboutText, def.aboutText),
+    // Textareas submit CRLF; pages split paragraphs on blank "\n" lines.
+    aboutText: pick(d?.aboutText, def.aboutText).replace(/\r\n?/g, "\n"),
     portfolioIntro: pick(d?.portfolioIntro, def.portfolioIntro),
     showreel: str(d?.showreel ?? def.showreel),
     team: d?.team?.length

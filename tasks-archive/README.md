@@ -45,6 +45,7 @@ Bitmiş işlərin indeksi. Hər işin faylı bu qovluqdadır; açıq işlər [`.
 
 ## SEO
 
+- **[Search Console bildirişləri](seo-search-console-bildirisleri.md)** _(2026-10-09)_ — Domen keçidindən sonrakı 5 bildiriş: dördü normaldır; `/about` ana səhifənin kopyası sayılırdı — mətn ayrıldı, abzas bölgüsü düzəldildi.
 - **[Domen yeni sayta bağlandı, köhnə linklər yönləndirildi](animasiya-linkleri-404.md)** _(2026-09-26)_ — GoDaddy DNS → Vercel; `/portfolio`, `/portfoliocard/*` → yeni ünvanlar.
 - **[Jurnal: admin paneldən məqalələr](jurnal-meqaleler.md)** _(2026-09-26)_ — `/journal`, admin → Journal: şəkilli redaktor, kateqoriya/teq, əlaqəli layihələr, planlaşdırma, JSON-LD, RSS, sitemap.
 - **[`VideoObject` strukturlaşdırılmış məlumatı](seo-videoobject.md)** _(2026-09-25)_ — Layihə və ana səhifə videoları Google üçün təsvir olundu (MP4, YouTube, Vimeo).

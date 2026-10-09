@@ -27,6 +27,7 @@ const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").rep
 /** Plain text (blank-line paragraphs) → HTML paragraphs. */
 export const textToHtml = (s: string) =>
   s
+    .replace(/\r\n?/g, "\n")
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)

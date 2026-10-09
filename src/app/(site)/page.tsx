@@ -74,12 +74,10 @@ export default async function HomePage() {
           <h2 className="reveal font-serif text-[clamp(2.2rem,4.8vw,4.4rem)] font-light leading-[1.02] text-ink">
             {site.aboutTitle}
           </h2>
-          <div className="mt-10 max-w-2xl space-y-5 text-lg leading-relaxed text-graphite">
-            {site.aboutText.split(/\n{2,}/).map((p, i) => (
-              <p key={i} className="reveal">{p}</p>
-            ))}
-          </div>
-          <Link href="/about" className="reveal link-underline mt-8 inline-block pb-1 text-sm">Meet the team →</Link>
+          {/* Only the opening paragraph: the full text lives on /about, which
+              Google otherwise files as a duplicate of this page. */}
+          <p className="reveal mt-10 max-w-2xl text-lg leading-relaxed text-graphite">{site.aboutText.split(/\n{2,}/)[0]}</p>
+          <Link href="/about" className="reveal link-underline mt-8 inline-block pb-1 text-sm">About the studio and team →</Link>
           <dl className="mt-16 grid grid-cols-2 gap-y-10 border-t border-ink/10 pt-10 md:grid-cols-4">
             {site.stats.map((s) => (
               <div key={s.label} className="reveal flex flex-col-reverse">
